@@ -267,7 +267,7 @@
 
     <div class="top-bar liquid-glass">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search a district or area in Berlin…" />
+        <input type="text" id="searchInput" placeholder="Search a street, address, or zip code in Berlin…" />
         <button class="icon-btn" onclick="openFilterModal()" title="Filter">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
         </button>
@@ -406,6 +406,12 @@
 
             <label>🔌 Utilities Included? <span class="required-marker">*</span></label>
             <div class="yesno" id="utilitiesGroup" data-single>
+                <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
+                <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+            </div>
+
+            <label>📝 Anmeldung Provided? <span class="required-marker">*</span></label>
+            <div class="yesno" id="anmeldungGroup" data-single>
                 <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
                 <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
             </div>
@@ -575,7 +581,8 @@
                 household: row.household, peopleAllowed: row.people_allowed, parking: row.parking,
                 utilitiesIncluded: row.utilities_included, stayRating: row.stay_rating, area: row.area,
                 oneLiner: row.one_liner, letterbox: row.letterbox, pets: row.pets, smoking: row.smoking,
-                neighbourhoodRating: row.neighbourhood_rating
+                neighbourhoodRating: row.neighbourhood_rating, anmeldungProvided: row.anmeldung_provided,
+                createdAt: row.created_at
             };
         }
 
@@ -697,11 +704,11 @@
         }
 
         const sampleRents = [
-            { lat: 52.5200, lng: 13.4050, cold: 850, warm: 1010, deposit: 1700, bhk: 2, district: 'Mitte', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'No', utilitiesIncluded: 'Yes', stayRating: 4, area: 62, oneLiner: 'Quiet street, responsive landlord', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4 },
-            { lat: 52.5100, lng: 13.3800, cold: 920, warm: 1080, deposit: 1840, bhk: 1, district: 'Friedrichshain-Kreuzberg', furnished: true, privacy: 'Shared / Room', household: 'Bachelor\'s / Single', peopleAllowed: 1, parking: 'No', utilitiesIncluded: 'No', stayRating: 5, area: 28, oneLiner: 'Great nightlife, a bit noisy on weekends', letterbox: 'No', pets: 'Yes', smoking: 'Yes', neighbourhoodRating: 5 },
-            { lat: 52.5300, lng: 13.4200, cold: 1100, warm: 1290, deposit: 2200, bhk: 3, district: 'Pankow', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 4, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 4, area: 88, oneLiner: 'Great for families, near parks', letterbox: 'Yes', pets: 'Yes', smoking: 'No', neighbourhoodRating: 5 },
-            { lat: 52.4950, lng: 13.3900, cold: 750, warm: 890, deposit: 1500, bhk: 1, district: 'Neukölln', furnished: false, privacy: 'Whole flat (Private)', household: 'Either', peopleAllowed: 2, parking: 'No', utilitiesIncluded: 'No', stayRating: 3, area: 42, oneLiner: 'Up-and-coming area, good value', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 3 },
-            { lat: 52.5250, lng: 13.3950, cold: 1250, warm: 1430, deposit: 2500, bhk: 2, district: 'Tempelhof-Schöneberg', furnished: true, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 5, area: 70, oneLiner: 'Beautiful old building, friendly neighbours', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4 }
+            { lat: 52.5200, lng: 13.4050, cold: 850, warm: 1010, deposit: 1700, bhk: 2, district: 'Mitte', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'No', utilitiesIncluded: 'Yes', stayRating: 4, area: 62, oneLiner: 'Quiet street, responsive landlord', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes' },
+            { lat: 52.5100, lng: 13.3800, cold: 920, warm: 1080, deposit: 1840, bhk: 1, district: 'Friedrichshain-Kreuzberg', furnished: true, privacy: 'Shared / Room', household: 'Bachelor\'s / Single', peopleAllowed: 1, parking: 'No', utilitiesIncluded: 'No', stayRating: 5, area: 28, oneLiner: 'Great nightlife, a bit noisy on weekends', letterbox: 'No', pets: 'Yes', smoking: 'Yes', neighbourhoodRating: 5, anmeldungProvided: 'No' },
+            { lat: 52.5300, lng: 13.4200, cold: 1100, warm: 1290, deposit: 2200, bhk: 3, district: 'Pankow', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 4, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 4, area: 88, oneLiner: 'Great for families, near parks', letterbox: 'Yes', pets: 'Yes', smoking: 'No', neighbourhoodRating: 5, anmeldungProvided: 'Yes' },
+            { lat: 52.4950, lng: 13.3900, cold: 750, warm: 890, deposit: 1500, bhk: 1, district: 'Neukölln', furnished: false, privacy: 'Whole flat (Private)', household: 'Either', peopleAllowed: 2, parking: 'No', utilitiesIncluded: 'No', stayRating: 3, area: 42, oneLiner: 'Up-and-coming area, good value', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 3, anmeldungProvided: 'No' },
+            { lat: 52.5250, lng: 13.3950, cold: 1250, warm: 1430, deposit: 2500, bhk: 2, district: 'Tempelhof-Schöneberg', furnished: true, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 5, area: 70, oneLiner: 'Beautiful old building, friendly neighbours', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes' }
         ];
 
         function renderRentPin(d) {
@@ -729,9 +736,42 @@
         loadRents();
 
         /* ===================================================================
+           ADDRESS SEARCH — free, keyless geocoding via OpenStreetMap's
+           Nominatim API (no Google Maps needed). Scoped to Berlin so a
+           street + house number or a zip code resolves to the right spot.
+           =================================================================== */
+        async function searchLocation() {
+            const input = document.getElementById('searchInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Berlin, Germany')}`;
+            try {
+                const res = await fetch(url);
+                const results = await res.json();
+                if (!results.length) {
+                    alert('Could not find that address in Berlin. Try including the street name, house number, or zip code.');
+                    return;
+                }
+                map.flyTo([parseFloat(results[0].lat), parseFloat(results[0].lon)], 17);
+            } catch (err) {
+                alert('Search failed — please check your connection and try again.');
+            }
+        }
+        document.getElementById('searchInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') searchLocation();
+        });
+
+        /* ===================================================================
            RENT DETAIL SPLASH SCREEN — shown on pill click.
            =================================================================== */
         function starString(n) { return n ? '⭐'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n)) : ''; }
+
+        function daysAgo(dateStr) {
+            if (!dateStr) return null;
+            const diffMs = Date.now() - new Date(dateStr).getTime();
+            return Math.max(0, Math.floor(diffMs / 86400000));
+        }
 
         function showRentDetail(d) {
             document.getElementById('detailPrice').textContent = `€${d.warm}${d.cold ? ' / €' + d.cold + ' cold' : ''}`;
@@ -746,14 +786,20 @@
                 { label: d.parking === 'Yes' ? '🅿️ Parking' : '🅿️ No parking', cls: 'badge-neutral' },
                 { label: `🔌 Utilities ${d.utilitiesIncluded}`, cls: 'badge-neutral' }
             ];
+            if (d.anmeldungProvided) badges.push({ label: `📝 Anmeldung ${d.anmeldungProvided}`, cls: 'badge-neutral' });
             if (d.area) badges.push({ label: `📐 ${d.area} m²`, cls: 'badge-neutral' });
             if (d.pets) badges.push({ label: `🐾 Pets ${d.pets}`, cls: 'badge-neutral' });
             if (d.smoking) badges.push({ label: `🚬 Smoking ${d.smoking}`, cls: 'badge-neutral' });
-            if (d.letterbox) badges.push({ label: `📮 Letterbox ${d.letterbox}`, cls: 'badge-neutral' });
+            if (d.letterbox) badges.push({ label: `📮 Name on Letterbox: ${d.letterbox}`, cls: 'badge-neutral' });
 
             document.getElementById('detailBadges').innerHTML = badges.map(b => `<span class="badge ${b.cls}">${b.label}</span>`).join('');
 
             let extraHtml = `<div class="detail-label">📍 ${d.district}</div>`;
+            const daysSince = daysAgo(d.createdAt);
+            if (daysSince !== null) {
+                const daysLabel = daysSince === 0 ? 'Listed today' : `Listed ${daysSince} day${daysSince === 1 ? '' : 's'} ago`;
+                extraHtml += `<div class="detail-note" style="margin-top:8px;">🕐 ${daysLabel}</div>`;
+            }
             if (d.stayRating) extraHtml += `<div style="margin-top:8px;"><div class="detail-label">STAY RATING</div><div class="detail-stars">${starString(d.stayRating)}</div></div>`;
             if (d.neighbourhoodRating) extraHtml += `<div style="margin-top:10px;"><div class="detail-label">NEIGHBOURHOOD RATING</div><div class="detail-stars">${starString(d.neighbourhoodRating)}</div></div>`;
             if (d.oneLiner) extraHtml += `<div class="detail-note" style="margin-top:14px;">💬 "${d.oneLiner}"</div>`;
@@ -878,8 +924,9 @@
             const pets = document.querySelector('#petsGroup .chip.active');
             const smoking = document.querySelector('#smokingGroup .chip.active');
             const neighbourhoodRating = document.getElementById('neighbourhoodRatingStars').dataset.value;
+            const anmeldung = document.querySelector('#anmeldungGroup .chip.active');
 
-            if (!warm || !deposit || !bhk || !district || !furnished || !privacy || !household || !peopleAllowed || !parking || !utilitiesIncluded || !stayRating || stayRating === '0') {
+            if (!warm || !deposit || !bhk || !district || !furnished || !privacy || !household || !peopleAllowed || !parking || !utilitiesIncluded || !anmeldung || !stayRating || stayRating === '0') {
                 alert('Please fill in all mandatory fields (marked *).');
                 return;
             }
@@ -900,7 +947,9 @@
                 letterbox: letterbox ? letterbox.textContent.trim() : null,
                 pets: pets ? pets.textContent.trim() : null,
                 smoking: smoking ? smoking.textContent.trim() : null,
-                neighbourhoodRating: neighbourhoodRating && neighbourhoodRating !== '0' ? parseInt(neighbourhoodRating) : null
+                neighbourhoodRating: neighbourhoodRating && neighbourhoodRating !== '0' ? parseInt(neighbourhoodRating) : null,
+                anmeldungProvided: anmeldung.textContent.trim(),
+                createdAt: new Date().toISOString()
             };
 
             const submitBtn = document.querySelector('#addRentModal .float-btn.primary');
@@ -913,7 +962,7 @@
                 household: rent.household, people_allowed: rent.peopleAllowed, parking: rent.parking,
                 utilities_included: rent.utilitiesIncluded, stay_rating: rent.stayRating, area: rent.area,
                 one_liner: rent.oneLiner, letterbox: rent.letterbox, pets: rent.pets, smoking: rent.smoking,
-                neighbourhood_rating: rent.neighbourhoodRating
+                neighbourhood_rating: rent.neighbourhoodRating, anmeldung_provided: rent.anmeldungProvided
             });
 
             submitBtn.disabled = false;
