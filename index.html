@@ -99,7 +99,7 @@
         .brand-chip .dot { color: var(--accent); }
 
         .theme-toggle-float {
-            position: fixed; top: 16px; right: 16px; z-index: 400; border-radius: 999px; padding: 4px;
+            position: fixed; bottom: 24px; right: 16px; z-index: 400; border-radius: 999px; padding: 4px;
         }
 
         /* ============ ACTION ROW — directly under the search bar ============ */
@@ -239,7 +239,9 @@
 
         .info-banner {
             position: fixed; top: 78px; left: 16px; padding: 12px 16px; border-radius: 12px; max-width: 260px; font-size: 12px; z-index: 399; color: var(--text-muted);
+            opacity: 1; transition: opacity 0.4s ease; pointer-events: none;
         }
+        .info-banner.hide { opacity: 0; }
 
         .stats-modal { max-width: 620px; }
         .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
@@ -261,7 +263,7 @@
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="Search a street, address, or zip code in Berlin…" />
         <button class="icon-btn" onclick="openFilterModal()" title="Filter">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         </button>
     </div>
 
@@ -1056,6 +1058,16 @@
         document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
             backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.classList.remove('open'); });
         });
+
+        /* Splash the "Tip" banner briefly on load, then fade it out so it
+           never sits long enough to overlap the action row on narrow/mobile
+           viewports. */
+        setTimeout(() => {
+            const banner = document.querySelector('.info-banner');
+            if (!banner) return;
+            banner.classList.add('hide');
+            setTimeout(() => banner.remove(), 400);
+        }, 1000);
     </script>
     <!-- Google Maps JS API. `loading=async` + `callback=initMap` per Google's
          recommended async-loading pattern; initMap() (defined above) is
