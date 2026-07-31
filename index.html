@@ -314,7 +314,7 @@
                 <span class="chip" onclick="toggleChip(this)">4+</span>
             </div>
 
-            <label>❄️ Monthly Cold Rent — Kaltmiete (€)</label>
+            <label>🔥 Monthly Warm Rent — Warmmiete (€)</label>
             <div class="form-row">
                 <input type="number" id="rentMin" placeholder="Min" />
                 <input type="number" id="rentMax" placeholder="Max" />
@@ -346,10 +346,10 @@
 
             <div class="section-label">Mandatory</div>
 
-            <label>❄️ Cold Rent — Kaltmiete (€) <span class="required-marker">*</span></label>
-            <input type="number" id="rentCold" placeholder="e.g., 850" />
-            <label>🔥 Warm Rent — Warmmiete (€), if known</label>
+            <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
             <input type="number" id="rentWarm" placeholder="e.g., 1020" />
+            <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
+            <input type="number" id="rentCold" placeholder="e.g., 850" />
 
             <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
             <input type="number" id="rentDeposit" placeholder="e.g., 2 months' rent" />
@@ -455,7 +455,7 @@
     <div class="modal-backdrop" id="rentDetailModal">
         <div class="modal-card detail-card">
             <button class="close-btn" onclick="closeRentDetailModal()">×</button>
-            <div class="detail-label">MONTHLY RENT (COLD)</div>
+            <div class="detail-label">MONTHLY RENT (WARM)</div>
             <div class="detail-price" id="detailPrice"></div>
             <div class="badge-row" id="detailBadges"></div>
             <div class="detail-divider"></div>
@@ -557,7 +557,28 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        /* ===================================================================
+           SUPABASE — real backend. Anonymous public "anon" key is safe to
+           embed client-side by design; Row Level Security policies (see
+           supabase-schema.sql) restrict it to insert + select only.
+           =================================================================== */
+        const SUPABASE_URL = 'https://meaiajvcjadzvcxwhtfx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYWlhanZjamFkenZjeHdodGZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTgzNzEsImV4cCI6MjEwMTA3NDM3MX0.82g7IvvMZWQJ3EOMn_fKPFOCGqQuYjbgKfOgNc6HePw';
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function rowToRent(row) {
+            return {
+                lat: row.lat, lng: row.lng, cold: row.cold, warm: row.warm, deposit: row.deposit,
+                bhk: row.bhk, district: row.district, furnished: row.furnished, privacy: row.privacy,
+                household: row.household, peopleAllowed: row.people_allowed, parking: row.parking,
+                utilitiesIncluded: row.utilities_included, stayRating: row.stay_rating, area: row.area,
+                oneLiner: row.one_liner, letterbox: row.letterbox, pets: row.pets, smoking: row.smoking,
+                neighbourhoodRating: row.neighbourhood_rating
+            };
+        }
+
         /* ===================================================================
            THEME
            =================================================================== */
@@ -670,7 +691,7 @@
             return n >= 1000 ? '€' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : '€' + n;
         }
         function pillLabel(d) {
-            let label = `${d.bhk}BHK · ${formatPrice(d.cold)}`;
+            let label = `${d.bhk}BHK · ${formatPrice(d.warm ?? d.cold)}`;
             if (d.stayRating) label += ` · <span style="color:#ffd54a;">★${d.stayRating}</span>`;
             return label;
         }
@@ -693,7 +714,19 @@
             const marker = L.marker([d.lat, d.lng], { icon }).addTo(map);
             marker.on('click', () => showRentDetail(d));
         }
-        sampleRents.forEach(renderRentPin);
+
+        /* Load real rent pins from Supabase. Falls back to the hardcoded
+           sample pins only if the table is empty/unreachable, so the map
+           never looks broken (e.g. before supabase-schema.sql has been run). */
+        async function loadRents() {
+            const { data, error } = await sbClient.from('rents').select('*');
+            if (error || !data || !data.length) {
+                sampleRents.forEach(renderRentPin);
+                return;
+            }
+            data.forEach(row => renderRentPin(rowToRent(row)));
+        }
+        loadRents();
 
         /* ===================================================================
            RENT DETAIL SPLASH SCREEN — shown on pill click.
@@ -701,7 +734,7 @@
         function starString(n) { return n ? '⭐'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n)) : ''; }
 
         function showRentDetail(d) {
-            document.getElementById('detailPrice').textContent = `€${d.cold}${d.warm ? ' / €' + d.warm + ' warm' : ''}`;
+            document.getElementById('detailPrice').textContent = `€${d.warm}${d.cold ? ' / €' + d.cold + ' cold' : ''}`;
 
             const badges = [
                 { label: `${d.bhk} BHK`, cls: 'badge-accent' },
@@ -826,7 +859,7 @@
             document.querySelectorAll('#filterModal .chip').forEach(c => c.classList.remove('active'));
         }
 
-        function submitRentPin() {
+        async function submitRentPin() {
             const cold = document.getElementById('rentCold').value;
             const warm = document.getElementById('rentWarm').value;
             const deposit = document.getElementById('rentDeposit').value;
@@ -846,7 +879,7 @@
             const smoking = document.querySelector('#smokingGroup .chip.active');
             const neighbourhoodRating = document.getElementById('neighbourhoodRatingStars').dataset.value;
 
-            if (!cold || !deposit || !bhk || !district || !furnished || !privacy || !household || !peopleAllowed || !parking || !utilitiesIncluded || !stayRating || stayRating === '0') {
+            if (!warm || !deposit || !bhk || !district || !furnished || !privacy || !household || !peopleAllowed || !parking || !utilitiesIncluded || !stayRating || stayRating === '0') {
                 alert('Please fill in all mandatory fields (marked *).');
                 return;
             }
@@ -855,21 +888,44 @@
             const lat = modal.dataset.lat ? parseFloat(modal.dataset.lat) : 52.52 + (Math.random() - 0.5) * 0.08;
             const lng = modal.dataset.lng ? parseFloat(modal.dataset.lng) : 13.405 + (Math.random() - 0.5) * 0.12;
 
-            renderRentPin({
-                lat, lng, cold, warm: warm || null, deposit, bhk, district,
+            const rent = {
+                lat, lng, warm: parseFloat(warm), cold: cold ? parseFloat(cold) : null, deposit: parseFloat(deposit),
+                bhk: parseInt(bhk), district,
                 furnished: !furnished.textContent.includes('Unfurnished'),
                 privacy: privacy.textContent.trim(), household: household.textContent.trim(),
-                peopleAllowed, parking: parking.textContent.trim(),
+                peopleAllowed: parseInt(peopleAllowed), parking: parking.textContent.trim(),
                 utilitiesIncluded: utilitiesIncluded.textContent.trim(),
-                stayRating: parseInt(stayRating), area: area || null,
+                stayRating: parseInt(stayRating), area: area ? parseFloat(area) : null,
                 oneLiner: oneLiner || null,
                 letterbox: letterbox ? letterbox.textContent.trim() : null,
                 pets: pets ? pets.textContent.trim() : null,
                 smoking: smoking ? smoking.textContent.trim() : null,
                 neighbourhoodRating: neighbourhoodRating && neighbourhoodRating !== '0' ? parseInt(neighbourhoodRating) : null
+            };
+
+            const submitBtn = document.querySelector('#addRentModal .float-btn.primary');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting…';
+
+            const { error } = await sbClient.from('rents').insert({
+                lat: rent.lat, lng: rent.lng, cold: rent.cold, warm: rent.warm, deposit: rent.deposit,
+                bhk: rent.bhk, district: rent.district, furnished: rent.furnished, privacy: rent.privacy,
+                household: rent.household, people_allowed: rent.peopleAllowed, parking: rent.parking,
+                utilities_included: rent.utilitiesIncluded, stay_rating: rent.stayRating, area: rent.area,
+                one_liner: rent.oneLiner, letterbox: rent.letterbox, pets: rent.pets, smoking: rent.smoking,
+                neighbourhood_rating: rent.neighbourhoodRating
             });
 
-            alert(`Rent pin submitted!\n€${cold}/mo cold rent • ${bhk} BHK • ${district}\n\n(Mock submission — would save to Supabase)`);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Anonymously';
+
+            if (error) {
+                alert('Could not save your rent pin — please try again.\n\n' + error.message);
+                return;
+            }
+
+            renderRentPin(rent);
+            alert(`Rent pin submitted!\n€${warm}/mo warm rent • ${bhk} BHK • ${district}\n\nSaved — visible to everyone now.`);
             closeAddRentModal();
         }
 
