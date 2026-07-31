@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>berlin.rent — Real Rents & Flats in Berlin — No Brokerage</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Maps JS API variant — no external map CSS needed (Leaflet CSS removed).
+         The Google Maps JS API <script> tag is loaded at the end of <body> with &loading=async. -->
     <style>
         :root[data-theme="light"] {
             color-scheme: light;
@@ -52,23 +53,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
 
-        #map { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg); }
-        /* Dark theme reuses the colourful Voyager tiles (which carry POI/landmark
-           icons) and inverts them into a dark map, instead of CartoDB's separate
-           "Dark Matter" tiles — those are flatter, sparse on labels, and have no
-           POI icons at all since they're a minimal raster style. */
-        #map.dark-tiles .leaflet-tile-pane {
-            filter: invert(1) hue-rotate(180deg) brightness(0.94) contrast(0.88) saturate(0.75);
-        }
-        /* While the Transit (ÖPNVKarte) style is active, don't invert it — it's
-           already a light, purpose-built rail map and inversion makes it unreadable. */
-        #map.dark-tiles.transit-mode .leaflet-tile-pane {
-            filter: none;
-        }
-        .leaflet-control-zoom { border: none !important; margin: 0 0 24px 16px !important; }
-        .leaflet-control-zoom a { color: var(--text) !important; background: var(--surface) !important; border-color: var(--border) !important; }
-        .leaflet-control-attribution { background: var(--surface-glass) !important; color: var(--text-muted) !important; font-size: 10px !important; }
-        .leaflet-control-attribution a { color: var(--text-muted) !important; }
+        #map { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; background: var(--bg); }
+        /* Google Maps theming (light/dark) is handled entirely via the MapOptions
+           `styles` array (see DARK_MAP_STYLE / LIGHT_MAP_STYLE in the script below),
+           applied at init and swapped via map.setOptions() on theme toggle — no CSS
+           filter trick needed like the Leaflet/CartoDB version. */
 
         /* ============ LIQUID GLASS (Apple-style translucent surface) ============ */
         .liquid-glass {
@@ -213,13 +202,17 @@
         .click-menu-item:hover { background: var(--accent-soft); }
         .click-menu-note { font-size: 11px; color: var(--text-muted); padding: 6px 12px 2px; }
 
-        /* ============ RENT PILL MARKERS (always-visible on-map labels) ============ */
+        /* ============ RENT PILL MARKERS (always-visible on-map labels) ============
+           Rendered by the RentPill custom google.maps.OverlayView (see script),
+           which positions this div with absolute left/top pixel coordinates
+           derived from the map projection — hence position:absolute + a
+           translate() to anchor the pill's bottom-center tip at the lat/lng. */
         .rent-pill {
+            position: absolute; transform: translate(-50%, -100%);
             background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 60%), var(--accent);
             color: #fff; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; white-space: nowrap;
             border: 1px solid rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 5px;
-            position: relative;
         }
         .rent-pill::after {
             content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
@@ -227,7 +220,6 @@
             border-top: 6px solid var(--accent);
         }
         .rent-pill:hover { filter: brightness(1.08); }
-        .rent-pill-icon { background: none !important; border: none !important; }
 
         /* ============ DETAIL SPLASH MODAL ============ */
         .detail-card { max-width: 420px; padding: 20px; }
@@ -562,7 +554,6 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         /* ===================================================================
@@ -600,6 +591,9 @@
             updateThemeButton(next);
             applyMapTheme(next);
         }
+        /* applyMapTheme is defined further down (Google Maps section) once `map`
+           exists; it's referenced here but only ever called after initMap() has
+           run, since the theme button isn't interactive until the page has loaded. */
         function updateThemeButton(theme) {
             document.getElementById('themeIcon').textContent = theme === 'light' ? '🌙' : '☀️';
         }
@@ -624,69 +618,141 @@
         populateDistrictSelects();
 
         /* ===================================================================
-           MAP — Leaflet + free CartoDB Voyager raster tiles (no API key
-           needed, works fine straight off a local file:// path, unlike
-           Google Maps JS API which requires an http(s) origin).
-           Voyager is used for BOTH themes because — unlike CartoDB's
-           separate "Dark Matter" style — it carries full POI/landmark
-           icons (supermarkets, S-/U-Bahn stations, shops) and real road
-           colours. For dark mode we invert it with a CSS filter (applied
-           to #map.dark-tiles above) instead of switching to a flatter,
-           icon-less dark tile set.
+           MAP — Google Maps JS API.
+           NOTE ON THE ASYNC-LOAD BUG: `RentPill` (below) must NOT be declared
+           as a top-level `class RentPill extends google.maps.OverlayView {...}`
+           — that class body is evaluated at *parse* time, which happens before
+           the async Google Maps script has finished loading and attached
+           `google.maps` to the page, throwing `ReferenceError: google is not
+           defined`. The fix: declare `let RentPill;` at top level, and build
+           the actual class inside `defineRentPillClass()`, which is called as
+           the very first statement inside `initMap()` — by which point Google
+           has already invoked the callback, guaranteeing `google.maps` exists.
            =================================================================== */
-        const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-        const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
-
-        const map = L.map('map', { zoomControl: true }).setView([52.52, 13.405], 13);
         const mapEl = document.getElementById('map');
-        const baseLayer = L.tileLayer(TILE_LIGHT, { attribution: TILE_ATTRIBUTION, maxZoom: 19, subdomains: 'abcd' }).addTo(map);
-
-        function applyMapTheme(theme) {
-            mapEl.classList.toggle('dark-tiles', theme === 'dark');
-        }
-        applyMapTheme(savedTheme);
-
-        /* Transit (S-Bahn/U-Bahn/rail) toggle — swaps the entire base tile
-           style to ÖPNVKarte (memomaps.de), a free key-less rail-focused map.
-           OpenRailwayMap's tiles were tried first but return HTTP 403 on
-           direct/hotlinked requests (server-side block), so this dedicated
-           style is used instead — it's a full alternate basemap rather than a
-           transparent overlay, so we swap the base layer's URL in place with
-           setUrl() instead of stacking a second tile layer on top. */
-        const TRANSIT_TILE_URL = 'https://tile.memomaps.de/tilegen/{z}/{x}/{y}.png';
-        const TRANSIT_ATTRIBUTION = 'Map style: <a href="https://öpnvkarte.de">ÖPNVKarte</a> — data: <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        let map;
+        let transitLayer;
         let transitActive = false;
-        function toggleTransitLayer() {
-            const btn = document.getElementById('transitBtn');
-            transitActive = !transitActive;
-            if (transitActive) {
-                baseLayer.setUrl(TRANSIT_TILE_URL);
-                mapEl.classList.add('transit-mode');
-                btn.classList.add('active-toggle');
-            } else {
-                baseLayer.setUrl(TILE_LIGHT);
-                mapEl.classList.remove('transit-mode');
-                btn.classList.remove('active-toggle');
-            }
-        }
-
+        let pixelProjectionHelper;
         let clickMenuLatLng = null;
         let myLocationMarker = null;
         const clickMenuEl = document.getElementById('clickMenu');
 
-        map.on('click', (e) => {
-            clickMenuLatLng = e.latlng;
-            const point = map.latLngToContainerPoint(e.latlng);
-            clickMenuEl.style.left = (point.x + 12) + 'px';
-            clickMenuEl.style.top = (point.y + 12) + 'px';
-            clickMenuEl.classList.add('open');
-        });
-        map.on('movestart', () => clickMenuEl.classList.remove('open'));
-        document.addEventListener('click', (e) => {
-            if (!clickMenuEl.contains(e.target) && !e.target.closest('#map')) {
-                clickMenuEl.classList.remove('open');
-            }
-        });
+        /* Light = Google's default styling (styles: []). Dark = a standard,
+           widely-used dark JSON style (Google doesn't need a raster-tile swap
+           like the old CartoDB/ÖPNVKarte version — it's just a styles array). */
+        const LIGHT_MAP_STYLE = [];
+        const DARK_MAP_STYLE = [
+            { elementType: 'geometry', stylers: [{ color: '#17191d' }] },
+            { elementType: 'labels.text.stroke', stylers: [{ color: '#17191d' }] },
+            { elementType: 'labels.text.fill', stylers: [{ color: '#8f96a3' }] },
+            { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#3a3f47' }] },
+            { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#202329' }] },
+            { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+            { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1c2b22' }] },
+            { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#4f8f66' }] },
+            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2d33' }] },
+            { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1c20' }] },
+            { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#8f96a3' }] },
+            { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#33373f' }] },
+            { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#26292f' }] },
+            { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#9aa1ad' }] },
+            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f2e35' }] },
+            { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3d8a9c' }] }
+        ];
+
+        function applyMapTheme(theme) {
+            if (!map) return; // Google Maps script may not have finished loading yet
+            map.setOptions({ styles: theme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE });
+        }
+
+        /* Transit (S-Bahn/U-Bahn/rail) toggle — uses Google's native
+           TransitLayer instead of the old raster-tile-swap-to-ÖPNVKarte trick,
+           which is simpler and more correct for Google Maps. */
+        function toggleTransitLayer() {
+            const btn = document.getElementById('transitBtn');
+            transitActive = !transitActive;
+            transitLayer.setMap(transitActive ? map : null);
+            btn.classList.toggle('active-toggle', transitActive);
+        }
+
+        /* RentPill is declared here but its class body is built lazily inside
+           defineRentPillClass() (called from initMap) — see the async-load
+           bug note above. */
+        let RentPill;
+        function defineRentPillClass() {
+            RentPill = class extends google.maps.OverlayView {
+                constructor(position, data) {
+                    super();
+                    this.position = position;
+                    this.data = data;
+                    this.div = null;
+                }
+                onAdd() {
+                    const div = document.createElement('div');
+                    div.className = 'rent-pill';
+                    div.innerHTML = pillLabel(this.data);
+                    div.addEventListener('click', (ev) => { ev.stopPropagation(); showRentDetail(this.data); });
+                    this.div = div;
+                    this.getPanes().overlayMouseTarget.appendChild(div);
+                }
+                draw() {
+                    const proj = this.getProjection();
+                    if (!proj || !this.div) return;
+                    const pos = proj.fromLatLngToDivPixel(this.position);
+                    this.div.style.left = pos.x + 'px';
+                    this.div.style.top = pos.y + 'px';
+                }
+                onRemove() {
+                    if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
+                    this.div = null;
+                }
+            };
+        }
+
+        /* Called back by the Google Maps script (see the &callback=initMap
+           query param on the <script> tag at the bottom of <body>), once
+           google.maps has fully loaded. */
+        function initMap() {
+            defineRentPillClass(); // must run first — see async-load bug note above
+
+            map = new google.maps.Map(mapEl, {
+                center: { lat: 52.52, lng: 13.405 },
+                zoom: 13,
+                zoomControl: true,
+                zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
+                styles: savedTheme === 'dark' ? DARK_MAP_STYLE : LIGHT_MAP_STYLE,
+                clickableIcons: true
+            });
+
+            transitLayer = new google.maps.TransitLayer();
+
+            // Hidden overlay purely to access getProjection() for latLng <-> pixel
+            // conversion, used to position the click-menu at the click point.
+            pixelProjectionHelper = new google.maps.OverlayView();
+            pixelProjectionHelper.onAdd = function () {};
+            pixelProjectionHelper.draw = function () {};
+            pixelProjectionHelper.onRemove = function () {};
+            pixelProjectionHelper.setMap(map);
+
+            map.addListener('click', (e) => {
+                if (e.placeId) return; // let native POI clicks behave normally
+                clickMenuLatLng = e.latLng;
+                const proj = pixelProjectionHelper.getProjection();
+                const point = proj.fromLatLngToContainerPixel(e.latLng);
+                clickMenuEl.style.left = (point.x + 12) + 'px';
+                clickMenuEl.style.top = (point.y + 12) + 'px';
+                clickMenuEl.classList.add('open');
+            });
+            map.addListener('bounds_changed', () => clickMenuEl.classList.remove('open'));
+            document.addEventListener('click', (e) => {
+                if (!clickMenuEl.contains(e.target) && !e.target.closest('#map')) {
+                    clickMenuEl.classList.remove('open');
+                }
+            });
+
+            loadRents();
+        }
 
         /* ===================================================================
            RENT PILL MARKERS — always-visible on-map labels like
@@ -712,19 +778,16 @@
         ];
 
         function renderRentPin(d) {
-            const icon = L.divIcon({
-                className: 'rent-pill-icon',
-                html: `<div class="rent-pill">${pillLabel(d)}</div>`,
-                iconSize: null,
-                iconAnchor: [38, 34]
-            });
-            const marker = L.marker([d.lat, d.lng], { icon }).addTo(map);
-            marker.on('click', () => showRentDetail(d));
+            const pill = new RentPill(new google.maps.LatLng(d.lat, d.lng), d);
+            pill.setMap(map);
         }
 
         /* Load real rent pins from Supabase. Falls back to the hardcoded
            sample pins only if the table is empty/unreachable, so the map
-           never looks broken (e.g. before supabase-schema.sql has been run). */
+           never looks broken (e.g. before supabase-schema.sql has been run).
+           Called from initMap() once the Google Maps object exists — unlike
+           the Leaflet version this can't run at top level, since RentPill
+           (a google.maps.OverlayView subclass) doesn't exist until then. */
         async function loadRents() {
             const { data, error } = await sbClient.from('rents').select('*');
             if (error || !data || !data.length) {
@@ -733,7 +796,6 @@
             }
             data.forEach(row => renderRentPin(rowToRent(row)));
         }
-        loadRents();
 
         /* ===================================================================
            ADDRESS SEARCH — free, keyless geocoding via OpenStreetMap's
@@ -753,7 +815,8 @@
                     alert('Could not find that address in Berlin. Try including the street name, house number, or zip code.');
                     return;
                 }
-                map.flyTo([parseFloat(results[0].lat), parseFloat(results[0].lon)], 17);
+                map.panTo({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
+                map.setZoom(17);
             } catch (err) {
                 alert('Search failed — please check your connection and try again.');
             }
@@ -823,11 +886,22 @@
                 (pos) => {
                     btn.classList.remove('locating');
                     const { latitude, longitude } = pos.coords;
-                    map.flyTo([latitude, longitude], 15);
-                    if (myLocationMarker) map.removeLayer(myLocationMarker);
-                    myLocationMarker = L.circleMarker([latitude, longitude], {
-                        radius: 8, color: '#ffffff', weight: 3, fillColor: '#3b82f6', fillOpacity: 1
-                    }).addTo(map);
+                    map.panTo({ lat: latitude, lng: longitude });
+                    map.setZoom(15);
+                    if (myLocationMarker) myLocationMarker.setMap(null);
+                    myLocationMarker = new google.maps.Marker({
+                        position: { lat: latitude, lng: longitude },
+                        map: map,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: '#3b82f6',
+                            fillOpacity: 1,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 3
+                        },
+                        title: 'You are here'
+                    });
                 },
                 () => {
                     btn.classList.remove('locating');
@@ -983,5 +1057,14 @@
             backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.classList.remove('open'); });
         });
     </script>
+    <!-- Google Maps JS API. `loading=async` + `callback=initMap` per Google's
+         recommended async-loading pattern; initMap() (defined above) is
+         invoked once google.maps is ready. Key provided directly by the
+         project owner for this prototype (billing-enabled) — Maps JS API
+         keys are always visible in page source by design; Google's security
+         model for this key type is HTTP-referrer restriction + quotas, not
+         secrecy. Restrict this key to https://berlinpixel26.github.io/* in
+         Google Cloud Console once confirmed working. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRkKZcHn1eSLxhYGQwetdfxDTYl16Uyx4&callback=initMap&loading=async" async defer></script>
 </body>
 </html>
