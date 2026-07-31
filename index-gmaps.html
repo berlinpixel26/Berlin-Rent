@@ -1059,13 +1059,12 @@
     </script>
     <!-- Google Maps JS API. `loading=async` + `callback=initMap` per Google's
          recommended async-loading pattern; initMap() (defined above) is
-         invoked once google.maps is ready. Demo/test key provided directly by
-         the project owner for this prototype — Maps JS API keys are always
-         visible in page source by design; Google's security model for this
-         API is HTTP-referrer restriction + quotas, not secrecy. No referrer
-         restriction is configured on this key yet, so it currently works
-         from any origin (including github.io) — worth tightening later in
-         Google Cloud Console once this is more than a test page. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMmJWemfQvLZD0R_Cndb_igUd3zk3iPsY&callback=initMap&loading=async" async defer></script>
+         invoked once google.maps is ready. Key provided directly by the
+         project owner for this prototype (billing-enabled) — Maps JS API
+         keys are always visible in page source by design; Google's security
+         model for this key type is HTTP-referrer restriction + quotas, not
+         secrecy. Restrict this key to https://berlinpixel26.github.io/* in
+         Google Cloud Console once confirmed working. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRkKZcHn1eSLxhYGQwetdfxDTYl16Uyx4&callback=initMap&loading=async" async defer></script>
 </body>
 </html>
