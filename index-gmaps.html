@@ -252,7 +252,9 @@
         /* ============ SPLASH / MISSION SCREEN ============ */
         .splash-screen {
             position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
-            padding: 20px; background: var(--bg); transition: opacity .3s ease, visibility .3s ease;
+            padding: 20px; background: color-mix(in srgb, var(--bg) 50%, transparent);
+            backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%);
+            transition: opacity .3s ease, visibility .3s ease;
         }
         .splash-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
         .splash-card { max-width: 440px; padding: 32px 28px; text-align: center; }
@@ -270,7 +272,7 @@
 
         /* ============ MOBILE LAYOUT FIX (search bar vs brand chip overlap) ============ */
         @media (max-width: 480px) {
-            .top-bar { left: auto; right: 12px; transform: none; width: min(60vw, 230px); }
+            .top-bar { left: auto; right: 12px; transform: none; width: min(42vw, 161px); }
         }
     </style>
 </head>
@@ -279,8 +281,8 @@
     <div id="splashScreen" class="splash-screen">
         <div class="splash-card liquid-glass">
             <div class="splash-icon">🏠</div>
-            <h2>Real rents. Real renters. No brokers.</h2>
-            <p>germany.rent is a live map where renters anonymously share what they actually pay — no brokers, no logins, no fees. Every pin comes straight from someone who lives there.</p>
+            <h2>Germany Rents, shared by Tenants.</h2>
+            <p>Explore what people actually pay for homes across Germany. <strong style="color:#00B37A;">Share Anonymously, Free to Use, and Crowd-Sourced</strong>.</p>
             <div class="splash-stats">
                 <div class="splash-stat">
                     <div class="splash-stat-value" id="splashPinCount">–</div>
@@ -295,7 +297,11 @@
                     <div class="splash-stat-label">Rent on the map</div>
                 </div>
             </div>
-            <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Let's start →</button>
+            <p style="margin-top: 2px; color:#000000;">Make rent prices fairer—share what you truly pay.</p>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
+                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Explore Germany Rents</button>
+                <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="dismissSplash()">Share my Rent</button>
+            </div>
         </div>
     </div>
 
@@ -394,8 +400,6 @@
 
             <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
             <input type="number" id="rentWarm" placeholder="e.g., 1020" />
-            <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
-            <input type="number" id="rentCold" placeholder="e.g., 850" />
 
             <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
             <input type="number" id="rentDeposit" placeholder="e.g., 1734" />
@@ -424,6 +428,18 @@
             </div>
 
             <div class="section-label">Optional</div>
+
+            <div id="emailFieldWrapper">
+                <label>📧 Email (optional)</label>
+                <input type="email" id="rentEmail" placeholder="you@example.com" />
+                <div style="margin-top:8px; display:flex; align-items:flex-start; gap:8px;">
+                    <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;" />
+                    <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">I'd like to be notified about my own pin (e.g. if it's reported, or to get a copy of my submission). My email will never be shown publicly or shared.</label>
+                </div>
+            </div>
+
+            <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
+            <input type="number" id="rentCold" placeholder="e.g., 850" />
 
             <label>🔑 Private or Sharing?</label>
             <div class="chip-group" id="privacyGroup" data-single>
@@ -499,15 +515,6 @@
             <label>🏘️ Rate the Neighbourhood</label>
             <div class="star-rating" id="neighbourhoodRatingStars"></div>
 
-            <div id="emailFieldWrapper">
-                <label>📧 Email (optional)</label>
-                <input type="email" id="rentEmail" placeholder="you@example.com" />
-                <div style="margin-top:8px; display:flex; align-items:flex-start; gap:8px;">
-                    <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;" />
-                    <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">I'd like to be notified about my own pin (e.g. if it's reported, or to get a copy of my submission). My email will never be shown publicly or shared.</label>
-                </div>
-            </div>
-
             <button class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Submit Anonymously</button>
         </div>
     </div>
@@ -545,7 +552,10 @@
             <div style="font-size: 40px; margin-bottom: 6px;">🎉</div>
             <h2>Thank you!</h2>
             <div class="subtitle">Your rent pin is live now — you're helping other renters see real prices.</div>
-            <a id="whatsappShareLink" target="_blank" rel="noopener noreferrer" class="float-btn primary" style="width:100%; justify-content:center; text-decoration:none; display:flex; margin-top: 6px;">💬 Share on WhatsApp</a>
+            <a id="whatsappShareLink" target="_blank" rel="noopener noreferrer" class="float-btn primary" style="width:100%; justify-content:center; text-decoration:none; display:flex; align-items:center; gap:8px; margin-top: 6px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12.012 2c-5.518 0-9.988 4.47-9.988 9.988 0 1.749.459 3.454 1.334 4.94L2 22l5.238-1.377a9.94 9.94 0 0 0 4.774 1.217h.004c5.518 0 9.988-4.47 9.988-9.988C21.999 6.47 17.53 2 12.012 2zm5.46 12.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-1.746-.872-2.888-1.556-4.035-3.527-.305-.526.305-.489.874-1.627.099-.198.05-.371-.05-.52-.099-.15-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.05 3.126 4.966 4.259 2.913 1.133 2.913.756 3.858.63.943-.124 3.06-1.256 3.492-2.47.428-1.213.428-2.253.298-2.472-.129-.198-.297-.297-.594-.446z"/></svg>
+                Share with your Friends
+            </a>
             <button class="float-btn" style="width:100%; margin-top:10px; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="closeThankYouModal()">Close</button>
         </div>
     </div>
@@ -843,7 +853,7 @@
 
         /* ===================================================================
            RENT PILL MARKERS — always-visible on-map labels like
-           "2BHK · €850 · ★4". Clicking one opens the full detail splash
+           "2 Room · €850 · ★4". Clicking one opens the full detail splash
            screen directly (no intermediate hover popup).
            =================================================================== */
         function formatPrice(n) {
@@ -851,7 +861,7 @@
             return n >= 1000 ? '€' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : '€' + n;
         }
         function pillLabel(d) {
-            let label = `${d.bhk}BHK · ${formatPrice(d.warm ?? d.cold)}`;
+            let label = `${d.bhk} Room · ${formatPrice(d.warm ?? d.cold)}`;
             if (d.stayRating) label += ` · <span style="color:#ffd54a;">★${d.stayRating}</span>`;
             return label;
         }
@@ -949,7 +959,7 @@
            THANK YOU MODAL (shown after a successful new submission)
            =================================================================== */
         function showThankYouModal() {
-            const msg = "I just added my real rent on germany.rent — a live map of real rents shared by renters. Check it out: " + window.location.href;
+            const msg = "I've shared mine, share yours too! I just added my real rent on germany.rent — a live map of real rents shared by renters. Check it out: " + window.location.href;
             document.getElementById('whatsappShareLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
             document.getElementById('thankYouModal').classList.add('open');
         }
@@ -1033,7 +1043,7 @@
             }
 
             const badges = [
-                { label: `${d.bhk} BHK`, cls: 'badge-accent' },
+                { label: `${d.bhk} Room`, cls: 'badge-accent' },
                 { label: d.furnished ? '🛋️ Furnished' : '📦 Unfurnished', cls: 'badge-neutral' },
                 { label: `🏦 Deposit €${d.deposit}`, cls: 'badge-neutral' },
                 { label: d.privacy, cls: 'badge-teal' },
