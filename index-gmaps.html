@@ -471,27 +471,17 @@
 
             <div class="stats-row">
                 <div class="stat-item">
-                    <div class="stat-value">2,847</div>
+                    <div class="stat-value" id="statPinCount">0</div>
                     <div class="stat-label">Rent Pins</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">€1.2M+</div>
+                    <div class="stat-value" id="statTotalRent">€0</div>
                     <div class="stat-label">Rent on the Map</div>
                 </div>
             </div>
 
             <h3 style="margin-top: 20px; font-size: 15px;">Top Districts</h3>
-            <div style="margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border);">
-                    <span>Friedrichshain-Kreuzberg</span> <span style="color: var(--accent); font-weight:600;">456 pins</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border);">
-                    <span>Pankow</span> <span style="color: var(--accent); font-weight:600;">389 pins</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                    <span>Neukölln</span> <span style="color: var(--accent); font-weight:600;">312 pins</span>
-                </div>
-            </div>
+            <div style="margin-top: 10px;" id="statTopDistricts"></div>
         </div>
     </div>
 
@@ -779,7 +769,10 @@
             { lat: 52.5250, lng: 13.3950, cold: 1250, warm: 1430, deposit: 2500, bhk: 2, district: 'Tempelhof-Schöneberg', furnished: true, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 5, area: 70, oneLiner: 'Beautiful old building, friendly neighbours', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes' }
         ];
 
+        const allRentsCache = [];
+
         function renderRentPin(d) {
+            allRentsCache.push(d);
             const pill = new RentPill(new google.maps.LatLng(d.lat, d.lng), d);
             pill.setMap(map);
         }
@@ -919,7 +912,33 @@
         function openFilterModal() { document.getElementById('filterModal').classList.add('open'); }
         function closeFilterModal() { document.getElementById('filterModal').classList.remove('open'); }
 
-        function openStatsModal() { document.getElementById('statsModal').classList.add('open'); }
+        function formatTotalRent(sum) {
+            if (sum >= 1000000) return '€' + (sum / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
+            if (sum >= 1000) return '€' + (sum / 1000).toFixed(1).replace(/\.0$/, '') + 'K+';
+            return '€' + sum;
+        }
+
+        function openStatsModal() {
+            document.getElementById('statPinCount').textContent = allRentsCache.length.toLocaleString();
+
+            const totalRent = allRentsCache.reduce((sum, r) => sum + (Number(r.warm) || 0), 0);
+            document.getElementById('statTotalRent').textContent = formatTotalRent(totalRent);
+
+            const districtCounts = {};
+            allRentsCache.forEach(r => { districtCounts[r.district] = (districtCounts[r.district] || 0) + 1; });
+            const topDistricts = Object.entries(districtCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            const listEl = document.getElementById('statTopDistricts');
+            listEl.innerHTML = topDistricts.length
+                ? topDistricts.map(([district, count], i) => `
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; ${i < topDistricts.length - 1 ? 'border-bottom: 1px solid var(--border);' : ''}">
+                        <span>${district}</span> <span style="color: var(--accent); font-weight:600;">${count} pin${count === 1 ? '' : 's'}</span>
+                    </div>
+                `).join('')
+                : '<div class="hint">No rent pins yet.</div>';
+
+            document.getElementById('statsModal').classList.add('open');
+        }
         function closeStatsModal() { document.getElementById('statsModal').classList.remove('open'); }
 
         function openInfoModal(id) { document.getElementById(id).classList.add('open'); }
