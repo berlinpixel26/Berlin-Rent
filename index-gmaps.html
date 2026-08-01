@@ -936,9 +936,11 @@
             clickMenuEl.classList.remove('open');
             const hint = document.getElementById('rentLatLngHint');
             if (latlng) {
-                hint.textContent = `Location: ${latlng.lat.toFixed(4)}, ${latlng.lng.toFixed(4)}`;
-                document.getElementById('addRentModal').dataset.lat = latlng.lat;
-                document.getElementById('addRentModal').dataset.lng = latlng.lng;
+                const lat = typeof latlng.lat === 'function' ? latlng.lat() : latlng.lat;
+                const lng = typeof latlng.lng === 'function' ? latlng.lng() : latlng.lng;
+                hint.textContent = `Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                document.getElementById('addRentModal').dataset.lat = lat;
+                document.getElementById('addRentModal').dataset.lng = lng;
             } else {
                 hint.textContent = 'Click on the map first to set a precise location (optional).';
                 delete document.getElementById('addRentModal').dataset.lat;
