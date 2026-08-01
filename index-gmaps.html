@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
+<!DOCTYPE html><html lang="en" data-theme="light"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>berlin.rent — Real Rents & Flats in Berlin — No Brokerage</title>
+    <title>berlin.rent — Real Rents &amp; Flats in Berlin — No Brokerage</title>
     <!-- Google Maps JS API variant — no external map CSS needed (Leaflet CSS removed).
          The Google Maps JS API <script> tag is loaded at the end of <body> with &loading=async. -->
     <style>
@@ -300,8 +298,8 @@
             </div>
             <p style="margin-top: 2px; color: var(--text);">Make rent prices fairer—share what you truly pay.</p>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
-                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Explore Germany Rents</button>
-                <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="dismissSplash()">Share my Rent</button>
+                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Share my Rent</button>
+                <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="dismissSplash()">Explore Germany Rents</button>
             </div>
         </div>
     </div>
@@ -312,16 +310,16 @@
 
     <div class="theme-toggle-float liquid-glass">
         <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
-            <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
     </div>
 
     <div class="top-bar liquid-glass">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search a street, address, or zip code in Berlin…" />
+        <input type="text" id="searchInput" placeholder="Search a street, address, or zip code in Berlin…">
         <button class="icon-btn" onclick="openFilterModal()" title="Filter">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         </button>
     </div>
 
@@ -331,12 +329,12 @@
         <button class="float-btn liquid-glass" onclick="openStatsModal()">📊 Stats</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('faqsModal')">❓ FAQs</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('requestFeatureModal')">💡 Request a Feature</button>
-        <button class="float-btn small liquid-glass" onclick="openInfoModal('creatorModal')">👤 Creator</button>
+        <button class="float-btn small liquid-glass" onclick="openInfoModal('creatorModal')">👤 About</button>
     </div>
 
     <button class="transit-btn liquid-glass" id="transitBtn" onclick="toggleTransitLayer()" title="Toggle transit (S-Bahn/U-Bahn) layer">🚇</button>
     <button class="locate-btn liquid-glass" id="locateBtn" onclick="pickMyLocation()" title="Pick my location">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="7"></circle><line x1="12" y1="1" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="23"></line><line x1="1" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="23" y2="12"></line></svg>
     </button>
 
     <div class="info-banner liquid-glass">
@@ -368,8 +366,8 @@
 
             <label>🔥 Monthly Warm Rent — Warmmiete (€)</label>
             <div class="form-row">
-                <input type="number" id="rentMin" placeholder="Min" />
-                <input type="number" id="rentMax" placeholder="Max" />
+                <input type="number" id="rentMin" placeholder="Min">
+                <input type="number" id="rentMax" placeholder="Max">
             </div>
 
             <label>📍 District</label>
@@ -400,10 +398,10 @@
             <div class="section-label">Mandatory</div>
 
             <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
-            <input type="number" id="rentWarm" placeholder="e.g., 1020" />
+            <input type="number" id="rentWarm" placeholder="e.g., 1020">
 
             <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
-            <input type="number" id="rentDeposit" placeholder="e.g., 1734" />
+            <input type="number" id="rentDeposit" placeholder="e.g., 1734">
 
             <div class="form-row">
                 <div>
@@ -423,94 +421,94 @@
             </div>
 
             <label>🛋️ Furnished? <span class="required-marker">*</span></label>
-            <div class="chip-group" id="furnishedGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">🛋️ Furnished</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">📦 Unfurnished</span>
+            <div class="chip-group" id="furnishedGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🛋️ Furnished</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">📦 Unfurnished</span>
             </div>
 
             <div class="section-label">Optional</div>
 
             <div id="emailFieldWrapper">
                 <label>📧 Email (optional)</label>
-                <input type="email" id="rentEmail" placeholder="you@example.com" />
+                <input type="email" id="rentEmail" placeholder="you@example.com">
                 <div style="margin-top:8px; display:flex; align-items:flex-start; gap:8px;">
-                    <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;" />
+                    <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;">
                     <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">I'd like to be notified about my own pin (e.g. if it's reported, or to get a copy of my submission). My email will never be shown publicly or shared.</label>
                 </div>
             </div>
 
             <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
-            <input type="number" id="rentCold" placeholder="e.g., 850" />
+            <input type="number" id="rentCold" placeholder="e.g., 850">
 
             <label>🔑 Private or Sharing?</label>
-            <div class="chip-group" id="privacyGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">🔑 Whole flat (Private)</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">🤝 Shared / Room</span>
+            <div class="chip-group" id="privacyGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🔑 Whole flat (Private)</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🤝 Shared / Room</span>
             </div>
 
             <label>👨‍👩‍👧 Household Type</label>
-            <div class="chip-group" id="householdGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">👨‍👩‍👧 Family</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">🧑 Bachelor's / Single</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">🙌 Either</span>
+            <div class="chip-group" id="householdGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">👨‍👩‍👧 Family</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🧑 Bachelor's / Single</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🙌 Either</span>
             </div>
 
             <div class="form-row">
                 <div>
                     <label>👥 No. of People Allowed</label>
-                    <input type="number" id="rentPeopleAllowed" placeholder="e.g., 2" min="1" />
+                    <input type="number" id="rentPeopleAllowed" placeholder="e.g., 2" min="1">
                 </div>
                 <div>
                     <label>🅿️ Parking Available?</label>
-                    <div class="yesno" id="parkingGroup" data-single>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+                    <div class="yesno" id="parkingGroup" data-single="">
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
                     </div>
                 </div>
             </div>
 
             <label>🔌 Utilities Included?</label>
-            <div class="yesno" id="utilitiesGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+            <div class="yesno" id="utilitiesGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
             </div>
 
             <label>📝 Anmeldung Provided?</label>
-            <div class="yesno" id="anmeldungGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+            <div class="yesno" id="anmeldungGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
             </div>
 
             <label>⭐ Rate Your Stay</label>
             <div class="star-rating" id="stayRatingStars"></div>
 
             <label>📐 Area (m²)</label>
-            <input type="number" id="rentArea" placeholder="e.g., 65" />
+            <input type="number" id="rentArea" placeholder="e.g., 65">
 
             <label>💬 One-liner on the neighbourhood / landlord</label>
-            <input type="text" id="rentOneLiner" placeholder="e.g., Quiet street, responsive landlord" maxlength="140" />
+            <input type="text" id="rentOneLiner" placeholder="e.g., Quiet street, responsive landlord" maxlength="140">
 
             <div class="form-row">
                 <div>
                     <label>📮 Name on Letterbox?</label>
-                    <div class="yesno" id="letterboxGroup" data-single>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+                    <div class="yesno" id="letterboxGroup" data-single="">
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
                     </div>
                 </div>
                 <div>
                     <label>🐾 Pets Allowed?</label>
-                    <div class="yesno" id="petsGroup" data-single>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                        <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+                    <div class="yesno" id="petsGroup" data-single="">
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
                     </div>
                 </div>
             </div>
 
             <label>🚬 Smoking Allowed?</label>
-            <div class="yesno" id="smokingGroup" data-single>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">Yes</span>
-                <span class="chip" data-single-accent onclick="selectSingle(this)">No</span>
+            <div class="yesno" id="smokingGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
             </div>
 
             <label>🏘️ Rate the Neighbourhood</label>
@@ -554,7 +552,10 @@
             <h2>Thank you!</h2>
             <div class="subtitle">Your rent pin is live now — you're helping other renters see real prices.</div>
             <a id="whatsappShareLink" target="_blank" rel="noopener noreferrer" class="float-btn primary" style="width:100%; justify-content:center; text-decoration:none; display:flex; align-items:center; gap:8px; margin-top: 6px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" style="flex-shrink:0;"><path d="M12.012 2c-5.518 0-9.988 4.47-9.988 9.988 0 1.749.459 3.454 1.334 4.94L2 22l5.238-1.377a9.94 9.94 0 0 0 4.774 1.217h.004c5.518 0 9.988-4.47 9.988-9.988C21.999 6.47 17.53 2 12.012 2zm5.46 12.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-1.746-.872-2.888-1.556-4.035-3.527-.305-.526.305-.489.874-1.627.099-.198.05-.371-.05-.52-.099-.15-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.05 3.126 4.966 4.259 2.913 1.133 2.913.756 3.858.63.943-.124 3.06-1.256 3.492-2.47.428-1.213.428-2.253.298-2.472-.129-.198-.297-.297-.594-.446z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 346 346" style="flex-shrink:0;">
+                    <path fill="#25d366" d="M173,0C77.45,0,0,77.45,0,173c0,31.43,8.38,60.91,23.04,86.31L0,346l89.87-21.25c24.67,13.54,53,21.25,83.13,21.25,95.55,0,173-77.45,173-173S268.55,0,173,0ZM173,315.01c-28.91,0-55.81-8.64-78.24-23.48l-53.1,13.52,14.89-50.75c-16.11-23.03-25.56-51.06-25.56-81.3,0-78.43,63.58-142.01,142.01-142.01s142.01,63.58,142.01,142.01-63.58,142.01-142.01,142.01Z"></path>
+                    <path fill="#25d366" d="M213.54,195.84l41.86,19.73c1.92.91,3.15,2.85,2.98,4.97-.45,5.51-2.66,16.55-12.56,26.44-27.93,27.93-78.09-3.67-80.13-4.89-12.34-6.63-24.06-15.49-35.17-26.61-11.11-11.11-19.98-22.84-26.61-35.17-1.22-2.04-32.82-52.19-4.89-80.13,9.9-9.9,20.93-12.1,26.44-12.56,2.12-.17,4.07,1.06,4.97,2.98l19.73,41.86c.93,1.98.52,4.33-1.02,5.88l-14.71,14.71c-3.18,3.18-4.12,8.13-1.92,12.06,5.37,9.63,12.59,18.9,20.95,27.43,8.53,8.36,17.8,15.58,27.43,20.95,3.93,2.19,8.88,1.26,12.06-1.92l14.71-14.71c1.55-1.55,3.9-1.96,5.88-1.02Z"></path>
+                </svg>
                 Share with your Friends
             </a>
             <button class="float-btn" style="width:100%; margin-top:10px; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="closeThankYouModal()">Close</button>
@@ -631,15 +632,22 @@
     <div class="modal-backdrop" id="creatorModal">
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('creatorModal')">×</button>
-            <h2>👤 About the Creator</h2>
+            <h2>About</h2>
             <div style="font-size: 14px; line-height: 1.7; margin-top: 10px;">
-                <p>berlin.rent is an independent, community-driven prototype built to bring transparency to Berlin's rental market — inspired by projects like bengaluru.rent.</p>
-                <p style="margin-top: 12px;">No brokerage, no ads, no login required. Just real rents, shared anonymously by real renters.</p>
+                <p style="font-weight: 700; font-size: 15px;">About germany.rent</p>
+                <p style="margin-top: 10px;">germany.rent is an independent, community-built project making Germany's rental market easier to understand.</p>
+                <p style="margin-top: 12px;">Renters can anonymously share what they actually pay, so others can get a clearer view of local rents before moving, negotiating, or signing a lease.</p>
+                <p style="margin-top: 12px;">The map is free to use, has no brokers or advertising, and does not require an account. Rent data is submitted by the community; contributors can edit or remove their own pin from the same browser, and anyone can flag suspicious entries.</p>
+                <p style="margin-top: 12px;">We're starting in Berlin and growing city by city. The goal is simple: give renters better information and make rent prices more transparent.</p>
                 <p style="margin-top: 16px;">
                     <a href="https://www.linkedin.com/in/nikhilkumarsingh1" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-                        🔗 Connect on LinkedIn
+                        🔗 Connect with the creator on LinkedIn
                     </a>
                 </p>
+
+                <p style="font-weight: 700; font-size: 15px; margin-top: 24px;">Why I built germany.rent</p>
+                <p style="margin-top: 10px;">Renting a home often means making a big decision with too little reliable information. I built germany.rent to make local rent prices easier to see and compare through information shared by the people who actually rent there.</p>
+                <p style="margin-top: 12px;">It is free, independent, and community-powered: no brokers, no ads, and no account required. I'm starting in Berlin and hope to grow the map across Germany, one shared rent at a time.</p>
             </div>
         </div>
     </div>
@@ -1464,6 +1472,7 @@
          model for this key type is HTTP-referrer restriction + quotas, not
          secrecy. Restrict this key to https://berlinpixel26.github.io/* in
          Google Cloud Console once confirmed working. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRkKZcHn1eSLxhYGQwetdfxDTYl16Uyx4&callback=initMap&loading=async" async defer></script>
-</body>
-</html>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRkKZcHn1eSLxhYGQwetdfxDTYl16Uyx4&amp;callback=initMap&amp;loading=async" async="" defer=""></script>
+
+
+</body></html>
