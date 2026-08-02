@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://germanyrent.de/sitemap.xml
