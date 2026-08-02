@@ -646,6 +646,37 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYWlhanZjamFkenZjeHdodGZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTgzNzEsImV4cCI6MjEwMTA3NDM3MX0.82g7IvvMZWQJ3EOMn_fKPFOCGqQuYjbgKfOgNc6HePw';
         const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        /* ===================================================================
+           ANALYTICS — privacy-friendly page visit tracking.
+           Records: visitor session ID, timestamp, path, referrer.
+           No personal data or IP addresses stored.
+           =================================================================== */
+        function getOrCreateVisitorId() {
+            let id = localStorage.getItem('visitorId');
+            if (!id) {
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).slice(2, 11);
+                id = `visitor_${timestamp}_${random}`;
+                localStorage.setItem('visitorId', id);
+            }
+            return id;
+        }
+
+        async function recordPageVisit() {
+            try {
+                const visitorId = getOrCreateVisitorId();
+                const { error } = await sbClient.from('page_visits').insert({
+                    visitor_id: visitorId,
+                    path: window.location.pathname || '/',
+                    referrer: document.referrer || null,
+                    user_agent: navigator.userAgent
+                });
+                if (error) console.warn('Analytics record failed:', error.message);
+            } catch (e) {
+                console.warn('Analytics error:', e.message);
+            }
+        }
+
         function rowToRent(row) {
             return {
                 id: row.id,
@@ -801,6 +832,7 @@
            google.maps has fully loaded. */
         function initMap() {
             defineRentPillClass(); // must run first — see async-load bug note above
+            recordPageVisit(); // track this visit
 
             map = new google.maps.Map(mapEl, {
                 center: { lat: 52.52, lng: 13.405 },
