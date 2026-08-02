@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en" data-theme="light"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>berlin.rent — Real Rents &amp; Flats in Berlin — No Brokerage</title>
+    <title>germanyrent.de — Real Rents &amp; Flats in Berlin — No Brokerage</title>
     <!-- Google Maps JS API variant — no external map CSS needed (Leaflet CSS removed).
          The Google Maps JS API <script> tag is loaded at the end of <body> with &loading=async. -->
     <style>
@@ -306,7 +306,7 @@
 
     <div id="map"></div>
 
-    <div class="brand-chip liquid-glass">🏠 germany<span class="dot">.</span>rent</div>
+    <div class="brand-chip liquid-glass">🏠 germanyrent<span class="dot">.</span>de</div>
 
     <div class="theme-toggle-float liquid-glass">
         <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
@@ -588,7 +588,7 @@
     <div class="modal-backdrop" id="howToUseModal">
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('howToUseModal')">×</button>
-            <h2>📘 How to Use berlin.rent</h2>
+            <h2>📘 How to Use germanyrent.de</h2>
             <div class="subtitle">A quick guide to the map.</div>
             <ul style="padding-left: 20px; line-height: 1.9; font-size: 14px;">
                 <li>Click anywhere on the map to add a rent pin at that exact spot, or use the <b>📍 Add a Rent</b> button for an approximate location.</li>
@@ -610,7 +610,7 @@
                 <p style="margin-top: 14px;"><b>Is this really anonymous?</b><br>Yes — we don't ask for your name, email, or login to submit a rent pin.</p>
                 <p style="margin-top: 14px;"><b>Where does the rent data come from?</b><br>Directly from real renters — every pin comes from someone submitting their own rent through this map, live and visible to everyone immediately.</p>
                 <p style="margin-top: 14px;"><b>Are pins moderated? Can I edit or remove a pin I submitted?</b><br>Pins go live immediately and aren't pre-moderated. Anyone can flag a pin as suspicious using the 🚩 Report button on its detail popup. If you submitted a pin, you can edit or delete it yourself from the same browser/device you used to create it — this uses a private token stored only in that browser, never an IP address, account, or login.</p>
-                <p style="margin-top: 14px;"><b>Is this affiliated with any broker or landlord?</b><br>No. berlin.rent is independent and never charges brokerage fees.</p>
+                <p style="margin-top: 14px;"><b>Is this affiliated with any broker or landlord?</b><br>No. germanyrent.de is independent and never charges brokerage fees.</p>
                 <p style="margin-top: 14px;"><b>Why can't I see transit lines at low zoom?</b><br>Zoom in closer — the transit map style is easiest to read at street level.</p>
             </div>
         </div>
@@ -621,7 +621,7 @@
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('requestFeatureModal')">×</button>
             <h2>💡 Request a Feature</h2>
-            <div class="subtitle">Got an idea to make berlin.rent better? Tell us.</div>
+            <div class="subtitle">Got an idea to make germanyrent.de better? Tell us.</div>
             <label>Your suggestion</label>
             <textarea id="featureRequestText" placeholder="e.g., Add a commute-time filter…"></textarea>
             <button class="float-btn primary" style="width:100%; margin-top:16px; justify-content:center;" onclick="submitFeatureRequest()">Send Suggestion</button>
@@ -634,8 +634,8 @@
             <button class="close-btn" onclick="closeInfoModal('creatorModal')">×</button>
             <h2>About</h2>
             <div style="font-size: 14px; line-height: 1.7; margin-top: 10px;">
-                <p style="font-weight: 700; font-size: 15px;">About germany.rent</p>
-                <p style="margin-top: 10px;">germany.rent is an independent, community-built project making Germany's rental market easier to understand.</p>
+                <p style="font-weight: 700; font-size: 15px;">About germanyrent.de</p>
+                <p style="margin-top: 10px;">germanyrent.de is an independent, community-built project making Germany's rental market easier to understand.</p>
                 <p style="margin-top: 12px;">Renters can anonymously share what they actually pay, so others can get a clearer view of local rents before moving, negotiating, or signing a lease.</p>
                 <p style="margin-top: 12px;">The map is free to use, has no brokers or advertising, and does not require an account. Rent data is submitted by the community; contributors can edit or remove their own pin from the same browser, and anyone can flag suspicious entries.</p>
                 <p style="margin-top: 12px;">We're starting in Berlin and growing city by city. The goal is simple: give renters better information and make rent prices more transparent.</p>
@@ -645,8 +645,8 @@
                     </a>
                 </p>
 
-                <p style="font-weight: 700; font-size: 15px; margin-top: 24px;">Why I built germany.rent</p>
-                <p style="margin-top: 10px;">Renting a home often means making a big decision with too little reliable information. I built germany.rent to make local rent prices easier to see and compare through information shared by the people who actually rent there.</p>
+                <p style="font-weight: 700; font-size: 15px; margin-top: 24px;">Why I built germanyrent.de</p>
+                <p style="margin-top: 10px;">Renting a home often means making a big decision with too little reliable information. I built germanyrent.de to make local rent prices easier to see and compare through information shared by the people who actually rent there.</p>
                 <p style="margin-top: 12px;">It is free, independent, and community-powered: no brokers, no ads, and no account required. I'm starting in Berlin and hope to grow the map across Germany, one shared rent at a time.</p>
             </div>
         </div>
@@ -968,7 +968,7 @@
            THANK YOU MODAL (shown after a successful new submission)
            =================================================================== */
         function showThankYouModal() {
-            const msg = "I've shared mine, share yours too! I just added my real rent on germany.rent — a live map of real rents shared by renters. Check it out: " + window.location.href;
+            const msg = "I've shared mine, share yours too! I just added my real rent on germanyrent.de — a live map of real rents shared by renters. Check it out: https://www.germanyrent.de/";
             document.getElementById('whatsappShareLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
             document.getElementById('thankYouModal').classList.add('open');
         }
@@ -1470,8 +1470,9 @@
          project owner for this prototype (billing-enabled) — Maps JS API
          keys are always visible in page source by design; Google's security
          model for this key type is HTTP-referrer restriction + quotas, not
-         secrecy. Restrict this key to https://berlinpixel26.github.io/* in
-         Google Cloud Console once confirmed working. -->
+         secrecy. Restrict this key to https://www.germanyrent.de/* (and
+         https://berlinpixel26.github.io/* as a fallback) in Google Cloud
+         Console once confirmed working. -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCRkKZcHn1eSLxhYGQwetdfxDTYl16Uyx4&amp;callback=initMap&amp;loading=async" async="" defer=""></script>
 
 
