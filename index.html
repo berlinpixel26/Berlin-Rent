@@ -90,12 +90,6 @@
         .icon-btn svg { width: 19px; height: 19px; }
         .icon-btn:hover { background: var(--accent-soft); }
 
-        .brand-chip {
-            position: fixed; top: 16px; left: 16px; z-index: 400; padding: 10px 16px; border-radius: 999px;
-            font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px;
-        }
-        .brand-chip .dot { color: var(--accent); }
-
         .theme-toggle-float {
             position: fixed; bottom: 24px; right: 16px; z-index: 400; border-radius: 999px; padding: 4px;
         }
@@ -268,11 +262,6 @@
         .detail-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
         .detail-actions .float-btn { flex: 1; justify-content: center; padding: 9px 12px; font-size: 13px; }
 
-        /* ============ MOBILE LAYOUT FIX (search bar vs brand chip overlap) ============ */
-        @media (max-width: 1024px) {
-            .top-bar { top: 70px; left: 50%; right: auto; transform: translateX(-50%); width: 60%; }
-            .action-row { top: 142px; }
-        }
     </style>
 </head>
 <body>
@@ -296,7 +285,7 @@
                     <div class="splash-stat-label">Rent on the map</div>
                 </div>
             </div>
-            <p style="margin-top: 2px; color: var(--text);">Make rent prices fairer—share what you truly pay.</p>
+            <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer—share what you truly pay.</p>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
                 <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Share my Rent</button>
                 <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="dismissSplash()">Explore Germany Rents</button>
@@ -305,8 +294,6 @@
     </div>
 
     <div id="map"></div>
-
-    <div class="brand-chip liquid-glass">🏠 germanyrent<span class="dot">.</span>de</div>
 
     <div class="theme-toggle-float liquid-glass">
         <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
@@ -328,8 +315,8 @@
         <button class="float-btn liquid-glass" onclick="openAddRentModal(null)">📍 Add a Rent</button>
         <button class="float-btn liquid-glass" onclick="openStatsModal()">📊 Stats</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('faqsModal')">❓ FAQs</button>
-        <button class="float-btn small liquid-glass" onclick="openInfoModal('requestFeatureModal')">💡 Request a Feature</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('creatorModal')">👤 About</button>
+        <button class="float-btn small liquid-glass" onclick="openInfoModal('requestFeatureModal')">💡 Request a Feature</button>
     </div>
 
     <button class="transit-btn liquid-glass" id="transitBtn" onclick="toggleTransitLayer()" title="Toggle transit (S-Bahn/U-Bahn) layer">🚇</button>
@@ -610,7 +597,7 @@
                 <p style="margin-top: 14px;"><b>Is this really anonymous?</b><br>Yes — we don't ask for your name, email, or login to submit a rent pin.</p>
                 <p style="margin-top: 14px;"><b>Where does the rent data come from?</b><br>Directly from real renters — every pin comes from someone submitting their own rent through this map, live and visible to everyone immediately.</p>
                 <p style="margin-top: 14px;"><b>Are pins moderated? Can I edit or remove a pin I submitted?</b><br>Pins go live immediately and aren't pre-moderated. Anyone can flag a pin as suspicious using the 🚩 Report button on its detail popup. If you submitted a pin, you can edit or delete it yourself from the same browser/device you used to create it — this uses a private token stored only in that browser, never an IP address, account, or login.</p>
-                <p style="margin-top: 14px;"><b>Is this affiliated with any broker or landlord?</b><br>No. germanyrent.de is independent and never charges brokerage fees.</p>
+                <p style="margin-top: 14px;"><b>Is germany.rent affiliated with brokers, landlords, or property platforms?</b><br>No. germany.rent is an independent, community-built project. We do not charge brokerage fees, sell listings, or give anyone paid priority on the map.</p>
                 <p style="margin-top: 14px;"><b>Why can't I see transit lines at low zoom?</b><br>Zoom in closer — the transit map style is easiest to read at street level.</p>
             </div>
         </div>
@@ -634,20 +621,16 @@
             <button class="close-btn" onclick="closeInfoModal('creatorModal')">×</button>
             <h2>About</h2>
             <div style="font-size: 14px; line-height: 1.7; margin-top: 10px;">
-                <p style="font-weight: 700; font-size: 15px;">About germanyrent.de</p>
-                <p style="margin-top: 10px;">germanyrent.de is an independent, community-built project making Germany's rental market easier to understand.</p>
+                <p style="font-weight: 700; font-size: 15px;">germanyrent.de</p>
+                <p style="margin-top: 10px;">This is an independent, community-built project making Germany's rental market easier to understand.</p>
                 <p style="margin-top: 12px;">Renters can anonymously share what they actually pay, so others can get a clearer view of local rents before moving, negotiating, or signing a lease.</p>
-                <p style="margin-top: 12px;">The map is free to use, has no brokers or advertising, and does not require an account. Rent data is submitted by the community; contributors can edit or remove their own pin from the same browser, and anyone can flag suspicious entries.</p>
+                <p style="margin-top: 12px;">The map is free to use, has no brokers or advertising, and does not require an account. The community submits rent data. Contributors can edit or remove their own pin from the same browser, and anyone can flag suspicious entries.</p>
                 <p style="margin-top: 12px;">We're starting in Berlin and growing city by city. The goal is simple: give renters better information and make rent prices more transparent.</p>
                 <p style="margin-top: 16px;">
                     <a href="https://www.linkedin.com/in/nikhilkumarsingh1" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-                        🔗 Connect with the creator on LinkedIn
+                        🔗 Connect on LinkedIn
                     </a>
                 </p>
-
-                <p style="font-weight: 700; font-size: 15px; margin-top: 24px;">Why I built germanyrent.de</p>
-                <p style="margin-top: 10px;">Renting a home often means making a big decision with too little reliable information. I built germanyrent.de to make local rent prices easier to see and compare through information shared by the people who actually rent there.</p>
-                <p style="margin-top: 12px;">It is free, independent, and community-powered: no brokers, no ads, and no account required. I'm starting in Berlin and hope to grow the map across Germany, one shared rent at a time.</p>
             </div>
         </div>
     </div>
@@ -872,6 +855,7 @@
         function pillLabel(d) {
             let label = `${d.bhk} Room · ${formatPrice(d.warm ?? d.cold)}`;
             if (d.stayRating) label += ` · <span style="color:#ffd54a;">★${d.stayRating}</span>`;
+            if (d.id != null && getTokenFor(d.id)) label += ` · <span style="opacity:.85;">📍 Mine</span>`;
             return label;
         }
 
@@ -1056,6 +1040,7 @@
                 { label: d.furnished ? '🛋️ Furnished' : '📦 Unfurnished', cls: 'badge-neutral' },
                 { label: `🏦 Deposit €${d.deposit}`, cls: 'badge-neutral' }
             ];
+            if (d.id != null && getTokenFor(d.id)) badges.unshift({ label: '📍 My Pin', cls: 'badge-accent' });
             if (d.privacy) badges.push({ label: d.privacy, cls: 'badge-teal' });
             if (d.household) badges.push({ label: d.household, cls: 'badge-teal' });
             if (d.peopleAllowed) badges.push({ label: `👥 ${d.peopleAllowed} allowed`, cls: 'badge-neutral' });
