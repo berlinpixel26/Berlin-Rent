@@ -376,6 +376,30 @@
         .detail-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
         .detail-actions .float-btn { flex: 1; justify-content: center; padding: 9px 12px; font-size: 13px; }
 
+        /* ============ TIPS DIALOG (First-time visitor hint) ============ */
+        .tips-dialog {
+            position: fixed; top: 130px; left: 50%; transform: translateX(-50%); z-index: 500;
+            width: min(92vw, 260px); padding: 12px 14px; border-radius: 10px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.47), rgba(255, 255, 255, 0.2) 55%), rgba(255, 255, 255, 0.47);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 10px 34px rgba(15,18,22,0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            animation: slideDown 0.4s ease-out;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .tips-content { text-align: center; }
+        .tips-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .tips-items { font-size: 11px; color: var(--text-muted); margin-bottom: 9px; line-height: 1.4; text-align: left; }
+        .tips-item { margin-bottom: 3px; }
+        .tips-button { width: 100%; padding: 7px 12px; border-radius: 999px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; }
+        .tips-button:hover { filter: brightness(1.08); }
+
+        /* Pulse animation for locate button */
+        .locate-btn.pulse-tips { animation: pulseBlue 2.5s ease-in-out 0.5s infinite; }
+        @keyframes pulseBlue { 0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.7); transform: scale(1); } 50% { box-shadow: 0 0 0 12px rgba(24, 119, 242, 0); transform: scale(1.05); } 100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); transform: scale(1); } }
+        .locate-btn.pulse-tips:hover { animation: none; }
+
     </style>
 </head>
 <body>
@@ -415,6 +439,19 @@
     </div>
 
     <div id="map"></div>
+
+    <!-- ============ TIPS DIALOG ============ -->
+    <div id="tipsDialog" class="tips-dialog" style="display:none;">
+        <div class="tips-content">
+            <div class="tips-title">👋 First time here?</div>
+            <div class="tips-items">
+                <div class="tips-item">🔍 Search any address</div>
+                <div class="tips-item">📍 Or tap "Pick My Location"</div>
+                <div class="tips-item">➕ Then click on the map</div>
+            </div>
+            <button class="tips-button" onclick="closeTips()">Let's Go</button>
+        </div>
+    </div>
 
     <div class="theme-toggle-float liquid-glass">
         <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
@@ -1115,7 +1152,32 @@
         /* ===================================================================
            SPLASH / MISSION SCREEN
            =================================================================== */
-        function dismissSplash() { document.getElementById('splashScreen').classList.add('hide'); }
+        function dismissSplash() {
+            document.getElementById('splashScreen').classList.add('hide');
+            showTipsDialog();
+        }
+
+        function showTipsDialog() {
+            const tipsShown = localStorage.getItem('berlinRentTipsShown');
+            if (tipsShown) return;
+            localStorage.setItem('berlinRentTipsShown', 'true');
+            const dialog = document.getElementById('tipsDialog');
+            dialog.style.display = 'block';
+            document.getElementById('locateBtn').classList.add('pulse-tips');
+        }
+
+        function closeTips() {
+            const dialog = document.getElementById('tipsDialog');
+            const locateBtn = document.getElementById('locateBtn');
+            dialog.style.animation = 'slideDown 0.4s ease-in reverse';
+            dialog.style.opacity = '0';
+            setTimeout(() => {
+                locateBtn.classList.remove('pulse-tips');
+                dialog.style.display = 'none';
+                dialog.style.opacity = '1';
+                dialog.style.animation = 'slideDown 0.4s ease-out';
+            }, 400);
+        }
         function updateSplashStats(rents) {
             document.getElementById('splashPinCount').textContent = rents.length.toLocaleString();
             const districts = new Set(rents.map(r => r.district).filter(Boolean));
