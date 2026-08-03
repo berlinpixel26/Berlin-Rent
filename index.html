@@ -392,8 +392,9 @@
         .tips-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
         .tips-items { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; text-align: left; }
         .tips-item { margin-bottom: 3px; white-space: nowrap; }
-        .tips-button { width: 100%; padding: 6px 12px; border-radius: 999px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; }
+        .tips-button { padding: 4px 10px; border-radius: 999px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; margin-top: 2px; }
         .tips-button:hover { filter: brightness(1.08); }
+        .tips-item strong { font-weight: 700; color: var(--text); }
 
         /* Pulse animation for locate button */
         .locate-btn.pulse-tips { animation: pulseBlue 2.5s ease-in-out 0.5s infinite; }
@@ -445,9 +446,9 @@
         <div class="tips-content">
             <div class="tips-title">👋 First time here?</div>
             <div class="tips-items">
-                <div class="tips-item">🔍 Search any address</div>
-                <div class="tips-item">📍 Or tap "Pick My Location"</div>
-                <div class="tips-item">➕ Then click on the map</div>
+                <div class="tips-item">🔍 <strong>Search</strong> any address</div>
+                <div class="tips-item">📍 Or tap <strong>"Pick My Location"</strong></div>
+                <div class="tips-item">➕ Then <strong>click</strong> on the map</div>
             </div>
             <button class="tips-button" onclick="closeTips()">Let's Go</button>
         </div>
