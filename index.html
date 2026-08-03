@@ -378,8 +378,8 @@
 
         /* ============ TIPS DIALOG (First-time visitor hint) ============ */
         .tips-dialog {
-            position: fixed; top: 130px; left: 50%; transform: translateX(-50%); z-index: 500;
-            width: min(92vw, 260px); padding: 12px 14px; border-radius: 10px;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500;
+            width: min(90vw, 320px); padding: 10px 14px; border-radius: 10px;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.47), rgba(255, 255, 255, 0.2) 55%), rgba(255, 255, 255, 0.47);
             backdrop-filter: blur(22px) saturate(180%);
             -webkit-backdrop-filter: blur(22px) saturate(180%);
@@ -387,12 +387,12 @@
             box-shadow: 0 10px 34px rgba(15,18,22,0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
             animation: slideDown 0.4s ease-out;
         }
-        @keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .tips-content { text-align: center; }
-        .tips-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-        .tips-items { font-size: 11px; color: var(--text-muted); margin-bottom: 9px; line-height: 1.4; text-align: left; }
-        .tips-item { margin-bottom: 3px; }
-        .tips-button { width: 100%; padding: 7px 12px; border-radius: 999px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; }
+        .tips-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .tips-items { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; text-align: left; }
+        .tips-item { margin-bottom: 3px; white-space: nowrap; }
+        .tips-button { width: 100%; padding: 6px 12px; border-radius: 999px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; }
         .tips-button:hover { filter: brightness(1.08); }
 
         /* Pulse animation for locate button */
