@@ -123,100 +123,69 @@
    First Visit Onboarding
 ========================== */
 
-.onboarding-tip{
+        .onboarding-tip{
+            pointer-events:none;
+            .tip-btn{
 
-    position:fixed;
+    pointer-events:auto;
 
-    left:50%;
+}
+    position: fixed;
 
-    bottom:22px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
-    transform:translateX(-50%);
+    width: min(280px, 85vw);
 
-    width:340px;
+    padding: 12px 14px;
 
-    max-width:90vw;
+    border-radius: 14px;
 
-    padding:18px;
+    z-index: 9999;
 
-    border-radius:18px;
+    text-align: center;
 
-    z-index:5000;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 
-    display:flex;
+    background: rgba(255,255,255,.18);
 
-    flex-direction:column;
+    border: 1px solid rgba(255,255,255,.22);
 
-    gap:10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.18);
 
-    text-align:center;
-
-    animation:fadeUp .45s ease;
+    animation: fadeUp .3s ease;
 }
 
-.tip-title{
-
-    font-size:20px;
-
+[data-theme="dark"] .onboarding-tip{
+    background: rgba(25,25,25,.45);
+    border: 1px solid rgba(255,255,255,.08);
+}
+        .tip-title{
+    font-size:17px;
     font-weight:700;
+    margin-bottom:8px;
 }
 
 .tip-line{
-
-    font-size:15px;
-
-    line-height:1.45;
+    font-size:13px;
+    line-height:1.35;
 }
 
 .tip-btn{
 
-    margin-top:6px;
+    margin-top:10px;
 
-    border:none;
+    width:100%;
 
-    border-radius:12px;
+    padding:9px;
 
-    padding:12px;
+    border-radius:10px;
 
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    background:#2563EB;
-
-    color:white;
-
-    transition:.2s;
+    font-size:14px;
 }
 
-.tip-btn:hover{
-
-    transform:translateY(-1px);
-
-    background:#1D4ED8;
-}
-
-@keyframes fadeUp{
-
-    from{
-
-        opacity:0;
-
-        transform:translate(-50%,25px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translate(-50%,0);
-
-    }
-
-}
         
         :root[data-theme="light"] {
             color-scheme: light;
