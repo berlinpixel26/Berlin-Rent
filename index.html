@@ -755,7 +755,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
     <script>
         /* ===================================================================
            SUPABASE — real backend. Anonymous public "anon" key is safe to
@@ -764,7 +764,22 @@
            =================================================================== */
         const SUPABASE_URL = 'https://meaiajvcjadzvcxwhtfx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYWlhanZjamFkenZjeHdodGZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTgzNzEsImV4cCI6MjEwMTA3NDM3MX0.82g7IvvMZWQJ3EOMn_fKPFOCGqQuYjbgKfOgNc6HePw';
-        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let sbClient;
+
+        async function initSupabase() {
+            let retries = 0;
+            while (!window.supabase && retries < 100) {
+                await new Promise(r => setTimeout(r, 10));
+                retries++;
+            }
+            if (!window.supabase) {
+                console.error('Supabase library failed to load');
+                return false;
+            }
+            sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return true;
+        }
+        initSupabase();
 
         /* ===================================================================
            ANALYTICS — privacy-friendly page visit tracking.
@@ -784,6 +799,8 @@
 
         async function recordPageVisit() {
             try {
+                if (!sbClient) await initSupabase();
+                if (!sbClient) return;
                 const visitorId = getOrCreateVisitorId();
                 const { error } = await sbClient.from('page_visits').insert({
                     visitor_id: visitorId,
@@ -1049,6 +1066,12 @@
            edit_token and email — those must never reach a visitor's browser
            via the general pin-listing query (see supabase-migration-batch2.sql). */
         async function loadRents() {
+            if (!sbClient) await initSupabase();
+            if (!sbClient) {
+                sampleRents.forEach(renderRentPin);
+                updateSplashStats(allRentsCache);
+                return;
+            }
             const { data, error } = await sbClient
                 .from('rents')
                 .select('id, lat, lng, cold, warm, deposit, bhk, district, furnished, privacy, household, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, created_at');
@@ -1123,6 +1146,8 @@
             const textEl = document.getElementById('reportReasonText');
             const reason = textEl.value.trim();
             if (!reason) { alert('Please describe the issue first.'); return; }
+            if (!sbClient) await initSupabase();
+            if (!sbClient) { alert('Backend unavailable. Please try again.'); return; }
 
             const { error } = await sbClient.from('reports').insert({ rent_id: reportingRentId, reason });
 
@@ -1259,6 +1284,8 @@
 
         async function deleteRentPin(d) {
             if (!confirm('Delete this rent pin? This cannot be undone.')) return;
+            if (!sbClient) await initSupabase();
+            if (!sbClient) { alert('Backend unavailable. Please try again.'); return; }
             const token = getTokenFor(d.id);
             const { data, error } = await sbClient.rpc('delete_rent_with_token', { p_id: d.id, p_token: token });
             if (error || !data) {
@@ -1394,6 +1421,9 @@
             btn.disabled = true;
             btn.textContent = 'Sending…';
 
+            if (!sbClient) await initSupabase();
+            if (!sbClient) { alert('Backend unavailable. Please try again.'); btn.disabled = false; btn.textContent = 'Send Suggestion'; return; }
+
             const { error } = await sbClient.from('feature_requests').insert({ message: text });
 
             btn.disabled = false;
@@ -1467,6 +1497,9 @@
         }
 
         async function submitRentPin() {
+            if (!sbClient) await initSupabase();
+            if (!sbClient) { alert('Backend unavailable. Please try again.'); return; }
+
             const cold = document.getElementById('rentCold').value;
             const warm = document.getElementById('rentWarm').value;
             const deposit = document.getElementById('rentDeposit').value;
