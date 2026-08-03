@@ -118,6 +118,106 @@
          The Google Maps JS API <script> tag is loaded at the end of <body> with &loading=async. -->
 
     <style>
+
+        /* ==========================
+   First Visit Onboarding
+========================== */
+
+.onboarding-tip{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:22px;
+
+    transform:translateX(-50%);
+
+    width:340px;
+
+    max-width:90vw;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    z-index:5000;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    text-align:center;
+
+    animation:fadeUp .45s ease;
+}
+
+.tip-title{
+
+    font-size:20px;
+
+    font-weight:700;
+}
+
+.tip-line{
+
+    font-size:15px;
+
+    line-height:1.45;
+}
+
+.tip-btn{
+
+    margin-top:6px;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:12px;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    background:#2563EB;
+
+    color:white;
+
+    transition:.2s;
+}
+
+.tip-btn:hover{
+
+    transform:translateY(-1px);
+
+    background:#1D4ED8;
+}
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translate(-50%,25px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translate(-50%,0);
+
+    }
+
+}
+        
         :root[data-theme="light"] {
             color-scheme: light;
             --bg: #f4f5f7;
@@ -414,6 +514,24 @@
     </div>
 
     <div id="map"></div>
+
+    <div id="map"></div>
+
+        <div id="onboardingTip" class="onboarding-tip liquid-glass">
+        <div class="tip-title">👋 First time here?</div>
+    
+        <div class="tip-line">🔍 Search any address</div>
+    
+        <div class="tip-line">📍 Or tap <strong>"Pick My Location"</strong></div>
+    
+        <div class="tip-line">➕ Then click anywhere on the map to add your rent.</div>
+    
+        <button class="tip-btn" onclick="dismissOnboarding()">
+            Got it
+        </button>
+    </div>
+
+    
 
     <div class="theme-toggle-float liquid-glass">
         <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
