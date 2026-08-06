@@ -1528,7 +1528,7 @@
                 }
                 const lat = parseFloat(results[0].lat);
                 const lng = parseFloat(results[0].lon);
-                const address = results[0].display_name.split(',')[0];
+                const address = results[0].name || results[0].display_name.split(',').slice(0, 2).join(',').trim();
 
                 document.getElementById('addRentModal').dataset.lat = lat;
                 document.getElementById('addRentModal').dataset.lng = lng;
@@ -1536,6 +1536,9 @@
                 const confirmDiv = document.getElementById('rentLocationConfirm');
                 document.getElementById('rentLocationConfirmText').textContent = `Location set: ${address} — you can fine-tune by clicking the map.`;
                 confirmDiv.style.display = 'flex';
+
+                map.panTo({ lat, lng });
+                map.setZoom(17);
             } catch (err) {
                 alert('Search failed — please check your connection and try again.');
             }
