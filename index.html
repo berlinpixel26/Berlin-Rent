@@ -541,6 +541,15 @@
             <div class="hint">Pins go live immediately — they aren't pre-moderated. Anyone can flag a pin as suspicious via 🚩 Report. Once there are 5 reports on a pin, then it will be removed. You can edit or delete your own pin later from the same browser.</div>
             <div class="hint" id="rentLatLngHint"></div>
 
+            <label style="margin-top:14px;">📍 Search your address or street</label>
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <input type="text" id="rentAddressSearch" placeholder="📍 Search your address or street" style="flex:1;">
+                <button id="rentAddressSearchBtn" style="flex-shrink:0; padding:0 16px; border-radius:6px; border:none; cursor:pointer; background:var(--accent); color:#fff; font-weight:600; font-size:13px;">Find</button>
+            </div>
+            <div id="rentLocationConfirm" style="margin-top:8px; padding:9px 12px; border-radius:8px; background:rgba(43,122,120,0.12); border:1px solid rgba(43,122,120,0.35); color:#1f6b69; font-size:12.5px; display:none; align-items:center; gap:6px;">
+                <span>📍</span><span id="rentLocationConfirmText"></span>
+            </div>
+
             <div class="section-label">Mandatory</div>
 
             <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
@@ -1504,6 +1513,39 @@
             closeInfoModal('requestFeatureModal');
         }
 
+        async function searchAddressForRent() {
+            const input = document.getElementById('rentAddressSearch');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Germany')}`;
+            try {
+                const res = await fetch(url);
+                const results = await res.json();
+                if (!results.length) {
+                    alert('Could not find that address in Germany. Try including the street name, house number, or zip code.');
+                    return;
+                }
+                const lat = parseFloat(results[0].lat);
+                const lng = parseFloat(results[0].lon);
+                const address = results[0].display_name.split(',')[0];
+
+                document.getElementById('addRentModal').dataset.lat = lat;
+                document.getElementById('addRentModal').dataset.lng = lng;
+
+                const confirmDiv = document.getElementById('rentLocationConfirm');
+                document.getElementById('rentLocationConfirmText').textContent = `Location set: ${address} — you can fine-tune by clicking the map.`;
+                confirmDiv.style.display = 'flex';
+            } catch (err) {
+                alert('Search failed — please check your connection and try again.');
+            }
+        }
+
+        document.getElementById('rentAddressSearchBtn').addEventListener('click', searchAddressForRent);
+        document.getElementById('rentAddressSearch').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') searchAddressForRent();
+        });
+
         function openAddRentModal(latlng) {
             clickMenuEl.classList.remove('open');
             const hint = document.getElementById('rentLatLngHint');
@@ -1526,6 +1568,8 @@
             editingRentToken = null;
             document.querySelector('#addRentModal .float-btn.primary').textContent = 'Submit Anonymously';
             document.getElementById('emailFieldWrapper').style.display = '';
+            document.getElementById('rentAddressSearch').value = '';
+            document.getElementById('rentLocationConfirm').style.display = 'none';
         }
 
         function toggleChip(el) { el.classList.toggle('active'); }
