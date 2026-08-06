@@ -316,14 +316,14 @@
         .rent-pill {
             position: absolute; transform: translate(-50%, -100%);
             background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 60%), var(--accent);
-            color: #fff; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+            color: #fff; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 999px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.25); cursor: pointer; white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 5px;
+            border: 1px solid rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 4px;
         }
         .rent-pill::after {
-            content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
-            border-top: 6px solid var(--accent);
+            content: ''; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+            border-top: 5px solid var(--accent);
         }
         .rent-pill:hover { filter: brightness(1.08); }
 
@@ -538,7 +538,7 @@
             <button class="close-btn" onclick="closeAddRentModal()">×</button>
             <h2>💰 What rent are you paying?</h2>
             <div class="subtitle">100% anonymous — no email, no login. Helps other renters see real prices.</div>
-            <div class="hint">Pins go live immediately — they aren't pre-moderated. Anyone can flag a pin as suspicious via 🚩 Report, and you can edit or delete your own pin later from this same browser.</div>
+            <div class="hint">Pins go live immediately — they aren't pre-moderated. Anyone can flag a pin as suspicious via 🚩 Report. Once there are 5 reports on a pin, then it will be removed. You can edit or delete your own pin later from the same browser.</div>
             <div class="hint" id="rentLatLngHint"></div>
 
             <div class="section-label">Mandatory</div>
@@ -1271,8 +1271,8 @@
             const listedAgoEl = document.getElementById('detailListedAgo');
             const daysSince = daysAgo(d.createdAt);
             if (daysSince !== null) {
-                const daysLabel = daysSince === 0 ? 'Listed today' : `Listed ${daysSince} day${daysSince === 1 ? '' : 's'} ago`;
-                listedAgoEl.innerHTML = `<div class="detail-note" style="margin-bottom:8px;">🕐 ${daysLabel}</div>`;
+                const daysLabel = daysSince === 0 ? 'Added today' : `Added ${daysSince} day${daysSince === 1 ? '' : 's'} ago`;
+                listedAgoEl.innerHTML = `<div class="detail-note" style="margin-bottom:8px; font-weight:700; color:var(--gold);">🕐 ${daysLabel}</div>`;
             } else {
                 listedAgoEl.innerHTML = '';
             }
