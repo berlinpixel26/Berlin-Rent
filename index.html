@@ -544,11 +544,8 @@
             <div class="hint" id="rentLatLngHint"></div>
 
             <label style="margin-top:14px;">📍 Search your address or street</label>
-            <div style="display:flex; gap:8px; margin-top:6px; position:relative;">
-                <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location">
-                    <img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate" style="width:16px; height:16px;">
-                </button>
-                <input type="text" id="rentAddressSearch" placeholder="📍 Search your address or street" style="flex:1; padding-left:40px;">
+            <div style="display:flex; gap:8px; margin-top:6px;">
+                <input type="text" id="rentAddressSearch" placeholder="📍 Search your address or street" style="flex:1;">
                 <button id="rentAddressSearchBtn" style="flex-shrink:0; padding:0 16px; border-radius:6px; border:none; cursor:pointer; background:var(--accent); color:#fff; font-weight:600; font-size:13px;">Find</button>
             </div>
             <div id="rentLocationConfirm" style="margin-top:8px; padding:9px 12px; border-radius:8px; background:rgba(43,122,120,0.12); border:1px solid rgba(43,122,120,0.35); color:#1f6b69; font-size:12.5px; display:none; align-items:center; gap:6px;">
