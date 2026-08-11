@@ -435,8 +435,8 @@
             </div>
             <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer—share what you truly pay.</p>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
-                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="dismissSplash()">Share my Rent</button>
-                <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="dismissSplash()">Explore Berlin Rents</button>
+                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="trackEvent('splash_share_my_rent_clicked'); dismissSplash()">Share my Rent</button>
+                <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="trackEvent('splash_explore_rents_clicked'); dismissSplash()">Explore Berlin Rents</button>
             </div>
         </div>
     </div>
@@ -452,7 +452,7 @@
                 <div class="tips-item">📍 Or tap <strong>"Pick My Location"</strong></div>
                 <div class="tips-item">➕ Then <strong>click</strong> on the map</div>
             </div>
-            <button class="tips-button" onclick="closeTips()">Let's Go</button>
+            <button class="tips-button" onclick="trackEvent('tips_lets_go_clicked'); closeTips()">Let's Go</button>
         </div>
     </div>
 
@@ -480,8 +480,8 @@
         <button class="float-btn small liquid-glass" onclick="openInfoModal('requestFeatureModal')">💡 Request a Feature</button>
     </div>
 
-    <button class="transit-btn liquid-glass" id="transitBtn" onclick="toggleTransitLayer()" title="Toggle transit (S-Bahn/U-Bahn) layer">🚇</button>
-    <button class="locate-btn liquid-glass" id="locateBtn" onclick="pickMyLocation()" title="Pick my location">
+    <button class="transit-btn liquid-glass" id="transitBtn" onclick="trackEvent('transit_layer_toggled'); toggleTransitLayer()" title="Toggle transit (S-Bahn/U-Bahn) layer">🚇</button>
+    <button class="locate-btn liquid-glass" id="locateBtn" onclick="trackEvent('pick_my_location_clicked'); pickMyLocation()" title="Pick my location">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="7"></circle><line x1="12" y1="1" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="23"></line><line x1="1" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="23" y2="12"></line></svg>
     </button>
 
@@ -867,6 +867,60 @@
             }
         }
 
+        /* First-touch attribution: capture where the visitor first came from
+           (referrer + UTM params) once, and reuse it for the lifetime of the
+           browser so later actions/submissions retain the true source. */
+        function getOrCreateVisitorSource() {
+            let source = localStorage.getItem('visitorSource');
+            if (!source) {
+                const params = new URLSearchParams(window.location.search);
+                const utmSource = params.get('utm_source');
+                const utmMedium = params.get('utm_medium');
+                const utmCampaign = params.get('utm_campaign');
+                if (utmSource) {
+                    source = utmCampaign ? `${utmSource}/${utmMedium || 'referral'}/${utmCampaign}` : `${utmSource}/${utmMedium || 'referral'}`;
+                } else if (document.referrer) {
+                    try {
+                        const host = new URL(document.referrer).hostname.replace(/^www\./, '');
+                        source = (host && host !== window.location.hostname) ? host : 'direct';
+                    } catch (e) {
+                        source = 'direct';
+                    }
+                } else {
+                    source = 'direct';
+                }
+                localStorage.setItem('visitorSource', source);
+            }
+            return source;
+        }
+
+        /* Fire a lightweight behavior event to GA4 (gtag) and to our own
+           Supabase user_events table, so funnels can be built either way.
+           Never blocks the UI — failures are swallowed and logged. */
+        async function trackEvent(eventName, metadata) {
+            metadata = metadata || {};
+            try {
+                if (typeof gtag === 'function') {
+                    gtag('event', eventName, metadata);
+                }
+            } catch (e) {
+                console.warn('gtag track failed:', e.message);
+            }
+            try {
+                if (!sbClient) await initSupabase();
+                if (!sbClient) return;
+                const { error } = await sbClient.from('user_events').insert({
+                    visitor_id: getOrCreateVisitorId(),
+                    event_name: eventName,
+                    metadata: metadata,
+                    referrer_source: getOrCreateVisitorSource()
+                });
+                if (error) console.warn('Event track failed:', error.message);
+            } catch (e) {
+                console.warn('Event track error:', e.message);
+            }
+        }
+
         function rowToRent(row) {
             return {
                 id: row.id,
@@ -1217,6 +1271,7 @@
            =================================================================== */
         function openReportModal(d) {
             reportingRentId = d.id;
+            trackEvent('report_pin_opened', { rent_id: d.id });
             document.getElementById('reportReasonText').value = '';
             document.getElementById('reportsModal').classList.add('open');
         }
@@ -1235,6 +1290,7 @@
                 return;
             }
 
+            trackEvent('report_pin_submitted', { rent_id: reportingRentId });
             alert('Thanks — your report has been sent for review.');
             textEl.value = '';
             closeReportModal();
@@ -1244,6 +1300,7 @@
            GEOLOCATION — use browser's Geolocation API to get user's current location
            =================================================================== */
         function locateUser(source) {
+            trackEvent('locate_me_clicked', { source: source });
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser.');
                 return;
@@ -1286,6 +1343,7 @@
             const input = document.getElementById('searchInput');
             const query = input.value.trim();
             if (!query) return;
+            trackEvent('search_used', { source: 'main' });
 
             const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Germany')}`;
             try {
@@ -1409,11 +1467,13 @@
                 return;
             }
             removeMyToken(d.id);
+            trackEvent('rent_pin_deleted', { rent_id: d.id });
             closeRentDetailModal();
             await refreshAllPins();
         }
 
         function openEditRentModal(d) {
+            trackEvent('rent_pin_edit_opened', { rent_id: d.id });
             closeRentDetailModal();
             editingRentId = d.id;
             editingRentToken = getTokenFor(d.id);
@@ -1494,7 +1554,7 @@
         /* ===================================================================
            MODAL HELPERS
            =================================================================== */
-        function openFilterModal() { document.getElementById('filterModal').classList.add('open'); }
+        function openFilterModal() { trackEvent('filters_opened'); document.getElementById('filterModal').classList.add('open'); }
         function closeFilterModal() { document.getElementById('filterModal').classList.remove('open'); }
 
         function formatTotalRent(sum) {
@@ -1504,6 +1564,7 @@
         }
 
         function openStatsModal() {
+            trackEvent('stats_opened');
             document.getElementById('statPinCount').textContent = allRentsCache.length.toLocaleString();
 
             const totalRent = allRentsCache.reduce((sum, r) => sum + (Number(r.warm) || 0), 0);
@@ -1526,7 +1587,7 @@
         }
         function closeStatsModal() { document.getElementById('statsModal').classList.remove('open'); }
 
-        function openInfoModal(id) { document.getElementById(id).classList.add('open'); }
+        function openInfoModal(id) { trackEvent('info_modal_opened', { modal: id }); document.getElementById(id).classList.add('open'); }
         function closeInfoModal(id) { document.getElementById(id).classList.remove('open'); }
         async function submitFeatureRequest() {
             const textEl = document.getElementById('featureRequestText');
@@ -1550,6 +1611,7 @@
                 return;
             }
 
+            trackEvent('feature_request_submitted');
             alert('Thanks! Your suggestion has been sent.');
             textEl.value = '';
             closeInfoModal('requestFeatureModal');
@@ -1559,6 +1621,7 @@
             const input = document.getElementById('rentAddressSearch');
             const query = input.value.trim();
             if (!query) return;
+            trackEvent('search_used', { source: 'modal' });
 
             const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Germany')}`;
             try {
@@ -1592,6 +1655,7 @@
         });
 
         function openAddRentModal(latlng) {
+            trackEvent('add_rent_clicked', { source: latlng ? 'map_pin_menu' : 'button' });
             clickMenuEl.classList.remove('open');
             const hint = document.getElementById('rentLatLngHint');
             if (latlng) {
@@ -1644,7 +1708,7 @@
         buildStars('stayRatingStars');
         buildStars('neighbourhoodRatingStars');
 
-        function applyFilters() { alert('Filters applied! (Mock — will query Supabase in production)'); closeFilterModal(); }
+        function applyFilters() { trackEvent('filters_applied'); alert('Filters applied! (Mock — will query Supabase in production)'); closeFilterModal(); }
         function clearFilters() {
             document.querySelectorAll('#filterModal input, #filterModal select').forEach(el => { el.value = ''; });
             document.querySelectorAll('#filterModal .chip').forEach(c => c.classList.remove('active'));
@@ -1729,6 +1793,7 @@
                     return;
                 }
 
+                trackEvent('rent_pin_edited', { rent_id: editingRentId });
                 editingRentId = null;
                 editingRentToken = null;
                 closeAddRentModal();
@@ -1751,7 +1816,8 @@
                 utilities_included: rent.utilitiesIncluded, stay_rating: rent.stayRating, area: rent.area,
                 one_liner: rent.oneLiner, letterbox: rent.letterbox, pets: rent.pets, smoking: rent.smoking,
                 neighbourhood_rating: rent.neighbourhoodRating, anmeldung_provided: rent.anmeldungProvided,
-                edit_token: editToken, email
+                edit_token: editToken, email,
+                visitor_id: getOrCreateVisitorId(), referrer_source: getOrCreateVisitorSource()
             }).select('id').single();
 
             submitBtn.disabled = false;
@@ -1765,6 +1831,7 @@
             rent.id = data.id;
             saveMyToken(data.id, editToken);
             renderRentPin(rent);
+            trackEvent('rent_submitted', { rent_id: data.id, district: rent.district });
 
             document.getElementById('rentEmail').value = '';
             document.getElementById('rentEmailConsent').checked = false;
