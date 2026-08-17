@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -543,6 +544,7 @@
             <div class="hint">• Pins go live immediately — they aren't pre-moderated.<br>• You can edit or delete your own pin later from the same browser.<br>• Anyone can flag a pin as suspicious via 🚩 Report.<br>• Once there are 5 reports on a pin, it will be removed.</div>
             <div class="hint" id="rentLatLngHint"></div>
 
+            <div id="rentBasicsSection">
             <label style="margin-top:14px;">Search your address or street</label>
             <div style="display:flex; gap:8px; margin-top:6px; position:relative;">
                 <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location">
@@ -610,8 +612,6 @@
                 </div>
             </div>
 
-            <div class="section-label">Optional</div>
-
             <div id="emailFieldWrapper">
                 <label>📧 Email (optional)</label>
                 <input type="email" id="rentEmail" placeholder="you@example.com">
@@ -620,6 +620,18 @@
                     <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">I'd like to be notified about my own pin (e.g. if it's reported, or to get a copy of my submission). My email will never be shown publicly or shared.</label>
                 </div>
             </div>
+
+            <button id="submitBasicRentBtn" class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Submit Anonymously</button>
+            </div>
+
+            <div id="optionalDetailsSection" style="display:none;">
+                <div id="rentSubmissionSuccess" style="text-align:center; margin:8px 0 18px; padding:18px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--accent);">
+                    <div style="font-size:34px; margin-bottom:5px;">🎉</div>
+                    <h2 style="margin-bottom:6px;">Your rent is now live!</h2>
+                    <div class="subtitle" style="margin-bottom:0;">Want to add a few optional details to help other renters compare?</div>
+                </div>
+
+            <div class="section-label">Add Optional Details</div>
 
             <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
             <input type="number" id="rentCold" placeholder="e.g., 850">
@@ -698,7 +710,14 @@
             <label>🏘️ Rate the Neighbourhood</label>
             <div class="star-rating" id="neighbourhoodRatingStars"></div>
 
-            <button class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Submit Anonymously</button>
+            <button id="saveOptionalDetailsBtn" class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Save Optional Details</button>
+            <div id="postSubmissionActions" style="margin-top:10px;">
+                <a id="optionalWhatsappShareLink" target="_blank" rel="noopener noreferrer" onclick="trackEvent('share_with_friends_clicked')" class="float-btn" style="width:100%; justify-content:center; text-decoration:none; display:flex; align-items:center; gap:8px; background:#25d366; color:#fff;">
+                    Share with your Friends on WhatsApp
+                </a>
+                <button class="float-btn" style="width:100%; margin-top:10px; justify-content:center; background:var(--surface-2); border:1px solid var(--border);" onclick="closeAddRentModal()">Close</button>
+            </div>
+            </div>
         </div>
     </div>
 
@@ -1031,6 +1050,8 @@
         let myLocationMarker = null;
         let editingRentId = null;
         let editingRentToken = null;
+        let postSubmissionEnrichment = false;
+        let postSubmissionOptionalSaved = false;
         let reportingRentId = null;
         const clickMenuEl = document.getElementById('clickMenu');
 
@@ -1306,6 +1327,38 @@
         }
         function closeThankYouModal() { document.getElementById('thankYouModal').classList.remove('open'); }
 
+        function setWhatsAppShareLink(id) {
+            const msg = "I've shared mine, share yours too! I just added my real rent on germanyrent.de — a live map of real rents shared by renters. Check it out: https://www.germanyrent.de/";
+            const link = document.getElementById(id);
+            if (link) link.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+        }
+
+        function showPostSubmissionDetails(rentId, editToken) {
+            editingRentId = rentId;
+            editingRentToken = editToken;
+            postSubmissionEnrichment = true;
+            postSubmissionOptionalSaved = false;
+            document.getElementById('rentBasicsSection').style.display = 'none';
+            document.getElementById('optionalDetailsSection').style.display = '';
+            document.getElementById('rentSubmissionSuccess').style.display = '';
+            document.getElementById('saveOptionalDetailsBtn').style.display = '';
+            document.getElementById('postSubmissionActions').style.display = '';
+            setWhatsAppShareLink('optionalWhatsappShareLink');
+            document.querySelector('#addRentModal .modal-card').scrollTop = 0;
+            trackEvent('rent_optional_details_opened', { rent_id: rentId });
+        }
+
+        function resetAddRentFlow() {
+            document.getElementById('rentBasicsSection').style.display = '';
+            document.getElementById('optionalDetailsSection').style.display = 'none';
+            document.getElementById('rentSubmissionSuccess').style.display = '';
+            document.getElementById('saveOptionalDetailsBtn').style.display = '';
+            document.getElementById('postSubmissionActions').style.display = '';
+            const basicSubmit = document.getElementById('submitBasicRentBtn');
+            basicSubmit.disabled = false;
+            basicSubmit.textContent = 'Submit Anonymously';
+        }
+
         /* ===================================================================
            REPORT A PIN
            =================================================================== */
@@ -1518,6 +1571,13 @@
             closeRentDetailModal();
             editingRentId = d.id;
             editingRentToken = getTokenFor(d.id);
+            postSubmissionEnrichment = false;
+            postSubmissionOptionalSaved = false;
+            document.getElementById('rentBasicsSection').style.display = '';
+            document.getElementById('optionalDetailsSection').style.display = '';
+            document.getElementById('rentSubmissionSuccess').style.display = 'none';
+            document.getElementById('saveOptionalDetailsBtn').style.display = 'none';
+            document.getElementById('postSubmissionActions').style.display = 'none';
 
             document.getElementById('rentWarm').value = d.warm ?? '';
             document.getElementById('rentCold').value = d.cold ?? '';
@@ -1557,7 +1617,7 @@
 
             document.getElementById('emailFieldWrapper').style.display = 'none';
 
-            document.querySelector('#addRentModal .float-btn.primary').textContent = 'Save Changes';
+            document.getElementById('submitBasicRentBtn').textContent = 'Save Changes';
             document.getElementById('addRentModal').classList.add('open');
         }
 
@@ -1706,6 +1766,11 @@
         function openAddRentModal(latlng) {
             trackEvent('add_rent_clicked', { source: latlng ? 'map_pin_menu' : 'button' });
             clickMenuEl.classList.remove('open');
+            editingRentId = null;
+            editingRentToken = null;
+            postSubmissionEnrichment = false;
+            postSubmissionOptionalSaved = false;
+            resetAddRentFlow();
             const hint = document.getElementById('rentLatLngHint');
             if (latlng) {
                 const lat = typeof latlng.lat === 'function' ? latlng.lat() : latlng.lat;
@@ -1721,10 +1786,15 @@
             document.getElementById('addRentModal').classList.add('open');
         }
         function closeAddRentModal() {
+            if (postSubmissionEnrichment && !postSubmissionOptionalSaved && editingRentId) {
+                trackEvent('rent_optional_details_skipped', { rent_id: editingRentId });
+            }
             document.getElementById('addRentModal').classList.remove('open');
             editingRentId = null;
             editingRentToken = null;
-            document.querySelector('#addRentModal .float-btn.primary').textContent = 'Submit Anonymously';
+            postSubmissionEnrichment = false;
+            postSubmissionOptionalSaved = false;
+            resetAddRentFlow();
             document.getElementById('emailFieldWrapper').style.display = '';
             document.getElementById('rentAddressSearch').value = '';
             document.getElementById('rentLocationConfirm').style.display = 'none';
@@ -1819,7 +1889,7 @@
                 createdAt: new Date().toISOString()
             };
 
-            const submitBtn = document.querySelector('#addRentModal .float-btn.primary');
+            const submitBtn = document.getElementById(postSubmissionEnrichment ? 'saveOptionalDetailsBtn' : 'submitBasicRentBtn');
             submitBtn.disabled = true;
 
             if (editingRentId) {
@@ -1841,8 +1911,16 @@
                 submitBtn.disabled = false;
 
                 if (error || !data) {
-                    submitBtn.textContent = 'Save Changes';
+                    submitBtn.textContent = postSubmissionEnrichment ? 'Save Optional Details' : 'Save Changes';
                     alert('Could not save your changes — please try again.');
+                    return;
+                }
+
+                if (postSubmissionEnrichment) {
+                    postSubmissionOptionalSaved = true;
+                    submitBtn.textContent = 'Optional Details Saved';
+                    trackEvent('rent_optional_details_saved', { rent_id: editingRentId });
+                    await refreshAllPins();
                     return;
                 }
 
@@ -1890,13 +1968,16 @@
             document.getElementById('rentEmail').value = '';
             document.getElementById('rentEmailConsent').checked = false;
 
-            closeAddRentModal();
-            showThankYouModal();
+            showPostSubmissionDetails(data.id, editToken);
         }
 
         /* Close modals on backdrop click */
         document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-            backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.classList.remove('open'); });
+            backdrop.addEventListener('click', e => {
+                if (e.target !== backdrop) return;
+                if (backdrop.id === 'addRentModal') closeAddRentModal();
+                else backdrop.classList.remove('open');
+            });
         });
 
         /* Splash the "Tip" banner briefly on load, then fade it out so it
