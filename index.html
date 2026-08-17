@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -435,7 +436,7 @@
             </div>
             <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer—share what you truly pay.</p>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
-                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="trackEvent('splash_share_my_rent_clicked'); dismissSplash()">Share my Rent</button>
+                <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="trackEvent('splash_share_my_rent_clicked'); startContributionFromSplash()">Share my Rent</button>
                 <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="trackEvent('splash_explore_rents_clicked'); dismissSplash()">Explore Berlin Rents</button>
             </div>
         </div>
@@ -1290,6 +1291,12 @@
         function dismissSplash() {
             document.getElementById('splashScreen').classList.add('hide');
             showTipsDialog();
+        }
+
+        function startContributionFromSplash() {
+            document.getElementById('splashScreen').classList.add('hide');
+            document.getElementById('tipsDialog').style.display = 'none';
+            openAddRentModal(null);
         }
 
         function showTipsDialog() {
