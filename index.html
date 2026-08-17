@@ -539,10 +539,12 @@
     <div class="modal-backdrop" id="addRentModal">
         <div class="modal-card">
             <button class="close-btn" onclick="closeAddRentModal()">×</button>
-            <h2>💰 What rent are you paying?</h2>
-            <div class="subtitle">100% anonymous — no email, no login. Helps other renters see real prices.</div>
-            <div class="hint">• Pins go live immediately — they aren't pre-moderated.<br>• You can edit or delete your own pin later from the same browser.<br>• Anyone can flag a pin as suspicious via 🚩 Report.<br>• Once there are 5 reports on a pin, it will be removed.</div>
-            <div class="hint" id="rentLatLngHint"></div>
+            <div id="rentModalIntro">
+                <h2>💰 What rent are you paying?</h2>
+                <div class="subtitle">100% anonymous — no email, no login. Helps other renters see real prices.</div>
+                <div class="hint">• Pins go live immediately — they aren't pre-moderated.<br>• You can edit or delete your own pin later from the same browser.<br>• Anyone can flag a pin as suspicious via 🚩 Report.<br>• Once there are 5 reports on a pin, it will be removed.</div>
+                <div class="hint" id="rentLatLngHint"></div>
+            </div>
 
             <div id="rentBasicsSection">
             <label style="margin-top:14px;">Search your address or street</label>
@@ -625,7 +627,7 @@
             </div>
 
             <div id="optionalDetailsSection" style="display:none;">
-                <div id="rentSubmissionSuccess" style="text-align:center; margin:8px 0 18px; padding:18px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--accent);">
+                <div id="rentSubmissionSuccess" style="text-align:center; margin:8px 0 18px; padding:18px; border-radius:10px; background:#e8f8ed; border:1px solid #25d366;">
                     <div style="font-size:34px; margin-bottom:5px;">🎉</div>
                     <h2 style="margin-bottom:6px;">Your rent is now live!</h2>
                     <div class="subtitle" style="margin-bottom:0;">Want to add a few optional details to help other renters compare?</div>
@@ -710,12 +712,15 @@
             <label>🏘️ Rate the Neighbourhood</label>
             <div class="star-rating" id="neighbourhoodRatingStars"></div>
 
-            <button id="saveOptionalDetailsBtn" class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Save Optional Details</button>
+            <button id="saveOptionalDetailsBtn" class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Save Additional Details</button>
             <div id="postSubmissionActions" style="margin-top:10px;">
                 <a id="optionalWhatsappShareLink" target="_blank" rel="noopener noreferrer" onclick="trackEvent('share_with_friends_clicked')" class="float-btn" style="width:100%; justify-content:center; text-decoration:none; display:flex; align-items:center; gap:8px; background:#25d366; color:#fff;">
+                    <svg width="20" height="20" viewBox="0 0 346 346" style="flex-shrink:0;" aria-hidden="true">
+                        <path fill="#fff" d="M173,0C77.45,0,0,77.45,0,173c0,31.43,8.38,60.91,23.04,86.31L0,346l89.87-21.25c24.67,13.54,53,21.25,83.13,21.25,95.55,0,173-77.45,173-173S268.55,0,173,0ZM173,315.01c-28.91,0-55.81-8.64-78.24-23.48l-53.1,13.52,14.89-50.75c-16.11-23.03-25.56-51.06-25.56-81.3,0-78.43,63.58-142.01,142.01-142.01s142.01,63.58,142.01,142.01-63.58,142.01-142.01,142.01Z"></path>
+                        <path fill="#fff" d="M213.54,195.84l41.86,19.73c1.92.91,3.15,2.85,2.98,4.97-.45,5.51-2.66,16.55-12.56,26.44-27.93,27.93-78.09-3.67-80.13-4.89-12.34-6.63-24.06-15.49-35.17-26.61-11.11-11.11-19.98-22.84-26.61-35.17-1.22-2.04-32.82-52.19-4.89-80.13,9.9-9.9,20.93-12.1,26.44-12.56,2.12-.17,4.07,1.06,4.97,2.98l19.73,41.86c.93,1.98.52,4.33-1.02,5.88l-14.71,14.71c-3.18,3.18-4.12,8.13-1.92,12.06,5.37,9.63,12.59,18.9,20.95,27.43,8.53,8.36,17.8,15.58,27.43,20.95,3.93,2.19,8.88,1.26,12.06-1.92l14.71-14.71c1.55-1.55,3.9-1.96,5.88-1.02Z"></path>
+                    </svg>
                     Share with your Friends on WhatsApp
                 </a>
-                <button class="float-btn" style="width:100%; margin-top:10px; justify-content:center; background:var(--surface-2); border:1px solid var(--border);" onclick="closeAddRentModal()">Close</button>
             </div>
             </div>
         </div>
@@ -1321,14 +1326,14 @@
            THANK YOU MODAL (shown after a successful new submission)
            =================================================================== */
         function showThankYouModal() {
-            const msg = "I've shared mine, share yours too! I just added my real rent on germanyrent.de — a live map of real rents shared by renters. Check it out: https://www.germanyrent.de/";
+            const msg = "I’ve just shared my rent on GermanyRent 🙌 It’s an anonymous, community-built map of what renters in Berlin really pay. Add yours too and help make rent prices more transparent: https://www.germanyrent.de/";
             document.getElementById('whatsappShareLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
             document.getElementById('thankYouModal').classList.add('open');
         }
         function closeThankYouModal() { document.getElementById('thankYouModal').classList.remove('open'); }
 
         function setWhatsAppShareLink(id) {
-            const msg = "I've shared mine, share yours too! I just added my real rent on germanyrent.de — a live map of real rents shared by renters. Check it out: https://www.germanyrent.de/";
+            const msg = "I’ve just shared my rent on GermanyRent 🙌 It’s an anonymous, community-built map of what renters in Berlin really pay. Add yours too and help make rent prices more transparent: https://www.germanyrent.de/";
             const link = document.getElementById(id);
             if (link) link.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
         }
@@ -1338,10 +1343,12 @@
             editingRentToken = editToken;
             postSubmissionEnrichment = true;
             postSubmissionOptionalSaved = false;
+            document.getElementById('rentModalIntro').style.display = 'none';
             document.getElementById('rentBasicsSection').style.display = 'none';
             document.getElementById('optionalDetailsSection').style.display = '';
             document.getElementById('rentSubmissionSuccess').style.display = '';
             document.getElementById('saveOptionalDetailsBtn').style.display = '';
+            document.getElementById('saveOptionalDetailsBtn').textContent = 'Save Additional Details';
             document.getElementById('postSubmissionActions').style.display = '';
             setWhatsAppShareLink('optionalWhatsappShareLink');
             document.querySelector('#addRentModal .modal-card').scrollTop = 0;
@@ -1349,6 +1356,7 @@
         }
 
         function resetAddRentFlow() {
+            document.getElementById('rentModalIntro').style.display = '';
             document.getElementById('rentBasicsSection').style.display = '';
             document.getElementById('optionalDetailsSection').style.display = 'none';
             document.getElementById('rentSubmissionSuccess').style.display = '';
@@ -1573,6 +1581,7 @@
             editingRentToken = getTokenFor(d.id);
             postSubmissionEnrichment = false;
             postSubmissionOptionalSaved = false;
+            document.getElementById('rentModalIntro').style.display = '';
             document.getElementById('rentBasicsSection').style.display = '';
             document.getElementById('optionalDetailsSection').style.display = '';
             document.getElementById('rentSubmissionSuccess').style.display = 'none';
@@ -1911,14 +1920,14 @@
                 submitBtn.disabled = false;
 
                 if (error || !data) {
-                    submitBtn.textContent = postSubmissionEnrichment ? 'Save Optional Details' : 'Save Changes';
+                    submitBtn.textContent = postSubmissionEnrichment ? 'Save Additional Details' : 'Save Changes';
                     alert('Could not save your changes — please try again.');
                     return;
                 }
 
                 if (postSubmissionEnrichment) {
                     postSubmissionOptionalSaved = true;
-                    submitBtn.textContent = 'Optional Details Saved';
+                    submitBtn.textContent = 'Additional Details Saved';
                     trackEvent('rent_optional_details_saved', { rent_id: editingRentId });
                     await refreshAllPins();
                     return;
