@@ -290,6 +290,12 @@
         .modal-card input:focus, .modal-card select:focus, .modal-card textarea:focus { outline: none; border-color: var(--accent); }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .compact-required-row { align-items: start; }
+        .compact-required-row .chip-group { gap: 6px; }
+        .compact-required-row .chip { padding: 7px 10px; font-size: 12px; }
+        .rent-since-selects { display: grid; grid-template-columns: 1.35fr .85fr; gap: 8px; margin-top: 6px; }
+        body.main-place-search-open .action-row { opacity: 0; pointer-events: none; transform: translateY(-6px); }
+        .action-row { transition: opacity .15s ease, transform .15s ease; }
 
         .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; line-height: 1; }
         .close-btn:hover { color: var(--text); }
@@ -491,7 +497,7 @@
 
     <div class="action-row">
         <button class="float-btn small liquid-glass" onclick="openInfoModal('howToUseModal')">📘 How to Use</button>
-        <button class="float-btn liquid-glass" onclick="openAddRentModal(null)">📍 Add my Rent</button>
+        <button class="float-btn liquid-glass" onclick="openAddRentModal(placementLatLng)">📍 Add my Rent</button>
         <button class="float-btn liquid-glass" onclick="openStatsModal()">📊 Stats</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('faqsModal')">❓ FAQs</button>
         <button class="float-btn small liquid-glass" onclick="openInfoModal('creatorModal')">👤 About</button>
@@ -566,7 +572,7 @@
 
             <div id="rentBasicsSection">
             <div style="display:flex; gap:8px; margin-top:14px; position:relative;">
-                <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location" aria-label="Use my location">
+                <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; z-index:2; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location" aria-label="Use my location">
                     <img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate" style="width:16px; height:16px;">
                 </button>
                 <div class="place-search-wrap">
@@ -580,11 +586,16 @@
 
             <div class="section-label">Mandatory</div>
 
-            <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
-            <input type="number" id="rentWarm" placeholder="e.g., 1020">
-
-            <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
-            <input type="number" id="rentDeposit" placeholder="e.g., 1734">
+            <div class="form-row">
+                <div>
+                    <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
+                    <input type="number" id="rentWarm" placeholder="e.g., 1020">
+                </div>
+                <div>
+                    <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
+                    <input type="number" id="rentDeposit" placeholder="e.g., 1734">
+                </div>
+            </div>
 
             <div class="form-row">
                 <div>
@@ -603,33 +614,34 @@
                 </div>
             </div>
 
-            <label>🛋️ Furnished? <span class="required-marker">*</span></label>
-            <div class="chip-group" id="furnishedGroup" data-single="">
-                <span class="chip" data-single-accent="" onclick="selectSingle(this)">🛋️ Furnished</span>
-                <span class="chip" data-single-accent="" onclick="selectSingle(this)">📦 Unfurnished</span>
-            </div>
-
-            <label>📅 Since when have you been paying this rent? <span class="required-marker">*</span></label>
-            <div class="form-row">
+            <div class="form-row compact-required-row">
                 <div>
-                    <select id="rentSinceMonth">
-                        <option value="">Month…</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
+                    <label>🛋️ Furnished? <span class="required-marker">*</span></label>
+                    <div class="chip-group" id="furnishedGroup" data-single="">
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Furnished</span>
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Unfurnished</span>
+                    </div>
                 </div>
                 <div>
-                    <select id="rentSinceYear"></select>
+                    <label>📅 Rent since <span class="required-marker">*</span></label>
+                    <div class="rent-since-selects">
+                        <select id="rentSinceMonth">
+                            <option value="">Month…</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="rentSinceYear"></select>
+                    </div>
                 </div>
             </div>
 
@@ -1084,6 +1096,7 @@
         let placementMarker = null;
         let placementInfoWindow = null;
         let placementLatLng = null;
+        let placementLabel = '';
         let placesLibrary = null;
         const autocompleteControllers = {};
         let editingRentId = null;
@@ -1571,6 +1584,7 @@
                 controller.list.appendChild(button);
             });
             controller.list.classList.add('open');
+            if (controller.source === 'main') document.body.classList.add('main-place-search-open');
         }
 
         function hidePlaceSuggestions(controller) {
@@ -1578,6 +1592,7 @@
             controller.activeIndex = -1;
             controller.list.replaceChildren();
             controller.list.classList.remove('open');
+            if (controller.source === 'main') document.body.classList.remove('main-place-search-open');
         }
 
         function handlePlaceAutocompleteKeydown(event, controller) {
@@ -1635,6 +1650,7 @@
             const lat = typeof position.lat === 'function' ? position.lat() : position.lat;
             const lng = typeof position.lng === 'function' ? position.lng() : position.lng;
             placementLatLng = { lat, lng };
+            placementLabel = label || '';
             clickMenuEl.classList.remove('open');
 
             if (!placementMarker) {
@@ -1658,12 +1674,12 @@
             const content = document.createElement('div');
             content.style.cssText = 'padding:4px 2px; max-width:230px; font-family:Inter,Arial,sans-serif;';
             const title = document.createElement('strong');
-            title.textContent = 'Is this the right spot?';
+            title.textContent = 'Rent pin location';
             const detail = document.createElement('div');
             detail.textContent = label;
             detail.style.cssText = 'margin:5px 0 9px; color:#5e6472; font-size:12px; line-height:1.35;';
             const adjust = document.createElement('div');
-            adjust.textContent = 'Drag the pin to adjust it.';
+            adjust.textContent = 'Drag the pin to fine-tune it, then add your rent.';
             adjust.style.cssText = 'margin-bottom:10px; color:#5e6472; font-size:12px;';
             const button = document.createElement('button');
             button.type = 'button';
@@ -1683,6 +1699,13 @@
             if (placementMarker) placementMarker.setMap(null);
             if (placementInfoWindow) placementInfoWindow.close();
             placementLatLng = null;
+            placementLabel = '';
+        }
+
+        function formatSelectedLocation(lat, lng) {
+            const genericLabels = ['Selected map location', 'Pin location adjusted', 'Current location'];
+            if (placementLabel && !genericLabels.includes(placementLabel)) return placementLabel;
+            return `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}`;
         }
 
         /* ===================================================================
@@ -1824,7 +1847,7 @@
                 document.getElementById('rentSinceMonth').value = '';
                 document.getElementById('rentSinceYear').value = '';
             }
-            selectChipByText('furnishedGroup', d.furnished ? '🛋️ Furnished' : '📦 Unfurnished');
+            selectChipByText('furnishedGroup', d.furnished ? 'Furnished' : 'Unfurnished');
             selectChipByText('privacyGroup', d.privacy);
             selectChipByText('householdGroup', d.household);
             document.getElementById('rentPeopleAllowed').value = d.peopleAllowed ?? '';
@@ -1959,7 +1982,7 @@
         }
 
         function openAddRentModal(latlng) {
-            trackEvent('add_rent_clicked', { source: latlng ? 'map_pin_menu' : 'button' });
+            trackEvent('add_rent_clicked', { source: latlng ? 'map_location' : 'button' });
             clickMenuEl.classList.remove('open');
             editingRentId = null;
             editingRentToken = null;
@@ -1967,16 +1990,24 @@
             postSubmissionOptionalSaved = false;
             resetAddRentFlow();
             const hint = document.getElementById('rentLatLngHint');
+            const locationInput = document.getElementById('rentAddressSearch');
+            const locationConfirm = document.getElementById('rentLocationConfirm');
             if (latlng) {
                 const lat = typeof latlng.lat === 'function' ? latlng.lat() : latlng.lat;
                 const lng = typeof latlng.lng === 'function' ? latlng.lng() : latlng.lng;
-                hint.textContent = 'Location selected on the map.';
+                const locationText = formatSelectedLocation(lat, lng);
+                hint.textContent = '';
                 document.getElementById('addRentModal').dataset.lat = lat;
                 document.getElementById('addRentModal').dataset.lng = lng;
+                locationInput.value = locationText;
+                document.getElementById('rentLocationConfirmText').textContent = `Pin location: ${locationText}`;
+                locationConfirm.style.display = 'flex';
             } else {
                 hint.textContent = '';
                 delete document.getElementById('addRentModal').dataset.lat;
                 delete document.getElementById('addRentModal').dataset.lng;
+                locationInput.value = '';
+                locationConfirm.style.display = 'none';
             }
             document.getElementById('addRentModal').classList.add('open');
         }
