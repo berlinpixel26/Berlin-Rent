@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -471,10 +472,26 @@
         .info-banner.hide { opacity: 0; }
 
         .stats-modal { max-width: 620px; }
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
-        .stat-item { background: var(--surface-2); padding: 14px; border-radius: 8px; border: 1px solid var(--border); }
-        .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); }
-        .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .stats-kpi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0 18px; }
+        .stat-item { background: var(--surface-2); padding: 13px; border-radius: 10px; border: 1px solid var(--border); }
+        .stat-value { font-size: 23px; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.3; }
+        .stat-detail { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+        .stats-section { margin-top: 18px; }
+        .stats-section h3 { margin-bottom: 8px; font-size: 15px; }
+        .stats-table { overflow: hidden; border: 1px solid var(--border); border-radius: 10px; }
+        .stats-table-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(110px, .9fr) minmax(82px, auto); gap: 12px; align-items: center; padding: 10px 14px; font-size: 13px; }
+        .stats-table-row + .stats-table-row { border-top: 1px solid var(--border); }
+        .stats-table-row.header { color: var(--text-muted); font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+        .stats-table-value { color: var(--accent); font-weight: 700; }
+        .stats-table-count { color: var(--text-muted); text-align: right; }
+        .stats-note { margin: 16px 0 2px; color: var(--text-muted); font-size: 11.5px; line-height: 1.4; }
+        @media (max-width: 520px) {
+            .stats-table-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 9px 11px; }
+            .stats-table-row > :nth-child(2) { text-align: right; }
+            .stats-table-row > :nth-child(3) { grid-column: 2; grid-row: 2; font-size: 11px; }
+            .stats-table-row.header > :nth-child(3) { display: none; }
+        }
 
         /* ============ SPLASH / MISSION SCREEN ============ */
         .splash-screen {
@@ -488,10 +505,10 @@
         .splash-icon { font-size: 44px; margin-bottom: 10px; }
         .splash-card h2 { font-size: 22px; margin-bottom: 10px; }
         .splash-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-        .splash-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 22px 0; }
-        .splash-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 6px; }
-        .splash-stat-value { font-size: 18px; font-weight: 700; color: var(--accent); }
-        .splash-stat-label { font-size: 10.5px; color: var(--text-muted); margin-top: 4px; line-height: 1.3; }
+        .splash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
+        .splash-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 7px; }
+        .splash-stat-value { font-size: 17px; font-weight: 700; color: var(--accent); }
+        .splash-stat-label { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.25; }
 
         /* ============ DETAIL ACTIONS (report / edit / delete) ============ */
         .detail-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
@@ -531,25 +548,28 @@
             <div class="splash-icon">🏠</div>
             <h2>Real Rents from Real Berlin Tenants</h2>
             <p>
-            Compare anonymous rent data shared by tenants across Berlin
-            to make better rental decisions.
+            See what renters actually pay across Berlin—so you can choose where to live with more confidence.
             <br>
             <strong style="color:#00B37A;">
-            Anonymous. Free to Use. Crowd-Sourced.
+            Anonymous. Free to use. Built by renters.
             </strong>
             </p>
             <div class="splash-stats">
                 <div class="splash-stat">
                     <div class="splash-stat-value" id="splashPinCount">–</div>
-                    <div class="splash-stat-label">Real rents pinned</div>
+                    <div class="splash-stat-label">Rent Pins</div>
                 </div>
                 <div class="splash-stat">
-                    <div class="splash-stat-value" id="splashDistrictCount">–</div>
-                    <div class="splash-stat-label">Districts covered</div>
+                    <div class="splash-stat-value" id="splashMedianWarm">–</div>
+                    <div class="splash-stat-label">Median warm rent</div>
+                </div>
+                <div class="splash-stat">
+                    <div class="splash-stat-value" id="splashMedianDeposit">–</div>
+                    <div class="splash-stat-label">Median deposit</div>
                 </div>
                 <div class="splash-stat">
                     <div class="splash-stat-value" id="splashTotalRent">–</div>
-                    <div class="splash-stat-label">Rent on the map</div>
+                    <div class="splash-stat-label">Total warm rent on map</div>
                 </div>
             </div>
             <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer—share what you truly pay.</p>
@@ -912,21 +932,40 @@
     <div class="modal-backdrop" id="statsModal">
         <div class="modal-card stats-modal">
             <button class="close-btn" onclick="closeStatsModal()">×</button>
-            <h2>📊 Live Stats</h2>
+            <h2>📊 Berlin rent snapshot</h2>
+            <div class="subtitle" id="statSubtitle">Based on community-reported rent pins</div>
 
-            <div class="stats-row">
+            <div class="stats-kpi-grid">
                 <div class="stat-item">
                     <div class="stat-value" id="statPinCount">0</div>
                     <div class="stat-label">Rent Pins</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="statTotalRent">€0</div>
-                    <div class="stat-label">Rent on the Map</div>
+                    <div class="stat-value" id="statMedianWarm">–</div>
+                    <div class="stat-label">Median warm rent</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statMedianDeposit">–</div>
+                    <div class="stat-label">Median deposit</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statMedianArea">–</div>
+                    <div class="stat-label">Median apartment size</div>
+                    <div class="stat-detail" id="statAreaCoverage"></div>
                 </div>
             </div>
 
-            <h3 style="margin-top: 20px; font-size: 15px;">Top Districts</h3>
-            <div style="margin-top: 10px;" id="statTopDistricts"></div>
+            <section class="stats-section">
+                <h3>🏠 Typical warm rent by room</h3>
+                <div class="stats-table" id="statRoomBreakdown"></div>
+            </section>
+
+            <section class="stats-section">
+                <h3>📍 District snapshot</h3>
+                <div class="stats-table" id="statDistrictSnapshot"></div>
+            </section>
+
+            <p class="stats-note">ⓘ Community-reported data. Reported rents may not reflect the entire market; compare similar homes, not just prices.</p>
         </div>
     </div>
 
@@ -1588,12 +1627,34 @@
                 dialog.style.animation = 'slideDown 0.4s ease-out';
             }, 400);
         }
+        function median(values) {
+            const sorted = values.map(Number).filter(Number.isFinite).filter(value => value > 0).sort((a, b) => a - b);
+            if (!sorted.length) return null;
+            const middle = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+        }
+
+        function formatEuro(value) {
+            return value == null ? '–' : '€' + Math.round(value).toLocaleString();
+        }
+
+        function formatTotalRent(sum) {
+            if (sum >= 1000000) return '€' + (sum / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (sum >= 1000) return '€' + (sum / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            return '€' + Math.round(sum || 0);
+        }
+
+        function rentPinLabel(count) {
+            return `${count.toLocaleString()} Rent Pin${count === 1 ? '' : 's'}`;
+        }
+
         function updateSplashStats(rents) {
             document.getElementById('splashPinCount').textContent = rents.length.toLocaleString();
-            const districts = new Set(rents.map(r => r.district).filter(Boolean));
-            document.getElementById('splashDistrictCount').textContent = districts.size;
-            const total = rents.reduce((s, r) => s + (Number(r.warm) || 0), 0);
-            document.getElementById('splashTotalRent').textContent = '€' + Math.round(total).toLocaleString();
+            document.getElementById('splashMedianWarm').textContent = formatEuro(median(rents.map(r => r.warm)));
+            document.getElementById('splashMedianDeposit').textContent = formatEuro(median(rents.map(r => r.deposit)));
+            const totalWarmRent = rents.reduce((sum, rent) => sum + (Number(rent.warm) || 0), 0);
+            document.getElementById('splashTotalRent').textContent = formatTotalRent(totalWarmRent);
+            document.getElementById('splashTotalRent').title = 'The current warm rent summed across all active rent pins.';
         }
 
         /* ===================================================================
@@ -2136,31 +2197,50 @@
         function openFilterModal() { trackEvent('filters_opened'); document.getElementById('filterModal').classList.add('open'); }
         function closeFilterModal() { document.getElementById('filterModal').classList.remove('open'); }
 
-        function formatTotalRent(sum) {
-            if (sum >= 1000000) return '€' + (sum / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
-            if (sum >= 1000) return '€' + (sum / 1000).toFixed(1).replace(/\.0$/, '') + 'K+';
-            return '€' + sum;
-        }
-
         function openStatsModal() {
             trackEvent('stats_opened');
-            document.getElementById('statPinCount').textContent = allRentsCache.length.toLocaleString();
+            const rents = allRentsCache;
+            const pinCount = rents.length;
+            const areaValues = rents.map(r => r.area).map(Number).filter(Number.isFinite).filter(value => value > 0);
 
-            const totalRent = allRentsCache.reduce((sum, r) => sum + (Number(r.warm) || 0), 0);
-            document.getElementById('statTotalRent').textContent = formatTotalRent(totalRent);
+            document.getElementById('statSubtitle').textContent = `Based on ${rentPinLabel(pinCount).toLowerCase()} reported by the community`;
+            document.getElementById('statPinCount').textContent = pinCount.toLocaleString();
+            document.getElementById('statMedianWarm').textContent = formatEuro(median(rents.map(r => r.warm)));
+            document.getElementById('statMedianDeposit').textContent = formatEuro(median(rents.map(r => r.deposit)));
+            document.getElementById('statMedianArea').textContent = areaValues.length ? `${Math.round(median(areaValues))} m²` : '–';
+            document.getElementById('statAreaCoverage').textContent = areaValues.length
+                ? `from ${rentPinLabel(areaValues.length)}`
+                : 'No apartment sizes yet';
 
-            const districtCounts = {};
-            allRentsCache.forEach(r => { districtCounts[r.district] = (districtCounts[r.district] || 0) + 1; });
-            const topDistricts = Object.entries(districtCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const roomOrder = [1, 2, 3, 4];
+            const roomRows = roomOrder.map(room => {
+                const matches = rents.filter(r => Number(r.room) === room);
+                return { label: room === 4 ? '4+ Rooms' : `${room} Room${room === 1 ? '' : 's'}`, rents: matches };
+            }).filter(row => row.rents.length);
+            const roomEl = document.getElementById('statRoomBreakdown');
+            roomEl.innerHTML = roomRows.length
+                ? [
+                    '<div class="stats-table-row header"><span>Room</span><span>Median warm rent</span><span>Rent Pins</span></div>',
+                    ...roomRows.map(row => `<div class="stats-table-row"><span>${row.label}</span><span class="stats-table-value">${formatEuro(median(row.rents.map(r => r.warm)))}</span><span class="stats-table-count">${rentPinLabel(row.rents.length)}</span></div>`)
+                ].join('')
+                : '<div class="stats-table-row"><span>No rent pins yet.</span></div>';
 
-            const listEl = document.getElementById('statTopDistricts');
-            listEl.innerHTML = topDistricts.length
-                ? topDistricts.map(([district, count], i) => `
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0; ${i < topDistricts.length - 1 ? 'border-bottom: 1px solid var(--border);' : ''}">
-                        <span>${district}</span> <span style="color: var(--accent); font-weight:600;">${count} pin${count === 1 ? '' : 's'}</span>
-                    </div>
-                `).join('')
-                : '<div class="hint">No rent pins yet.</div>';
+            const districtGroups = new Map();
+            rents.forEach(rent => {
+                if (!rent.district) return;
+                if (!districtGroups.has(rent.district)) districtGroups.set(rent.district, []);
+                districtGroups.get(rent.district).push(rent);
+            });
+            const districts = [...districtGroups.entries()]
+                .map(([district, districtRents]) => ({ district, rents: districtRents }))
+                .sort((a, b) => b.rents.length - a.rents.length || a.district.localeCompare(b.district));
+            const districtEl = document.getElementById('statDistrictSnapshot');
+            districtEl.innerHTML = districts.length
+                ? [
+                    '<div class="stats-table-row header"><span>District</span><span>Median warm rent</span><span>Rent Pins</span></div>',
+                    ...districts.map(row => `<div class="stats-table-row"><span>${row.district}</span><span class="stats-table-value">${formatEuro(median(row.rents.map(r => r.warm)))}</span><span class="stats-table-count">${rentPinLabel(row.rents.length)}</span></div>`)
+                ].join('')
+                : '<div class="stats-table-row"><span>No district data yet.</span></div>';
 
             document.getElementById('statsModal').classList.add('open');
         }
