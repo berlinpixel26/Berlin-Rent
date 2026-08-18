@@ -390,6 +390,64 @@
         }
         .rent-pill:hover { filter: brightness(1.08); }
 
+        /* ============ RENT LOCATION CONFIRMATION CARD ============
+           A custom OverlayView gives the placement step the same glass
+           language as the rest of the map, without Google's InfoWindow chrome. */
+        .placement-card {
+            position: absolute; width: min(286px, calc(100vw - 24px));
+            padding: 13px; border-radius: 16px; color: var(--text);
+            background:
+                linear-gradient(135deg, var(--glass-highlight), var(--glass-highlight-soft) 58%),
+                var(--surface-glass-strong);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transform: translate(-50%, -100%);
+        }
+        .placement-card::after {
+            content: ''; position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+            border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 9px solid var(--surface-glass-strong);
+            filter: drop-shadow(0 1px 0 var(--glass-border));
+        }
+        .placement-card.below { transform: translate(-50%, 0); }
+        .placement-card.below::after {
+            top: -9px; bottom: auto; border-top: 0; border-bottom: 9px solid var(--surface-glass-strong);
+        }
+        .placement-card-title { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 750; }
+        .placement-card-copy { margin: 5px 0 11px; color: var(--text-muted); font-size: 12px; line-height: 1.35; }
+        .placement-card-button {
+            width: 100%; min-height: 36px; border: 0; border-radius: 999px; padding: 7px 12px;
+            background: linear-gradient(135deg, var(--glass-highlight), transparent 60%), var(--accent);
+            color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+        .placement-card-button:hover { filter: brightness(1.08); }
+
+        /* ============ INFORMATION MODALS ============ */
+        .info-content { margin-top: 12px; font-size: 14px; line-height: 1.55; }
+        .info-section { margin-top: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+        .info-section h3 { margin-bottom: 4px; font-size: 13px; color: var(--text); }
+        .info-section ul { margin: 6px 0 0 18px; }
+        .info-section li + li { margin-top: 4px; }
+        .info-section.builder-card {
+            background:
+                linear-gradient(135deg, var(--glass-highlight), var(--glass-highlight-soft) 58%),
+                rgba(24, 119, 242, 0.08);
+            border-color: rgba(24, 119, 242, 0.28);
+            box-shadow: 0 6px 18px rgba(24, 119, 242, 0.10), inset 0 1px 0 var(--glass-highlight);
+        }
+        :root[data-theme="dark"] .info-section.builder-card {
+            background:
+                linear-gradient(135deg, var(--glass-highlight), var(--glass-highlight-soft) 58%),
+                rgba(78, 158, 255, 0.18);
+            border-color: rgba(78, 158, 255, 0.38);
+        }
+        .info-callout { color: var(--text-muted); font-size: 12.5px; }
+        .faq-item + .faq-item { margin-top: 14px; }
+        .faq-item h3 { margin-bottom: 3px; font-size: 14px; color: var(--text); }
+
         /* ============ DETAIL SPLASH MODAL ============ */
         .detail-card { max-width: 420px; padding: 20px; }
         .detail-label { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); font-weight: 700; }
@@ -876,16 +934,35 @@
     <div class="modal-backdrop" id="howToUseModal">
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('howToUseModal')">×</button>
-            <h2>📘 How to Use germanyrent.de</h2>
-            <div class="subtitle">A quick guide to the map.</div>
-            <ul style="padding-left: 20px; line-height: 1.9; font-size: 14px;">
-                <li>Click anywhere on the map to add a rent pin at that exact spot, or use the <b>📍 Add a Rent</b> button for an approximate location.</li>
-                <li>Click any pill marker (e.g. "2 Room · €850") to see the full rent details, ratings, and notes.</li>
-                <li>Use the <b>🔍 search bar</b> to jump to a district, and the filter icon next to it to narrow results by bedrooms, price, district, or type.</li>
-                <li>The <b>📊 Stats</b> button shows live aggregate numbers across all listed rents.</li>
-                <li>The <b>🚇</b> button toggles a dedicated transit (rail/S-Bahn/U-Bahn) map style.</li>
-                <li>Everything you submit is 100% anonymous — no login, no email required.</li>
-            </ul>
+            <h2>📘 How GermanyRent works</h2>
+            <div class="subtitle">Explore real rents, then make the map more useful with yours.</div>
+            <div class="info-content">
+                <section class="info-section">
+                    <h3>1. Explore rents around Berlin</h3>
+                    <ul>
+                        <li>Search for a street, building, or postcode to move around the map.</li>
+                        <li>Tap a blue rent pill to see the reported rent, home details, and renter ratings.</li>
+                        <li>Use the filter icon to narrow results by room count, warm rent, district, furnishing, and type.</li>
+                    </ul>
+                </section>
+                <section class="info-section">
+                    <h3>2. Share your rent</h3>
+                    <ul>
+                        <li>Choose <b>📍 Add my Rent</b>, search for your address or place the red pin directly on the map.</li>
+                        <li>Drag the red pin to fine-tune the public location, then enter the essential rent details.</li>
+                        <li>Your pin is published immediately. You can add further optional details afterwards.</li>
+                    </ul>
+                </section>
+                <section class="info-section">
+                    <h3>3. Stay in control</h3>
+                    <ul>
+                        <li>No name, account, or email is needed. Email is optional and only used if you ask for a notification.</li>
+                        <li>From the same browser, you can edit or delete the pin you submitted.</li>
+                        <li>Use <b>📊 Stats</b> for the map’s live aggregate picture and <b>🚇</b> to show Berlin rail transit.</li>
+                    </ul>
+                </section>
+                <p class="info-callout" style="margin-top:12px;">GermanyRent is community data, not an official rent index or legal advice. Compare homes with similar size, type, and rent-effective date.</p>
+            </div>
         </div>
     </div>
 
@@ -894,12 +971,39 @@
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('faqsModal')">×</button>
             <h2>❓ Frequently Asked Questions</h2>
-            <div style="font-size: 14px; line-height: 1.6;">
-                <p style="margin-top: 14px;"><b>Is this really anonymous?</b><br>Yes — we don't ask for your name, email, or login to submit a rent pin.</p>
-                <p style="margin-top: 14px;"><b>Where does the rent data come from?</b><br>Directly from real renters — every pin comes from someone submitting their own rent through this map, live and visible to everyone immediately.</p>
-                <p style="margin-top: 14px;"><b>Are pins moderated? Can I edit or remove a pin I submitted?</b><br>Pins go live immediately and aren't pre-moderated. Anyone can flag a pin as suspicious using the 🚩 Report button on its detail popup. If you submitted a pin, you can edit or delete it yourself from the same browser/device you used to create it — this uses a private token stored only in that browser, never an IP address, account, or login.</p>
-                <p style="margin-top: 14px;"><b>Is germany.rent affiliated with brokers, landlords, or property platforms?</b><br>No. germany.rent is an independent, community-built project. We do not charge brokerage fees, sell listings, or give anyone paid priority on the map.</p>
-                <p style="margin-top: 14px;"><b>Why can't I see transit lines at low zoom?</b><br>Zoom in closer — the transit map style is easiest to read at street level.</p>
+            <div class="info-content">
+                <section class="faq-item">
+                    <h3>🔒 Is this really anonymous?</h3>
+                    <p>Yes. A name, account, and email are not required to submit a pin. If you choose to provide an email for your own notification, it is never displayed publicly or shared.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>📍 Is my exact address public?</h3>
+                    <p>The location you confirm with the red pin is shown on the public map. Use the map to choose the level of precision you are comfortable sharing, and avoid including identifying details in the optional note.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>🧾 Where does the rent data come from?</h3>
+                    <p>From renters sharing what they pay. Pins go live immediately, so the map reflects community-reported data rather than listings or asking prices.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>🚩 Are submissions checked or moderated?</h3>
+                    <p>They are not pre-moderated. Anyone can flag a suspicious pin using 🚩 Report in the rent detail card. A pin is removed after five reports.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>✏️ Can I edit or delete a rent I submitted?</h3>
+                    <p>Yes, from the same browser and device used to add it. GermanyRent keeps a private edit key in that browser; there is no account or login to recover it elsewhere.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>💶 What do “warm rent” and “rent since” mean?</h3>
+                    <p>Warm rent is the monthly amount including applicable service charges. “Rent since” is when the reported amount began—for example, your move-in month or latest rent increase.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>🤝 Is GermanyRent connected to landlords, brokers, or listing platforms?</h3>
+                    <p>No. GermanyRent is an independent community project. It does not sell listings, charge brokerage fees, or give paid placement to anyone.</p>
+                </section>
+                <section class="faq-item">
+                    <h3>🚇 Why do transit lines only appear when I zoom in?</h3>
+                    <p>Berlin’s rail map is easiest to read at street level. Zoom closer after enabling the 🚇 layer.</p>
+                </section>
             </div>
         </div>
     </div>
@@ -913,6 +1017,7 @@
             <label>Your suggestion</label>
             <textarea id="featureRequestText" placeholder="e.g., Add a commute-time filter…"></textarea>
             <button class="float-btn primary" style="width:100%; margin-top:16px; justify-content:center;" onclick="submitFeatureRequest()">Send Suggestion</button>
+            <p class="info-callout" style="margin-top:14px; text-align:center;">Prefer a conversation? <a href="https://www.linkedin.com/in/nikhilkumarsingh1" target="_blank" rel="noopener noreferrer" style="color:var(--accent); font-weight:600; text-decoration:none;">🔗 Say “Hi” on LinkedIn</a></p>
         </div>
     </div>
 
@@ -920,18 +1025,36 @@
     <div class="modal-backdrop" id="creatorModal">
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('creatorModal')">×</button>
-            <h2>About</h2>
-            <div style="font-size: 14px; line-height: 1.7; margin-top: 10px;">
-                <p style="font-weight: 700; font-size: 15px;">germanyrent.de</p>
-                <p style="margin-top: 10px;">This is an independent, community-built project making Germany's rental market easier to understand.</p>
-                <p style="margin-top: 12px;">Renters can anonymously share what they actually pay, so others can get a clearer view of local rents before moving, negotiating, or signing a lease.</p>
-                <p style="margin-top: 12px;">The map is free to use, has no brokers or advertising, and does not require an account. The community submits rent data. Contributors can edit or remove their own pin from the same browser, and anyone can flag suspicious entries.</p>
-                <p style="margin-top: 12px;">We're starting in Berlin and growing city by city. The goal is simple: give renters better information and make rent prices more transparent.</p>
-                <p style="margin-top: 16px;">
-                    <a href="https://www.linkedin.com/in/nikhilkumarsingh1" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-                        🔗 Connect on LinkedIn
-                    </a>
-                </p>
+            <h2>👋 About GermanyRent</h2>
+            <div class="subtitle">A renter-built map for more transparent housing decisions.</div>
+            <div class="info-content">
+                <section class="info-section">
+                    <h3>💡 Why it exists</h3>
+                    <p>Rental prices are difficult to understand when the only visible number is an asking price. GermanyRent helps tenants see what people report paying in real homes and neighbourhoods, so they can choose where to live based on their needs and preferences.</p>
+                </section>
+                <section class="info-section builder-card">
+                    <h3>👨‍💻 Built by Nikhil Singh</h3>
+                    <p>I'm building GermanyRent.de to turn opaque rental prices into useful, community-powered information. The goal is to give tenants a clearer starting point before they move, negotiate, or sign.</p>
+                    <p style="margin-top:10px;"><a href="https://www.linkedin.com/in/nikhilkumarsingh1" target="_blank" rel="noopener noreferrer" style="color:var(--accent); font-weight:600; text-decoration:none;">🔗 Stay in touch on LinkedIn</a></p>
+                </section>
+                <section class="info-section">
+                    <h3>🗺️ How the map stays useful</h3>
+                    <p>Every rent pin is contributed by a renter. The more people share, the more helpful the map becomes for comparing a move, understanding a neighbourhood, or preparing for a rent conversation.</p>
+                </section>
+                <section class="info-section">
+                    <h3>🧭 Our principles</h3>
+                    <ul>
+                        <li><b>Renter-first:</b> free to use, with no account required.</li>
+                        <li><b>Independent:</b> no brokers, landlords, or paid map placement.</li>
+                        <li><b>Community-led:</b> pins are reported by renters and suspicious entries can be flagged.</li>
+                        <li><b>Useful context:</b> rent amount, room count, furnishing, district, and the date that rent began all matter.</li>
+                    </ul>
+                </section>
+                <section class="info-section">
+                    <h3>🌱 Where we are going</h3>
+                    <p>GermanyRent starts with Berlin. The ambition is a clearer, community-built view of rents in cities across Germany—one useful contribution at a time.</p>
+                </section>
+                <p class="info-callout" style="margin-top:12px;">GermanyRent is not a property portal, rent index, or legal service. It is a practical community reference to use alongside your own research.</p>
             </div>
         </div>
     </div>
@@ -1116,15 +1239,15 @@
 
         /* ===================================================================
            MAP — Google Maps JS API.
-           NOTE ON THE ASYNC-LOAD BUG: `RentPill` (below) must NOT be declared
-           as a top-level `class RentPill extends google.maps.OverlayView {...}`
+           NOTE ON THE ASYNC-LOAD BUG: map overlay classes must NOT be declared
+           as top-level `class ... extends google.maps.OverlayView {...}`
            — that class body is evaluated at *parse* time, which happens before
            the async Google Maps script has finished loading and attached
            `google.maps` to the page, throwing `ReferenceError: google is not
-           defined`. The fix: declare `let RentPill;` at top level, and build
-           the actual class inside `defineRentPillClass()`, which is called as
-           the very first statement inside `initMap()` — by which point Google
-           has already invoked the callback, guaranteeing `google.maps` exists.
+           defined`. The fix: declare class variables at top level, then build
+           the actual classes inside `defineMapOverlayClasses()`, called as the
+           first statement inside `initMap()` — by which point Google has
+           invoked the callback and `google.maps` exists.
            =================================================================== */
         const mapEl = document.getElementById('map');
         let map;
@@ -1134,7 +1257,7 @@
         let clickMenuLatLng = null;
         let myLocationMarker = null;
         let placementMarker = null;
-        let placementInfoWindow = null;
+        let placementCard = null;
         let placementLatLng = null;
         let placementLabel = '';
         let placesLibrary = null;
@@ -1186,11 +1309,11 @@
             btn.classList.toggle('active-toggle', transitActive);
         }
 
-        /* RentPill is declared here but its class body is built lazily inside
-           defineRentPillClass() (called from initMap) — see the async-load
-           bug note above. */
+        /* Overlay classes are built lazily inside defineMapOverlayClasses()
+           (called from initMap) — see the async-load bug note above. */
         let RentPill;
-        function defineRentPillClass() {
+        let PlacementCard;
+        function defineMapOverlayClasses() {
             RentPill = class extends google.maps.OverlayView {
                 constructor(position, data) {
                     super();
@@ -1218,13 +1341,75 @@
                     this.div = null;
                 }
             };
+
+            PlacementCard = class extends google.maps.OverlayView {
+                constructor(position) {
+                    super();
+                    this.position = position;
+                    this.div = null;
+                }
+                update(position) {
+                    this.position = position;
+                    this.draw();
+                }
+                onAdd() {
+                    const div = document.createElement('div');
+                    div.className = 'placement-card';
+                    div.setAttribute('role', 'dialog');
+                    div.setAttribute('aria-label', 'Confirm rent location');
+                    div.addEventListener('click', event => event.stopPropagation());
+
+                    const title = document.createElement('div');
+                    title.className = 'placement-card-title';
+                    title.textContent = '📍 Is this the right spot?';
+
+                    const copy = document.createElement('div');
+                    copy.className = 'placement-card-copy';
+                    copy.textContent = 'Drag the pin to fine-tune it.';
+
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'placement-card-button';
+                    button.textContent = 'Add rent here';
+                    button.addEventListener('click', event => {
+                        event.stopPropagation();
+                        trackEvent('add_rent_at_selected_location_clicked');
+                        removePlacementCard();
+                        openAddRentModal(placementLatLng);
+                    });
+
+                    div.append(title, copy, button);
+                    this.div = div;
+                    this.getPanes().overlayMouseTarget.appendChild(div);
+                }
+                draw() {
+                    const projection = this.getProjection();
+                    if (!projection || !this.div || !map) return;
+                    const point = projection.fromLatLngToDivPixel(this.position);
+                    if (!point) return;
+
+                    const halfWidth = this.div.offsetWidth / 2;
+                    const horizontalPadding = 12;
+                    const x = Math.max(halfWidth + horizontalPadding, Math.min(mapEl.clientWidth - halfWidth - horizontalPadding, point.x));
+                    const cardHeight = this.div.offsetHeight;
+                    const fitsAbove = point.y - cardHeight - 30 >= horizontalPadding;
+
+                    this.div.classList.toggle('below', !fitsAbove);
+                    this.div.style.left = `${x}px`;
+                    this.div.style.top = `${fitsAbove ? point.y - 28 : point.y + 24}px`;
+                }
+                onRemove() {
+                    if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
+                    this.div = null;
+                }
+            };
         }
 
         /* Called back by the Google Maps script (see the &callback=initMap
            query param on the <script> tag at the bottom of <body>), once
            google.maps has fully loaded. */
         function initMap() {
-            defineRentPillClass(); // must run first — see async-load bug note above
+            defineMapOverlayClasses(); // must run first — see async-load bug note above
             recordPageVisit(); // track this visit
 
             map = new google.maps.Map(mapEl, {
@@ -1251,7 +1436,7 @@
 
             map.addListener('click', (e) => {
                 if (e.placeId) return; // let native POI clicks behave normally
-                showPlacementPin(e.latLng, 'Selected map location');
+                showPlacementPin(e.latLng, 'Selected map location', true);
             });
             map.addListener('bounds_changed', () => clickMenuEl.classList.remove('open'));
             document.addEventListener('click', (e) => {
@@ -1706,38 +1891,28 @@
             }
 
             if (!showAction) {
-                if (placementInfoWindow) placementInfoWindow.close();
+                removePlacementCard();
                 return;
             }
 
-            if (!placementInfoWindow) placementInfoWindow = new google.maps.InfoWindow();
-            const content = document.createElement('div');
-            content.style.cssText = 'padding:4px 2px; max-width:230px; font-family:Inter,Arial,sans-serif;';
-            const title = document.createElement('strong');
-            title.textContent = 'Rent pin location';
-            const detail = document.createElement('div');
-            detail.textContent = label;
-            detail.style.cssText = 'margin:5px 0 9px; color:#5e6472; font-size:12px; line-height:1.35;';
-            const adjust = document.createElement('div');
-            adjust.textContent = 'Drag the pin to fine-tune it, then add your rent.';
-            adjust.style.cssText = 'margin-bottom:10px; color:#5e6472; font-size:12px;';
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = 'Add my rent here';
-            button.style.cssText = 'border:0; border-radius:7px; padding:9px 12px; background:#1677ff; color:#fff; font-weight:700; cursor:pointer;';
-            button.addEventListener('click', () => {
-                trackEvent('add_rent_at_selected_location_clicked');
-                placementInfoWindow.close();
-                openAddRentModal(placementLatLng);
-            });
-            content.append(title, detail, adjust, button);
-            placementInfoWindow.setContent(content);
-            placementInfoWindow.open({ map, anchor: placementMarker, shouldFocus: false });
+            if (!placementCard) {
+                placementCard = new PlacementCard(placementLatLng);
+                placementCard.setMap(map);
+            } else {
+                placementCard.update(placementLatLng);
+                if (!placementCard.getMap()) placementCard.setMap(map);
+            }
+        }
+
+        function removePlacementCard() {
+            if (!placementCard) return;
+            placementCard.setMap(null);
+            placementCard = null;
         }
 
         function clearPlacementPin() {
             if (placementMarker) placementMarker.setMap(null);
-            if (placementInfoWindow) placementInfoWindow.close();
+            removePlacementCard();
             placementLatLng = null;
             placementLabel = '';
         }
