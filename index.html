@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -294,6 +293,47 @@
         .compact-required-row .chip-group { gap: 6px; }
         .compact-required-row .chip { padding: 7px 10px; font-size: 12px; }
         .rent-since-selects { display: grid; grid-template-columns: 1.35fr .85fr; gap: 8px; margin-top: 6px; }
+
+        /* Keep the contribution form comfortably within a laptop viewport without
+           changing the roomier, touch-friendly mobile controls. */
+        @media (min-width: 700px) {
+            #addRentModal .modal-card { padding: 22px 26px; }
+            #addRentModal .modal-card h2 { font-size: 19px; }
+            #addRentModal .modal-card .subtitle { margin-bottom: 9px; }
+            #rentModalIntro .hint:not(#rentLatLngHint) { margin-top: 6px; line-height: 1.35; }
+            #rentBasicsSection > div:first-child { margin-top: 10px !important; }
+            #rentLocationConfirm { margin-top: 6px !important; padding: 7px 10px !important; min-height: 38px; }
+            #addRentModal .section-label { margin: 14px 0 3px; }
+            #addRentModal .form-row { gap: 10px; }
+            #addRentModal .modal-card label { margin-top: 8px; }
+            #addRentModal .modal-card input[type="text"],
+            #addRentModal .modal-card input[type="number"],
+            #addRentModal .modal-card input[type="email"],
+            #addRentModal .modal-card select {
+                min-height: 38px;
+                padding: 6px 10px;
+                margin-top: 4px;
+            }
+            #addRentModal .chip-group { gap: 6px; margin-top: 4px; }
+            #addRentModal .form-row + .form-row { margin-top: 8px; }
+            #addRentModal #emailFieldWrapper { margin-top: 8px; }
+            #addRentModal .compact-required-row > div > label {
+                height: 18px;
+                line-height: 18px;
+            }
+            #addRentModal .compact-required-row .chip {
+                height: 38px;
+                padding: 5px 10px;
+                display: inline-flex;
+                align-items: center;
+            }
+            #addRentModal .rent-since-selects { margin-top: 0; }
+            #addRentModal .rent-since-selects select { height: 38px; }
+            #addRentModal #emailFieldWrapper > div { margin-top: 6px !important; gap: 7px !important; }
+            #addRentModal #emailFieldWrapper label[for="rentEmailConsent"] { line-height: 1.3; }
+            #submitBasicRentBtn { min-height: 48px; margin-top: 12px !important; padding: 9px 20px; }
+        }
+
         body.main-place-search-open .action-row { opacity: 0; pointer-events: none; transform: translateY(-6px); }
         .action-row { transition: opacity .15s ease, transform .15s ease; }
 
@@ -566,7 +606,7 @@
             <div id="rentModalIntro">
                 <h2>💰 What rent are you paying?</h2>
                 <div class="subtitle">100% anonymous. No account needed. Help other renters see real prices.</div>
-                <div class="hint">Your pin is live right away and can be edited or removed later from this browser. Community reports help keep the map useful.</div>
+                <div class="hint">Live immediately. You can edit or remove it later from this browser.</div>
                 <div class="hint" id="rentLatLngHint"></div>
             </div>
 
@@ -1639,7 +1679,7 @@
             const modal = document.getElementById('addRentModal');
             modal.dataset.lat = position.lat;
             modal.dataset.lng = position.lng;
-            document.getElementById('rentLocationConfirmText').textContent = `Pin set to: ${displayName}`;
+                document.getElementById('rentLocationConfirmText').textContent = `Pin: ${displayName}`;
             document.getElementById('rentLocationConfirm').style.display = 'flex';
             map.panTo(position);
             map.setZoom(18);
@@ -2000,7 +2040,7 @@
                 document.getElementById('addRentModal').dataset.lat = lat;
                 document.getElementById('addRentModal').dataset.lng = lng;
                 locationInput.value = locationText;
-                document.getElementById('rentLocationConfirmText').textContent = `Pin location: ${locationText}`;
+                document.getElementById('rentLocationConfirmText').textContent = `Pin: ${locationText}`;
                 locationConfirm.style.display = 'flex';
             } else {
                 hint.textContent = '';
