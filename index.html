@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -193,11 +194,25 @@
         .top-bar .search-icon { padding-left: 12px; cursor: pointer; user-select: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: background .15s; }
         .top-bar .search-icon img { width: 20px; height: 20px; display: block; }
         .top-bar .search-icon:hover { background: var(--accent-soft); }
-        .top-bar input {
+        .place-search-wrap { position: relative; flex: 1; min-width: 0; }
+        .top-bar .place-search-wrap input {
             flex: 1; border: none; background: transparent; color: var(--text);
-            font-size: 15px; padding: 12px 6px; outline: none;
+            font-size: 15px; padding: 12px 6px; outline: none; width: 100%;
         }
         .top-bar input::placeholder { color: var(--text-muted); }
+        .place-suggestions {
+            position: absolute; top: calc(100% + 7px); left: 0; right: 0; z-index: 1200;
+            display: none; overflow: hidden; border: 1px solid var(--border); border-radius: 12px;
+            background: var(--surface); box-shadow: var(--shadow);
+        }
+        .place-suggestions.open { display: block; }
+        .place-suggestion {
+            display: block; width: 100%; padding: 11px 14px; border: 0; border-bottom: 1px solid var(--border);
+            background: transparent; color: var(--text); text-align: left; font: inherit; font-size: 14px;
+            line-height: 1.35; cursor: pointer;
+        }
+        .place-suggestion:last-child { border-bottom: 0; }
+        .place-suggestion:hover, .place-suggestion.active { background: var(--accent-soft); }
         .icon-btn {
             width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
@@ -465,7 +480,10 @@
 
     <div class="top-bar liquid-glass">
         <span class="search-icon" onclick="locateUser('main')" title="Use my location"><img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate"></span>
-        <input type="text" id="searchInput" placeholder="Search an address or tap the map icon">
+        <div class="place-search-wrap">
+            <input type="text" id="searchInput" placeholder="Search a street, building or ZIP code">
+            <div class="place-suggestions" id="mainPlaceSuggestions" role="listbox"></div>
+        </div>
         <button class="icon-btn" onclick="openFilterModal()" title="Filter">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         </button>
@@ -551,8 +569,10 @@
                 <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location" aria-label="Use my location">
                     <img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate" style="width:16px; height:16px;">
                 </button>
-                <input type="text" id="rentAddressSearch" placeholder="Search an address or tap the map icon" style="flex:1; padding-left:40px;">
-                <button id="rentAddressSearchBtn" style="flex-shrink:0; padding:0 16px; border-radius:6px; border:none; cursor:pointer; background:var(--accent); color:#fff; font-weight:600; font-size:13px;">Search</button>
+                <div class="place-search-wrap">
+                    <input type="text" id="rentAddressSearch" placeholder="Search the rental address" style="width:100%; padding-left:40px;">
+                    <div class="place-suggestions" id="modalPlaceSuggestions" role="listbox"></div>
+                </div>
             </div>
             <div id="rentLocationConfirm" style="margin-top:8px; padding:9px 12px; border-radius:8px; background:rgba(43,122,120,0.12); border:1px solid rgba(43,122,120,0.35); color:#1f6b69; font-size:12.5px; display:none; align-items:center; gap:6px;">
                 <span id="rentLocationConfirmText"></span>
@@ -1061,6 +1081,11 @@
         let pixelProjectionHelper;
         let clickMenuLatLng = null;
         let myLocationMarker = null;
+        let placementMarker = null;
+        let placementInfoWindow = null;
+        let placementLatLng = null;
+        let placesLibrary = null;
+        const autocompleteControllers = {};
         let editingRentId = null;
         let editingRentToken = null;
         let postSubmissionEnrichment = false;
@@ -1173,12 +1198,7 @@
 
             map.addListener('click', (e) => {
                 if (e.placeId) return; // let native POI clicks behave normally
-                clickMenuLatLng = e.latLng;
-                const proj = pixelProjectionHelper.getProjection();
-                const point = proj.fromLatLngToContainerPixel(e.latLng);
-                clickMenuEl.style.left = (point.x + 12) + 'px';
-                clickMenuEl.style.top = (point.y + 12) + 'px';
-                clickMenuEl.classList.add('open');
+                showPlacementPin(e.latLng, 'Selected map location');
             });
             map.addListener('bounds_changed', () => clickMenuEl.classList.remove('open'));
             document.addEventListener('click', (e) => {
@@ -1188,6 +1208,7 @@
             });
 
             loadRents();
+            initPlaceAutocomplete();
         }
 
         /* ===================================================================
@@ -1461,15 +1482,10 @@
 
                     if (source === 'main') {
                         map.panTo({ lat, lng });
-                        map.setZoom(17);
+                        map.setZoom(18);
+                        showPlacementPin({ lat, lng }, 'Current location', true);
                     } else if (source === 'modal') {
-                        document.getElementById('addRentModal').dataset.lat = lat;
-                        document.getElementById('addRentModal').dataset.lng = lng;
-                        const confirmDiv = document.getElementById('rentLocationConfirm');
-                        document.getElementById('rentLocationConfirmText').textContent = `Location set: Current location (${lat.toFixed(4)}, ${lng.toFixed(4)}) — you can fine-tune by clicking the map.`;
-                        confirmDiv.style.display = 'flex';
-                        map.panTo({ lat, lng });
-                        map.setZoom(17);
+                        setModalRentLocation({ lat, lng }, 'Current location');
                     }
                 },
                 (error) => {
@@ -1483,33 +1499,191 @@
         }
 
         /* ===================================================================
-           ADDRESS SEARCH — free, keyless geocoding via OpenStreetMap's
-           Nominatim API (no Google Maps needed). Scoped to Berlin so a
-           street + house number or a zip code resolves to the right spot.
+           PLACE AUTOCOMPLETE + ADJUSTABLE PIN
+           Uses Google Places API (New) for type-ahead suggestions. Raw search
+           text stays in the browser; only the selected pin coordinates are
+           used when a renter submits a pin.
            =================================================================== */
-        async function searchLocation() {
-            const input = document.getElementById('searchInput');
-            const query = input.value.trim();
-            if (!query) return;
-            trackEvent('search_used', { source: 'main' });
+        const BERLIN_PLACE_BOUNDS = { west: 13.0884, south: 52.3383, east: 13.7611, north: 52.6755 };
 
-            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Germany')}`;
+        async function initPlaceAutocomplete() {
             try {
-                const res = await fetch(url);
-                const results = await res.json();
-                if (!results.length) {
-                    alert('Could not find that address in Germany. Try including the street name, house number, or zip code.');
-                    return;
-                }
-                map.panTo({ lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) });
-                map.setZoom(17);
-            } catch (err) {
-                alert('Search failed — please check your connection and try again.');
+                const { AutocompleteSuggestion, AutocompleteSessionToken } = await google.maps.importLibrary('places');
+                placesLibrary = { AutocompleteSuggestion, AutocompleteSessionToken };
+                setupPlaceAutocomplete('searchInput', 'mainPlaceSuggestions', 'main');
+                setupPlaceAutocomplete('rentAddressSearch', 'modalPlaceSuggestions', 'modal');
+            } catch (error) {
+                console.warn('Google Places autocomplete is unavailable.', error);
             }
         }
-        document.getElementById('searchInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') searchLocation();
-        });
+
+        function setupPlaceAutocomplete(inputId, listId, source) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const controller = {
+                input, list, source, suggestions: [], activeIndex: -1,
+                sessionToken: new placesLibrary.AutocompleteSessionToken(), requestId: 0, debounceTimer: null
+            };
+            autocompleteControllers[source] = controller;
+
+            input.addEventListener('input', () => {
+                window.clearTimeout(controller.debounceTimer);
+                const query = input.value.trim();
+                if (query.length < 3) { hidePlaceSuggestions(controller); return; }
+                controller.debounceTimer = window.setTimeout(() => fetchPlaceSuggestions(controller, query), 220);
+            });
+            input.addEventListener('keydown', (event) => handlePlaceAutocompleteKeydown(event, controller));
+            document.addEventListener('click', (event) => {
+                if (!input.closest('.place-search-wrap').contains(event.target)) hidePlaceSuggestions(controller);
+            });
+        }
+
+        async function fetchPlaceSuggestions(controller, query) {
+            const requestId = ++controller.requestId;
+            try {
+                const { suggestions } = await placesLibrary.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+                    input: query,
+                    includedRegionCodes: ['de'],
+                    locationRestriction: BERLIN_PLACE_BOUNDS,
+                    sessionToken: controller.sessionToken
+                });
+                if (requestId !== controller.requestId) return;
+                controller.suggestions = suggestions.map(s => s.placePrediction).filter(Boolean).slice(0, 5);
+                controller.activeIndex = -1;
+                renderPlaceSuggestions(controller);
+            } catch (error) {
+                console.warn('Could not load place suggestions.', error);
+                hidePlaceSuggestions(controller);
+            }
+        }
+
+        function renderPlaceSuggestions(controller) {
+            controller.list.replaceChildren();
+            if (!controller.suggestions.length) { hidePlaceSuggestions(controller); return; }
+            controller.suggestions.forEach((prediction, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'place-suggestion';
+                button.setAttribute('role', 'option');
+                button.textContent = prediction.text.toString();
+                button.addEventListener('mousedown', event => event.preventDefault());
+                button.addEventListener('click', () => selectPlacePrediction(controller, prediction));
+                controller.list.appendChild(button);
+            });
+            controller.list.classList.add('open');
+        }
+
+        function hidePlaceSuggestions(controller) {
+            controller.suggestions = [];
+            controller.activeIndex = -1;
+            controller.list.replaceChildren();
+            controller.list.classList.remove('open');
+        }
+
+        function handlePlaceAutocompleteKeydown(event, controller) {
+            if (!controller.suggestions.length) return;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const direction = event.key === 'ArrowDown' ? 1 : -1;
+                controller.activeIndex = (controller.activeIndex + direction + controller.suggestions.length) % controller.suggestions.length;
+                [...controller.list.children].forEach((item, index) => item.classList.toggle('active', index === controller.activeIndex));
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                selectPlacePrediction(controller, controller.suggestions[Math.max(0, controller.activeIndex)]);
+            } else if (event.key === 'Escape') {
+                hidePlaceSuggestions(controller);
+            }
+        }
+
+        async function selectPlacePrediction(controller, prediction) {
+            if (!prediction) return;
+            try {
+                const place = prediction.toPlace();
+                await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+                if (!place.location) return;
+                const position = { lat: place.location.lat(), lng: place.location.lng() };
+                const displayName = place.formattedAddress || place.displayName || 'Selected location';
+                controller.input.value = displayName;
+                hidePlaceSuggestions(controller);
+                controller.sessionToken = new placesLibrary.AutocompleteSessionToken();
+                trackEvent('place_selected', { source: controller.source });
+
+                if (controller.source === 'main') {
+                    map.panTo(position);
+                    map.setZoom(18);
+                    showPlacementPin(position, displayName, true);
+                } else {
+                    setModalRentLocation(position, displayName);
+                }
+            } catch (error) {
+                console.warn('Could not load selected place.', error);
+            }
+        }
+
+        function setModalRentLocation(position, displayName) {
+            const modal = document.getElementById('addRentModal');
+            modal.dataset.lat = position.lat;
+            modal.dataset.lng = position.lng;
+            document.getElementById('rentLocationConfirmText').textContent = `Pin set to: ${displayName}`;
+            document.getElementById('rentLocationConfirm').style.display = 'flex';
+            map.panTo(position);
+            map.setZoom(18);
+            showPlacementPin(position, displayName, false);
+        }
+
+        function showPlacementPin(position, label, showAction) {
+            const lat = typeof position.lat === 'function' ? position.lat() : position.lat;
+            const lng = typeof position.lng === 'function' ? position.lng() : position.lng;
+            placementLatLng = { lat, lng };
+            clickMenuEl.classList.remove('open');
+
+            if (!placementMarker) {
+                placementMarker = new google.maps.Marker({ map, position: placementLatLng, draggable: true, title: 'Rent pin location' });
+                placementMarker.addListener('dragend', event => {
+                    placementLatLng = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+                    trackEvent('rent_pin_location_adjusted', { source: 'placement_marker' });
+                    showPlacementPin(placementLatLng, 'Pin location adjusted', true);
+                });
+            } else {
+                placementMarker.setMap(map);
+                placementMarker.setPosition(placementLatLng);
+            }
+
+            if (!showAction) {
+                if (placementInfoWindow) placementInfoWindow.close();
+                return;
+            }
+
+            if (!placementInfoWindow) placementInfoWindow = new google.maps.InfoWindow();
+            const content = document.createElement('div');
+            content.style.cssText = 'padding:4px 2px; max-width:230px; font-family:Inter,Arial,sans-serif;';
+            const title = document.createElement('strong');
+            title.textContent = 'Is this the right spot?';
+            const detail = document.createElement('div');
+            detail.textContent = label;
+            detail.style.cssText = 'margin:5px 0 9px; color:#5e6472; font-size:12px; line-height:1.35;';
+            const adjust = document.createElement('div');
+            adjust.textContent = 'Drag the pin to adjust it.';
+            adjust.style.cssText = 'margin-bottom:10px; color:#5e6472; font-size:12px;';
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = 'Add my rent here';
+            button.style.cssText = 'border:0; border-radius:7px; padding:9px 12px; background:#1677ff; color:#fff; font-weight:700; cursor:pointer;';
+            button.addEventListener('click', () => {
+                trackEvent('add_rent_at_selected_location_clicked');
+                placementInfoWindow.close();
+                openAddRentModal(placementLatLng);
+            });
+            content.append(title, detail, adjust, button);
+            placementInfoWindow.setContent(content);
+            placementInfoWindow.open({ map, anchor: placementMarker, shouldFocus: false });
+        }
+
+        function clearPlacementPin() {
+            if (placementMarker) placementMarker.setMap(null);
+            if (placementInfoWindow) placementInfoWindow.close();
+            placementLatLng = null;
+        }
 
         /* ===================================================================
            RENT DETAIL SPLASH SCREEN — shown on pill click.
@@ -1784,43 +1958,6 @@
             closeInfoModal('requestFeatureModal');
         }
 
-        async function searchAddressForRent() {
-            const input = document.getElementById('rentAddressSearch');
-            const query = input.value.trim();
-            if (!query) return;
-            trackEvent('search_used', { source: 'modal' });
-
-            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=de&q=${encodeURIComponent(query + ', Germany')}`;
-            try {
-                const res = await fetch(url);
-                const results = await res.json();
-                if (!results.length) {
-                    alert('Could not find that address in Germany. Try including the street name, house number, or zip code.');
-                    return;
-                }
-                const lat = parseFloat(results[0].lat);
-                const lng = parseFloat(results[0].lon);
-                const address = results[0].name || results[0].display_name.split(',').slice(0, 2).join(',').trim();
-
-                document.getElementById('addRentModal').dataset.lat = lat;
-                document.getElementById('addRentModal').dataset.lng = lng;
-
-                const confirmDiv = document.getElementById('rentLocationConfirm');
-                document.getElementById('rentLocationConfirmText').textContent = `Location set: ${address} — you can fine-tune by clicking the map.`;
-                confirmDiv.style.display = 'flex';
-
-                map.panTo({ lat, lng });
-                map.setZoom(17);
-            } catch (err) {
-                alert('Search failed — please check your connection and try again.');
-            }
-        }
-
-        document.getElementById('rentAddressSearchBtn').addEventListener('click', searchAddressForRent);
-        document.getElementById('rentAddressSearch').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') searchAddressForRent();
-        });
-
         function openAddRentModal(latlng) {
             trackEvent('add_rent_clicked', { source: latlng ? 'map_pin_menu' : 'button' });
             clickMenuEl.classList.remove('open');
@@ -2078,6 +2215,7 @@
             rent.id = data.id;
             saveMyToken(data.id, editToken);
             renderRentPin(rent);
+            clearPlacementPin();
             trackEvent('rent_submitted', { rent_id: data.id, district: rent.district });
 
             document.getElementById('rentEmail').value = '';
