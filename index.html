@@ -514,30 +514,31 @@
         .detail-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
         .detail-actions .float-btn { flex: 1; justify-content: center; padding: 9px 12px; font-size: 13px; }
 
-        /* ============ TIPS DIALOG (First-time visitor hint) ============ */
+        /* ============ FIRST-TIME EXPLORATION HINT ============ */
         .tips-dialog {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500;
-            width: min(90vw, 144px); padding: 8px 10px; border-radius: 8px;
-            background: linear-gradient(135deg, rgba(255, 250, 200, 0.47), rgba(255, 248, 180, 0.2) 55%), rgba(255, 250, 200, 0.47);
+            position: fixed; top: 145px; left: 50%; transform: translateX(-50%); z-index: 405;
+            width: min(calc(100vw - 32px), 500px); padding: 11px 13px; border-radius: 16px;
+            background: linear-gradient(110deg, rgba(0, 137, 88, 0.96), rgba(0, 185, 124, 0.94));
             backdrop-filter: blur(22px) saturate(180%);
             -webkit-backdrop-filter: blur(22px) saturate(180%);
-            border: 1px solid rgba(255, 250, 200, 0.45);
-            box-shadow: 0 10px 34px rgba(15,18,22,0.16), inset 0 1px 0 rgba(255, 250, 200, 0.4);
-            animation: slideDown 0.4s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.62);
+            box-shadow: 0 14px 32px rgba(0, 111, 75, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+            animation: exploreHintIn 0.32s ease-out;
         }
-        @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        .tips-content { text-align: center; }
-        .tips-title { font-size: 10px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
-        .tips-items { font-size: 9px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: left; }
-        .tips-item { margin-bottom: 2px; white-space: nowrap; }
-        .tips-button { padding: 4px 10px; border-radius: 999px; border: none; cursor: pointer; font-size: 10px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 60%), var(--accent); color: #fff; transition: filter 0.2s; margin-top: 1px; }
-        .tips-button:hover { filter: brightness(1.08); }
-        .tips-item strong { font-weight: 700; color: var(--text); }
-
-        /* Pulse animation for locate button */
-        .locate-btn.pulse-tips { animation: pulseBlue 2.5s ease-in-out 0.5s infinite; }
-        @keyframes pulseBlue { 0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.7); transform: scale(1); } 50% { box-shadow: 0 0 0 12px rgba(24, 119, 242, 0); transform: scale(1.05); } 100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); transform: scale(1); } }
-        .locate-btn.pulse-tips:hover { animation: none; }
+        .tips-dialog.is-hiding { animation: exploreHintOut 0.22s ease-in forwards; }
+        @keyframes exploreHintIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @keyframes exploreHintOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -8px); } }
+        .tips-content { display: flex; align-items: center; gap: 11px; text-align: left; }
+        .tips-icon { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); font-size: 17px; }
+        .tips-copy { flex: 1; min-width: 0; color: rgba(255, 255, 255, 0.95); font-size: 13px; line-height: 1.3; }
+        .tips-title { display: block; margin-bottom: 2px; color: #fff; font-size: 14px; font-weight: 700; }
+        .tips-close { flex: 0 0 30px; width: 30px; height: 30px; border: none; border-radius: 50%; cursor: pointer; background: rgba(255, 255, 255, 0.13); color: #fff; font-size: 21px; line-height: 1; }
+        .tips-close:hover { background: rgba(255, 255, 255, 0.28); }
+        @media (max-width: 520px) {
+            .tips-dialog { top: 141px; padding: 10px 12px; }
+            .tips-copy { font-size: 12px; }
+            .tips-title { font-size: 13px; }
+        }
 
     </style>
 </head>
@@ -582,16 +583,15 @@
 
     <div id="map"></div>
 
-    <!-- ============ TIPS DIALOG ============ -->
+    <!-- ============ FIRST-TIME EXPLORATION HINT ============ -->
     <div id="tipsDialog" class="tips-dialog" style="display:none;">
         <div class="tips-content">
-            <div class="tips-title">👋 First time here?</div>
-            <div class="tips-items">
-                <div class="tips-item">🔍 <strong>Search</strong> any address</div>
-                <div class="tips-item">📍 Or tap <strong>"Pick My Location"</strong></div>
-                <div class="tips-item">➕ Then <strong>click</strong> on the map</div>
+            <div class="tips-icon" aria-hidden="true">🗺️</div>
+            <div class="tips-copy">
+                <strong class="tips-title">See what renters pay nearby</strong>
+                Tap a blue rent pin to view the rent, home details and neighbourhood ratings.
             </div>
-            <button class="tips-button" onclick="trackEvent('tips_lets_go_clicked'); closeTips()">Let's Go</button>
+            <button class="tips-close" type="button" aria-label="Dismiss exploration hint" onclick="closeTips()">×</button>
         </div>
     </div>
 
@@ -1611,21 +1611,26 @@
             if (tipsShown) return;
             localStorage.setItem('berlinRentTipsShown', 'true');
             const dialog = document.getElementById('tipsDialog');
+            dialog.classList.remove('is-hiding');
             dialog.style.display = 'block';
-            document.getElementById('locateBtn').classList.add('pulse-tips');
+            trackEvent('explore_hint_shown');
+            dialog.dismissTimer = setTimeout(() => hideTipsDialog(), 5500);
         }
 
         function closeTips() {
+            trackEvent('explore_hint_dismissed');
+            hideTipsDialog();
+        }
+
+        function hideTipsDialog() {
             const dialog = document.getElementById('tipsDialog');
-            const locateBtn = document.getElementById('locateBtn');
-            dialog.style.animation = 'slideDown 0.4s ease-in reverse';
-            dialog.style.opacity = '0';
+            if (dialog.dismissTimer) clearTimeout(dialog.dismissTimer);
+            if (dialog.style.display === 'none') return;
+            dialog.classList.add('is-hiding');
             setTimeout(() => {
-                locateBtn.classList.remove('pulse-tips');
                 dialog.style.display = 'none';
-                dialog.style.opacity = '1';
-                dialog.style.animation = 'slideDown 0.4s ease-out';
-            }, 400);
+                dialog.classList.remove('is-hiding');
+            }, 220);
         }
         function median(values) {
             const sorted = values.map(Number).filter(Number.isFinite).filter(value => value > 0).sort((a, b) => a - b);
@@ -1778,6 +1783,7 @@
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+                    trackEvent('location_found', { source: source });
 
                     if (source === 'main') {
                         map.panTo({ lat, lng });
@@ -1996,6 +2002,7 @@
         }
 
         function showRentDetail(d) {
+            trackEvent('rent_pin_opened', { rent_id: d.id });
             document.getElementById('detailPrice').textContent = `€${d.warm}${d.cold ? ' / €' + d.cold + ' cold' : ''}`;
 
             const listedAgoEl = document.getElementById('detailListedAgo');
@@ -2166,6 +2173,7 @@
                 (pos) => {
                     btn.classList.remove('locating');
                     const { latitude, longitude } = pos.coords;
+                    trackEvent('location_found', { source: 'pick_my_location' });
                     map.panTo({ lat: latitude, lng: longitude });
                     map.setZoom(15);
                     if (myLocationMarker) myLocationMarker.setMap(null);
