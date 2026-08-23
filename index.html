@@ -290,6 +290,13 @@
         .modal-card input:focus, .modal-card select:focus, .modal-card textarea:focus { outline: none; border-color: var(--accent); }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .auto-district-value {
+            width: 100%; min-height: 40px; padding: 10px 12px; margin-top: 6px;
+            display: flex; align-items: center; background: var(--surface-2);
+            border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted);
+            font-size: 14px;
+        }
+        .auto-district-value.ready { color: var(--text); border-color: rgba(43,122,120,.45); }
         .compact-required-row { align-items: start; }
         .compact-required-row .chip-group { gap: 6px; }
         .compact-required-row .chip { padding: 7px 10px; font-size: 12px; }
@@ -315,6 +322,7 @@
                 padding: 6px 10px;
                 margin-top: 4px;
             }
+            #addRentModal .auto-district-value { min-height: 38px; padding: 6px 10px; margin-top: 4px; }
             #addRentModal .chip-group { gap: 6px; margin-top: 4px; }
             #addRentModal .form-row + .form-row { margin-top: 8px; }
             #addRentModal #emailFieldWrapper { margin-top: 8px; }
@@ -727,8 +735,9 @@
                     </select>
                 </div>
                 <div>
-                    <label>📍 District <span class="required-marker">*</span></label>
-                    <select id="rentDistrict"></select>
+                    <label>📍 District <span style="font-weight:400; color:var(--text-muted)">set from pin</span></label>
+                    <input type="hidden" id="rentDistrict">
+                    <div id="rentDistrictDisplay" class="auto-district-value">Select a pin location</div>
                 </div>
             </div>
 
@@ -1256,9 +1265,9 @@
             'Treptow-Köpenick', 'Marzahn-Hellersdorf', 'Lichtenberg', 'Reinickendorf'
         ];
         function populateDistrictSelects() {
-            ['districtSelect', 'rentDistrict'].forEach(id => {
+            ['districtSelect'].forEach(id => {
                 const sel = document.getElementById(id);
-                const placeholder = id === 'districtSelect' ? 'All Districts' : 'Select…';
+                const placeholder = 'All Districts';
                 sel.innerHTML = `<option value="">${placeholder}</option>` +
                     BERLIN_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
             });
@@ -1555,7 +1564,8 @@
             }
             const { data, error } = await sbClient
                 .from('rents')
-                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at');
+                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at')
+                .eq('is_location_valid', true);
             if (error || !data || !data.length) {
                 sampleRents.forEach(renderRentPin);
                 updateSplashStats(allRentsCache);
@@ -1927,15 +1937,45 @@
             }
         }
 
+        async function resolveRentalDistrict(lat, lng) {
+            const input = document.getElementById('rentDistrict');
+            const display = document.getElementById('rentDistrictDisplay');
+            input.value = '';
+            display.textContent = 'Finding district…';
+            display.classList.remove('ready');
+            try {
+                if (!sbClient) await initSupabase();
+                if (!sbClient) throw new Error('Backend unavailable');
+                const { data, error } = await sbClient.rpc('district_for_coordinates', { p_lat: lat, p_lng: lng });
+                if (error || !data) throw error || new Error('No Berlin district found');
+                input.value = data;
+                display.textContent = data;
+                display.classList.add('ready');
+            } catch (error) {
+                display.textContent = 'Choose a location within Berlin';
+                console.warn('Could not resolve district from pin location.', error);
+            }
+        }
+
+        function resetRentalDistrict(message = 'Select a pin location') {
+            document.getElementById('rentDistrict').value = '';
+            const display = document.getElementById('rentDistrictDisplay');
+            display.textContent = message;
+            display.classList.remove('ready');
+        }
+
         function setModalRentLocation(position, displayName) {
             const modal = document.getElementById('addRentModal');
-            modal.dataset.lat = position.lat;
-            modal.dataset.lng = position.lng;
-                document.getElementById('rentLocationConfirmText').textContent = `Pin: ${displayName}`;
+            const lat = typeof position.lat === 'function' ? position.lat() : position.lat;
+            const lng = typeof position.lng === 'function' ? position.lng() : position.lng;
+            modal.dataset.lat = lat;
+            modal.dataset.lng = lng;
+            document.getElementById('rentLocationConfirmText').textContent = `Pin: ${displayName}`;
             document.getElementById('rentLocationConfirm').style.display = 'flex';
             map.panTo(position);
             map.setZoom(18);
             showPlacementPin(position, displayName, false);
+            resolveRentalDistrict(lat, lng);
         }
 
         function showPlacementPin(position, label, showAction) {
@@ -2122,6 +2162,8 @@
             document.getElementById('rentDeposit').value = d.deposit ?? '';
             document.getElementById('rentRoom').value = d.room ?? '';
             document.getElementById('rentDistrict').value = d.district ?? '';
+            document.getElementById('rentDistrictDisplay').textContent = d.district ?? 'District unavailable';
+            document.getElementById('rentDistrictDisplay').classList.toggle('ready', Boolean(d.district));
             if (d.rentSince) {
                 const [y, m] = d.rentSince.split('-');
                 document.getElementById('rentSinceMonth').value = String(parseInt(m, 10));
@@ -2305,12 +2347,14 @@
                 locationInput.value = locationText;
                 document.getElementById('rentLocationConfirmText').textContent = `Pin: ${locationText}`;
                 locationConfirm.style.display = 'flex';
+                resolveRentalDistrict(lat, lng);
             } else {
                 hint.textContent = '';
                 delete document.getElementById('addRentModal').dataset.lat;
                 delete document.getElementById('addRentModal').dataset.lng;
                 locationInput.value = '';
                 locationConfirm.style.display = 'none';
+                resetRentalDistrict();
             }
             document.getElementById('addRentModal').classList.add('open');
         }
@@ -2332,6 +2376,7 @@
             document.getElementById('emailFieldWrapper').style.display = '';
             document.getElementById('rentAddressSearch').value = '';
             document.getElementById('rentLocationConfirm').style.display = 'none';
+            resetRentalDistrict();
         }
 
         function toggleChip(el) { el.classList.toggle('active'); }
@@ -2443,14 +2488,18 @@
             const neighbourhoodRating = document.getElementById('neighbourhoodRatingStars').dataset.value;
             const anmeldung = document.querySelector('#anmeldungGroup .chip.active');
 
-            if (!warm || !deposit || !room || !district || !furnished || !rentSinceMonth || !rentSinceYear) {
+            if (!warm || !deposit || !room || !furnished || !rentSinceMonth || !rentSinceYear) {
                 alert('Please fill in all mandatory fields (marked *).');
                 return;
             }
 
             const modal = document.getElementById('addRentModal');
-            const lat = modal.dataset.lat ? parseFloat(modal.dataset.lat) : 52.52 + (Math.random() - 0.5) * 0.08;
-            const lng = modal.dataset.lng ? parseFloat(modal.dataset.lng) : 13.405 + (Math.random() - 0.5) * 0.12;
+            const lat = modal.dataset.lat ? parseFloat(modal.dataset.lat) : NaN;
+            const lng = modal.dataset.lng ? parseFloat(modal.dataset.lng) : NaN;
+            if (!Number.isFinite(lat) || !Number.isFinite(lng) || !district) {
+                alert('Choose the rental location using search, Locate Me, or the map before submitting.');
+                return;
+            }
 
             const rent = {
                 lat, lng, warm: parseFloat(warm), cold: cold ? parseFloat(cold) : null, deposit: parseFloat(deposit),
