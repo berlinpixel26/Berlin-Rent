@@ -48,7 +48,7 @@
   }
 
   function detailFor(rows) {
-    if (guide === 'typical_rent_by_room') {
+    if (guide === 'typical_rent_by_room' || guide === 'compare_rent_offer') {
       const roomRows = [1, 2, 3, 4].map(room => {
         const matches = rows.filter(row => Number(row.room) === room && Number(row.warm) > 0);
         if (!matches.length) return '';
@@ -71,8 +71,46 @@
       return districts ? `<section class="live-detail"><h3>📍 ${copy.districts}</h3><ul class="live-list">${districts}</ul></section>` : '';
     }
 
-    const field = guide === 'typical_deposit' ? 'deposit' : guide === 'rent_since' ? 'rent_since' : 'cold';
-    const label = guide === 'typical_deposit' ? copy.depositCoverage : guide === 'rent_since' ? copy.rentSinceCoverage : copy.coldCoverage;
+    if (guide === 'cheapest_rent_now') {
+      const byDistrict = rows.reduce((groups, row) => {
+        const district = row.district || '';
+        if (!district || !Number(row.warm)) return groups;
+        (groups[district] ||= []).push(row);
+        return groups;
+      }, {});
+      const districts = Object.entries(byDistrict).filter(([, values]) => values.length >= 5).sort((a, b) => {
+        const difference = median(validNumbers(a[1], 'warm')) - median(validNumbers(b[1], 'warm'));
+        return difference || b[1].length - a[1].length;
+      }).slice(0, 3).map(([district, values]) => {
+        return `<li><span>${district}</span><b>${money(median(validNumbers(values, 'warm')))} <em>${copy.median}</em></b><small>${count(values.length)} ${copy.rentPins}</small></li>`;
+      }).join('');
+      const title = german ? 'Niedrigste Median-Warmmieten im aktuellen Sample' : 'Lowest median warm rents in the current sample';
+      const note = german ? 'Nur Bezirke mit mindestens fünf aktiven Mietpins. Dies ist kein Ranking aller Berliner Angebote.' : 'Districts need at least five active Rent Pins. This is not a ranking of every Berlin listing.';
+      return districts ? `<section class="live-detail"><h3>🧭 ${title}</h3><ul class="live-list">${districts}</ul><p class="live-coverage">${note}</p></section>` : '';
+    }
+
+    if (guide === 'furnished_vs_unfurnished') {
+      const options = [[true, german ? 'Möbliert' : 'Furnished'], [false, german ? 'Unmöbliert' : 'Unfurnished']];
+      const rowsByType = options.map(([isFurnished, label]) => {
+        const matches = rows.filter(row => row.furnished === isFurnished && Number(row.warm) > 0);
+        return matches.length ? `<li><span>${label}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>` : '';
+      }).join('');
+      const title = german ? 'Typische Warmmiete nach Möblierung' : 'Typical warm rent by furnishing';
+      return rowsByType ? `<section class="live-detail"><h3>🛋️ ${title}</h3><ul class="live-list">${rowsByType}</ul></section>` : '';
+    }
+
+    if (guide === 'whole_flat_vs_shared_room') {
+      const options = [['Whole flat (Private)', german ? 'Ganze Wohnung' : 'Whole flat'], ['Shared / Room', german ? 'WG oder Zimmer' : 'Shared or room']];
+      const rowsByType = options.map(([privacy, label]) => {
+        const matches = rows.filter(row => row.privacy === privacy && Number(row.warm) > 0);
+        return matches.length ? `<li><span>${label}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>` : '';
+      }).join('');
+      const title = german ? 'Typische Warmmiete nach Wohnform' : 'Typical warm rent by home type';
+      return rowsByType ? `<section class="live-detail"><h3>🔑 ${title}</h3><ul class="live-list">${rowsByType}</ul></section>` : '';
+    }
+
+    const field = (guide === 'typical_deposit' || guide === 'move_in_costs') ? 'deposit' : (guide === 'rent_since' || guide === 'mietspiegel_vs_real_rents' || guide === 'reading_germanyrent_data' || guide === 'mietspiegel_2026_update') ? 'rent_since' : 'cold';
+    const label = (guide === 'typical_deposit' || guide === 'move_in_costs') ? copy.depositCoverage : (guide === 'rent_since' || guide === 'mietspiegel_vs_real_rents' || guide === 'reading_germanyrent_data' || guide === 'mietspiegel_2026_update') ? copy.rentSinceCoverage : copy.coldCoverage;
     const available = rows.filter(row => row[field] !== null && row[field] !== undefined && row[field] !== '').length;
     return `<p class="live-coverage">${label}: <strong>${count(available)} of ${count(rows.length)}</strong></p>`;
   }
@@ -98,7 +136,7 @@
       return;
     }
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const { data, error } = await client.from('rents').select('warm,cold,deposit,room,district,rent_since').eq('is_location_valid', true);
+    const { data, error } = await client.from('rents').select('warm,cold,deposit,room,district,rent_since,furnished,privacy,area').eq('is_location_valid', true);
     if (error || !data || !data.length) {
       showUnavailable();
       return;
