@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-guide="how_germanyrent_data_works">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How GermanyRent Data Works | GermanyRent</title>
+  <meta name="description" content="Learn how GermanyRent collects, presents, and safeguards community-reported Berlin rent data, including pin locations, districts, Rent since, and reports.">
+  <link rel="canonical" href="https://germanyrent.de/guides/how-germanyrent-data-works/">
+  <link rel="alternate" hreflang="en" href="https://germanyrent.de/guides/how-germanyrent-data-works/">
+  <link rel="alternate" hreflang="de" href="https://germanyrent.de/de/ratgeber/wie-germanyrent-daten-funktionieren/">
+  <link rel="stylesheet" href="../../assets/guides.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LKPFVYYCKR"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-LKPFVYYCKR');</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../../assets/guide-analytics.js" defer></script>
+</head>
+<body>
+  <main class="guide-shell">
+    <nav class="guide-nav"><a class="brand" href="../../index.html">Germany<span>Rent</span></a><a class="language-link" href="../../de/ratgeber/wie-germanyrent-daten-funktionieren/" data-guide-action="guide_language_changed" data-guide-target="de">Deutsch</a></nav>
+    <article class="guide-article">
+      <div class="eyebrow">Using GermanyRent</div>
+      <h1>How GermanyRent data works</h1>
+      <p class="lede">GermanyRent turns anonymous renter contributions into a practical map. It is designed for context and comparison, not to replace a contract, an official rent index, or tenant advice.</p>
+      <h2>What an active Rent Pin represents</h2>
+      <p>Each active Rent Pin is one renter’s report of their current housing situation. The core fields are warm rent, deposit, room count, furnished status, district, and Rent since. Contributors can add extra details later, but this updates the same pin rather than creating a duplicate.</p>
+      <h2>How location and district are set</h2>
+      <p>Contributors can search for an address, use their location, or place and drag the red pin on the map. The final map location is intentionally precise and public. GermanyRent calculates the district from that final coordinate, so the district filter and district summaries match the pin’s location rather than a manually chosen label.</p>
+      <h2>What Rent since means</h2>
+      <p>Rent since is the month and year when the reported rent amount began. If the rent changed during a tenancy, it should reflect when the current amount started. It provides context for comparing a long-running tenancy with a recent agreement.</p>
+      <h2>How reports and removals work</h2>
+      <p>Rent Pins go live immediately. Anyone can report a pin they believe is suspicious. A pin is removed after five reports. This is a community safeguard, not a verification of every contract or payment.</p>
+      <h2>How to read the statistics</h2>
+      <p>Statistics use active public Rent Pins only. Medians describe the middle reported value in the available sample. Totals add current reported warm rent across active pins. Coverage labels show how many pins include an optional field, so you can judge how much data sits behind a comparison.</p>
+      <h2>What the data cannot tell you</h2>
+      <p>GermanyRent is not a complete survey of Berlin, a list of available homes, a legal assessment, or a prediction of the rent you will be offered. Compare several similar pins, check the sample size, and use the official Mietspiegel and qualified tenant advice when a decision depends on a specific contract.</p>
+      <div class="guide-callout"><p>Use the live map to compare similar homes with the context behind each reported number.</p><div class="guide-actions"><a class="guide-button" href="../../index.html" data-guide-action="guide_map_clicked">Explore the rent map</a><a class="guide-button secondary" href="../../index.html#share" data-guide-action="guide_share_rent_clicked">Share my rent</a></div></div>
+      <p class="guide-disclaimer">Community-reported information, not an official rent index or legal service.</p>
+    </article>
+    <footer class="guide-footer"><a href="../">All Berlin rent guides</a></footer>
+  </main>
+</body>
+</html>
