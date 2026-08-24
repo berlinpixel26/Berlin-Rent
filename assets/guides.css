@@ -22,8 +22,8 @@ body {
 a { color: inherit; }
 .guide-shell { width: min(100% - 32px, 860px); margin: 0 auto; }
 .guide-nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; }
-.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; letter-spacing: -.02em; }
-.brand::before { content: ''; display: block; width: 30px; height: 30px; flex: 0 0 30px; border-radius: 9px; background: rgba(255,255,255,.72) url('../favicon-192.png') center / 27px 27px no-repeat; border: 1px solid rgba(22,117,238,.18); box-shadow: 0 3px 10px rgba(30, 74, 125, .1); }
+.brand { display: inline-flex; align-items: center; gap: 0; text-decoration: none; font-weight: 800; letter-spacing: -.02em; }
+.brand::before { content: ''; display: block; width: 30px; height: 30px; flex: 0 0 30px; margin-right: 8px; border-radius: 9px; background: rgba(255,255,255,.72) url('../favicon-192.png') center / 27px 27px no-repeat; border: 1px solid rgba(22,117,238,.18); box-shadow: 0 3px 10px rgba(30, 74, 125, .1); }
 .brand span { color: var(--guide-accent); }
 .nav-link, .language-link {
   color: var(--guide-muted); text-decoration: none; font-size: 14px; font-weight: 650;
