@@ -5,114 +5,130 @@
   const guide = document.documentElement.dataset.guide || 'guide_hub';
   const german = document.documentElement.lang === 'de';
   const copy = german ? {
-    title: 'Live GermanyRent Übersicht',
-    subtitle: 'Aktuelle, von Mieterinnen und Mietern gemeldete Mietpins',
-    pins: 'Mietpins', medianWarm: 'Median Warmmiete', medianDeposit: 'Median Kaution', totalWarm: 'Warmmiete auf der Karte',
+    hubTitle: 'Live GermanyRent Übersicht', hubSubtitle: 'Aktuelle, von Mieterinnen und Mietern gemeldete Mietpins',
+    guideTitle: 'Live-Daten zu diesem Thema', guideSubtitle: 'Aktive, passende GermanyRent Mietpins',
+    pins: 'Mietpins', medianWarm: 'Median Warmmiete', medianCold: 'Median Kaltmiete', medianDeposit: 'Median Kaution', totalWarm: 'Warmmiete auf der Karte',
+    coverage: 'Angaben vorhanden', rentPins: 'Mietpins', median: 'Median', room: 'Zimmer',
     rooms: 'Typische Warmmiete nach Zimmern', districts: 'Am stärksten vertretene Bezirke',
-    coverage: 'Angaben vorhanden', unavailable: 'Der Live-Schnappschuss ist gerade nicht verfügbar.',
-    coldCoverage: 'Mietpins mit Kaltmiete', rentSinceCoverage: 'Mietpins mit Mietbeginn', depositCoverage: 'Mietpins mit Kautionsangabe',
-    rentPins: 'Mietpins', median: 'Median', room: 'Zimmer'
+    cheapest: 'Niedrigste Median-Warmmieten im aktuellen Sample', furnished: 'Typische Warmmiete nach Möblierung', homeType: 'Typische Warmmiete nach Wohnform',
+    warmCold: 'Warmmiete und Kaltmiete in gemeldeten Pins', depositMove: 'Kaution und typische Einzugskosten', rentAge: 'Warmmiete nach Mietbeginn', dataCoverage: 'Wie vollständig sind die aktiven Daten?',
+    coldCoverage: 'Mietpins mit Kaltmiete', rentSinceCoverage: 'Mietpins mit Mietbeginn', depositCoverage: 'Mietpins mit Kautionsangabe', areaCoverage: 'Mietpins mit Wohnfläche',
+    difference: 'Median Differenz', upfront: 'Median erster Monat', recent: 'Bis 12 Monate', midTerm: '1 bis 5 Jahre', longTerm: 'Über 5 Jahre',
+    noteCheapest: 'Nur Bezirke mit mindestens fünf aktiven Mietpins. Dies ist kein Ranking aller Berliner Angebote.',
+    unavailable: 'Die Live-Daten sind gerade nicht verfügbar.'
   } : {
-    title: 'Live GermanyRent snapshot',
-    subtitle: 'Current community-reported active rent pins',
-    pins: 'Rent Pins', medianWarm: 'Median warm rent', medianDeposit: 'Median deposit', totalWarm: 'Warm rent on the map',
-    rooms: 'Typical warm rent by room', districts: 'Most represented districts', coverage: 'reports available',
-    unavailable: 'The live snapshot is unavailable right now.', coldCoverage: 'Rent Pins with cold rent', rentSinceCoverage: 'Rent Pins with Rent since',
-    depositCoverage: 'Rent Pins with deposit', rentPins: 'Rent Pins', median: 'median', room: 'Room'
+    hubTitle: 'Live GermanyRent snapshot', hubSubtitle: 'Current community-reported active Rent Pins',
+    guideTitle: 'Live data for this guide', guideSubtitle: 'Relevant active GermanyRent Rent Pins',
+    pins: 'Rent Pins', medianWarm: 'Median warm rent', medianCold: 'Median cold rent', medianDeposit: 'Median deposit', totalWarm: 'Warm rent on the map',
+    coverage: 'reports available', rentPins: 'Rent Pins', median: 'median', room: 'Room',
+    rooms: 'Typical warm rent by room', districts: 'Most represented districts',
+    cheapest: 'Lowest median warm rents in the current sample', furnished: 'Typical warm rent by furnishing', homeType: 'Typical warm rent by home type',
+    warmCold: 'Warm and cold rent in reported pins', depositMove: 'Deposit and typical move-in amount', rentAge: 'Warm rent by Rent since', dataCoverage: 'How complete is the active data?',
+    coldCoverage: 'Rent Pins with cold rent', rentSinceCoverage: 'Rent Pins with Rent since', depositCoverage: 'Rent Pins with deposit', areaCoverage: 'Rent Pins with apartment size',
+    difference: 'Median difference', upfront: 'Median first month', recent: 'Up to 12 months', midTerm: '1 to 5 years', longTerm: 'Over 5 years',
+    noteCheapest: 'Districts need at least five active Rent Pins. This is not a ranking of every Berlin listing.',
+    unavailable: 'The live data is unavailable right now.'
   };
 
-  function validNumbers(rows, key) {
-    return rows.map(row => Number(row[key])).filter(value => Number.isFinite(value) && value > 0);
-  }
-
+  function validNumbers(rows, key) { return rows.map(row => Number(row[key])).filter(value => Number.isFinite(value) && value > 0); }
   function median(values) {
     if (!values.length) return null;
     const sorted = values.slice().sort((a, b) => a - b);
     const middle = Math.floor(sorted.length / 2);
     return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
   }
-
   function money(value) {
     if (!Number.isFinite(value)) return '–';
-    return new Intl.NumberFormat(german ? 'de-DE' : 'en-DE', {
-      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
-    }).format(value);
+    return new Intl.NumberFormat(german ? 'de-DE' : 'en-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+  }
+  function count(value) { return new Intl.NumberFormat(german ? 'de-DE' : 'en-DE').format(value); }
+  function stat(label, value, detail) { return `<div class="live-stat"><strong>${value}</strong><span>${label}</span>${detail ? `<small>${detail}</small>` : ''}</div>`; }
+  function section(title, body, note = '') { return `<section class="live-detail"><h3>${title}</h3>${body}${note ? `<p class="live-coverage">${note}</p>` : ''}</section>`; }
+  function list(items) { return `<ul class="live-list">${items.join('')}</ul>`; }
+  function moneyList(rows, field, label) {
+    return rows.map(([name, values]) => `<li><span>${name}</span><b>${money(median(validNumbers(values, field)))} <em>${copy.median}</em></b><small>${count(values.length)} ${copy.rentPins}</small></li>`).join('');
+  }
+  function coverage(rows, key) { return rows.filter(row => row[key] !== null && row[key] !== undefined && row[key] !== '').length; }
+  function monthsSince(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    const today = new Date();
+    return Math.max(0, (today.getFullYear() - date.getFullYear()) * 12 + today.getMonth() - date.getMonth());
   }
 
-  function count(value) {
-    return new Intl.NumberFormat(german ? 'de-DE' : 'en-DE').format(value);
-  }
-
-  function stat(label, value, detail) {
-    return `<div class="live-stat"><strong>${value}</strong><span>${label}</span>${detail ? `<small>${detail}</small>` : ''}</div>`;
-  }
-
-  function detailFor(rows) {
+  function guideDetail(rows) {
     if (guide === 'typical_rent_by_room' || guide === 'compare_rent_offer') {
-      const roomRows = [1, 2, 3, 4].map(room => {
+      const items = [1, 2, 3, 4].map(room => {
         const matches = rows.filter(row => Number(row.room) === room && Number(row.warm) > 0);
         if (!matches.length) return '';
-        const roomLabel = room === 1 ? `${room} ${copy.room}` : `${room} ${copy.room}${german ? '' : 's'}`;
-        return `<li><span>${roomLabel}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>`;
-      }).join('');
-      return roomRows ? `<section class="live-detail"><h3>🏠 ${copy.rooms}</h3><ul class="live-list">${roomRows}</ul></section>` : '';
+        const label = room === 1 ? `${room} ${copy.room}` : `${room} ${copy.room}${german ? '' : 's'}`;
+        return `<li><span>${label}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>`;
+      }).filter(Boolean);
+      return items.length ? section(`🏠 ${copy.rooms}`, list(items)) : '';
     }
 
-    if (guide === 'rent_by_district') {
+    if (guide === 'rent_by_district' || guide === 'cheapest_rent_now') {
       const byDistrict = rows.reduce((groups, row) => {
-        const district = row.district || '';
-        if (!district) return groups;
-        (groups[district] ||= []).push(row);
+        if (!row.district || !Number(row.warm)) return groups;
+        (groups[row.district] ||= []).push(row);
         return groups;
       }, {});
-      const districts = Object.entries(byDistrict).sort((a, b) => b[1].length - a[1].length).slice(0, 3).map(([district, values]) => {
-        return `<li><span>${district}</span><b>${money(median(validNumbers(values, 'warm')))} <em>${copy.median}</em></b><small>${count(values.length)} ${copy.rentPins}</small></li>`;
-      }).join('');
-      return districts ? `<section class="live-detail"><h3>📍 ${copy.districts}</h3><ul class="live-list">${districts}</ul></section>` : '';
-    }
-
-    if (guide === 'cheapest_rent_now') {
-      const byDistrict = rows.reduce((groups, row) => {
-        const district = row.district || '';
-        if (!district || !Number(row.warm)) return groups;
-        (groups[district] ||= []).push(row);
-        return groups;
-      }, {});
-      const districts = Object.entries(byDistrict).filter(([, values]) => values.length >= 5).sort((a, b) => {
-        const difference = median(validNumbers(a[1], 'warm')) - median(validNumbers(b[1], 'warm'));
-        return difference || b[1].length - a[1].length;
-      }).slice(0, 3).map(([district, values]) => {
-        return `<li><span>${district}</span><b>${money(median(validNumbers(values, 'warm')))} <em>${copy.median}</em></b><small>${count(values.length)} ${copy.rentPins}</small></li>`;
-      }).join('');
-      const title = german ? 'Niedrigste Median-Warmmieten im aktuellen Sample' : 'Lowest median warm rents in the current sample';
-      const note = german ? 'Nur Bezirke mit mindestens fünf aktiven Mietpins. Dies ist kein Ranking aller Berliner Angebote.' : 'Districts need at least five active Rent Pins. This is not a ranking of every Berlin listing.';
-      return districts ? `<section class="live-detail"><h3>🧭 ${title}</h3><ul class="live-list">${districts}</ul><p class="live-coverage">${note}</p></section>` : '';
+      let entries = Object.entries(byDistrict);
+      const isCheapest = guide === 'cheapest_rent_now';
+      if (isCheapest) entries = entries.filter(([, values]) => values.length >= 5).sort((a, b) => median(validNumbers(a[1], 'warm')) - median(validNumbers(b[1], 'warm'))).slice(0, 5);
+      else entries = entries.sort((a, b) => b[1].length - a[1].length).slice(0, 8);
+      const items = moneyList(entries, 'warm');
+      return items ? section(`📍 ${isCheapest ? copy.cheapest : copy.districts}`, list([items]), isCheapest ? copy.noteCheapest : '') : '';
     }
 
     if (guide === 'furnished_vs_unfurnished') {
       const options = [[true, german ? 'Möbliert' : 'Furnished'], [false, german ? 'Unmöbliert' : 'Unfurnished']];
-      const rowsByType = options.map(([isFurnished, label]) => {
-        const matches = rows.filter(row => row.furnished === isFurnished && Number(row.warm) > 0);
+      const items = options.map(([value, label]) => {
+        const matches = rows.filter(row => row.furnished === value && Number(row.warm) > 0);
         return matches.length ? `<li><span>${label}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>` : '';
-      }).join('');
-      const title = german ? 'Typische Warmmiete nach Möblierung' : 'Typical warm rent by furnishing';
-      return rowsByType ? `<section class="live-detail"><h3>🛋️ ${title}</h3><ul class="live-list">${rowsByType}</ul></section>` : '';
+      }).filter(Boolean);
+      return items.length ? section(`🛋️ ${copy.furnished}`, list(items)) : '';
     }
 
     if (guide === 'whole_flat_vs_shared_room') {
       const options = [['Whole flat (Private)', german ? 'Ganze Wohnung' : 'Whole flat'], ['Shared / Room', german ? 'WG oder Zimmer' : 'Shared or room']];
-      const rowsByType = options.map(([privacy, label]) => {
-        const matches = rows.filter(row => row.privacy === privacy && Number(row.warm) > 0);
+      const items = options.map(([value, label]) => {
+        const matches = rows.filter(row => row.privacy === value && Number(row.warm) > 0);
         return matches.length ? `<li><span>${label}</span><b>${money(median(validNumbers(matches, 'warm')))} <em>${copy.median}</em></b><small>${count(matches.length)} ${copy.rentPins}</small></li>` : '';
-      }).join('');
-      const title = german ? 'Typische Warmmiete nach Wohnform' : 'Typical warm rent by home type';
-      return rowsByType ? `<section class="live-detail"><h3>🔑 ${title}</h3><ul class="live-list">${rowsByType}</ul></section>` : '';
+      }).filter(Boolean);
+      return items.length ? section(`🔑 ${copy.homeType}`, list(items)) : '';
     }
 
-    const field = (guide === 'typical_deposit' || guide === 'move_in_costs') ? 'deposit' : (guide === 'rent_since' || guide === 'mietspiegel_vs_real_rents' || guide === 'reading_germanyrent_data' || guide === 'mietspiegel_2026_update') ? 'rent_since' : 'cold';
-    const label = (guide === 'typical_deposit' || guide === 'move_in_costs') ? copy.depositCoverage : (guide === 'rent_since' || guide === 'mietspiegel_vs_real_rents' || guide === 'reading_germanyrent_data' || guide === 'mietspiegel_2026_update') ? copy.rentSinceCoverage : copy.coldCoverage;
-    const available = rows.filter(row => row[field] !== null && row[field] !== undefined && row[field] !== '').length;
-    return `<p class="live-coverage">${label}: <strong>${count(available)} of ${count(rows.length)}</strong></p>`;
+    if (guide === 'warm_rent_vs_cold_rent') {
+      const matches = rows.filter(row => Number(row.warm) > 0 && Number(row.cold) > 0);
+      if (!matches.length) return '';
+      const gaps = matches.map(row => Number(row.warm) - Number(row.cold)).filter(value => value >= 0);
+      return section(`🔥 ${copy.warmCold}`, `<div class="live-stats-grid live-stats-grid-three">${stat(copy.medianWarm, money(median(validNumbers(matches, 'warm'))))}${stat(copy.medianCold, money(median(validNumbers(matches, 'cold'))))}${stat(copy.difference, money(median(gaps)), `${count(matches.length)} ${copy.rentPins}`)}</div>`);
+    }
+
+    if (guide === 'typical_deposit' || guide === 'move_in_costs') {
+      const matches = rows.filter(row => Number(row.warm) > 0 && Number(row.deposit) > 0);
+      if (!matches.length) return '';
+      const firstMonth = matches.map(row => Number(row.warm) + Number(row.deposit));
+      return section(`🏦 ${copy.depositMove}`, `<div class="live-stats-grid live-stats-grid-three">${stat(copy.medianDeposit, money(median(validNumbers(matches, 'deposit'))))}${stat(copy.upfront, money(median(firstMonth)), `${german ? 'Warmmiete plus Kaution' : 'warm rent plus deposit'}`)}${stat(copy.depositCoverage, `${count(matches.length)} / ${count(rows.length)}`)}</div>`);
+    }
+
+    if (guide === 'rent_since') {
+      const groups = [[copy.recent, []], [copy.midTerm, []], [copy.longTerm, []]];
+      rows.forEach(row => {
+        const months = monthsSince(row.rent_since);
+        if (months === null || !Number(row.warm)) return;
+        groups[months <= 12 ? 0 : months <= 60 ? 1 : 2][1].push(row);
+      });
+      const items = moneyList(groups.filter(([, values]) => values.length), 'warm');
+      return items ? section(`📅 ${copy.rentAge}`, list([items])) : '';
+    }
+
+    if (guide === 'reading_germanyrent_data' || guide === 'how_germanyrent_data_works') {
+      return section(`🧭 ${copy.dataCoverage}`, `<div class="live-stats-grid">${stat(copy.coldCoverage, `${count(coverage(rows, 'cold'))} / ${count(rows.length)}`)}${stat(copy.depositCoverage, `${count(coverage(rows, 'deposit'))} / ${count(rows.length)}`)}${stat(copy.rentSinceCoverage, `${count(coverage(rows, 'rent_since'))} / ${count(rows.length)}`)}${stat(copy.areaCoverage, `${count(coverage(rows, 'area'))} / ${count(rows.length)}`)}</div>`);
+    }
+
+    return '';
   }
 
   function render(rows) {
@@ -120,30 +136,24 @@
     const deposits = validNumbers(rows, 'deposit');
     const totalWarm = warm.reduce((sum, value) => sum + value, 0);
     document.querySelectorAll('[data-live-snapshot]').forEach(host => {
-      host.innerHTML = `<div class="live-snapshot-heading"><div><div class="eyebrow">${copy.title}</div><p>${copy.subtitle}</p></div></div><div class="live-stats-grid">${stat(copy.pins, count(rows.length))}${stat(copy.medianWarm, money(median(warm)))}${stat(copy.medianDeposit, money(median(deposits)), `${count(deposits.length)} ${copy.coverage}`)}${stat(copy.totalWarm, money(totalWarm))}</div>${detailFor(rows)}`;
+      if (guide === 'guide_hub') {
+        host.innerHTML = `<div class="live-snapshot-heading"><div><div class="eyebrow">${copy.hubTitle}</div><p>${copy.hubSubtitle}</p></div></div><div class="live-stats-grid">${stat(copy.pins, count(rows.length))}${stat(copy.medianWarm, money(median(warm)))}${stat(copy.medianDeposit, money(median(deposits)), `${count(deposits.length)} ${copy.coverage}`)}${stat(copy.totalWarm, money(totalWarm))}</div><p class="live-coverage">${copy.coldCoverage}: <strong>${count(coverage(rows, 'cold'))} of ${count(rows.length)}</strong></p>`;
+        return;
+      }
+      const detail = guideDetail(rows);
+      if (!detail) { host.remove(); return; }
+      host.innerHTML = `<div class="live-snapshot-heading"><div><div class="eyebrow">${copy.guideTitle}</div><p>${copy.guideSubtitle}</p></div></div>${detail}`;
     });
   }
 
-  function showUnavailable() {
-    document.querySelectorAll('[data-live-snapshot]').forEach(host => {
-      host.innerHTML = `<p class="live-loading">${copy.unavailable}</p>`;
-    });
-  }
-
+  function showUnavailable() { document.querySelectorAll('[data-live-snapshot]').forEach(host => { host.innerHTML = `<p class="live-loading">${copy.unavailable}</p>`; }); }
   async function load() {
-    if (!window.supabase) {
-      showUnavailable();
-      return;
-    }
+    if (!window.supabase) return showUnavailable();
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data, error } = await client.from('rents').select('warm,cold,deposit,room,district,rent_since,furnished,privacy,area').eq('is_location_valid', true);
-    if (error || !data || !data.length) {
-      showUnavailable();
-      return;
-    }
+    if (error || !data || !data.length) return showUnavailable();
     render(data);
   }
-
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
   else load();
 })();
