@@ -586,6 +586,7 @@
                 <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="trackEvent('splash_share_my_rent_clicked'); startContributionFromSplash()">Share my Rent</button>
                 <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="trackEvent('splash_explore_rents_clicked'); dismissSplash()">Explore Berlin Rents</button>
             </div>
+            <a href="guides/" onclick="trackEvent('guides_opened', { source: 'splash' })" style="display:inline-block; margin-top:14px; color:var(--accent); font-size:13px; font-weight:700; text-decoration:none;">📚 Read Berlin rent guides</a>
         </div>
     </div>
 
@@ -2625,6 +2626,13 @@
             banner.classList.add('hide');
             setTimeout(() => banner.remove(), 400);
         }, 1000);
+
+        if (new URLSearchParams(window.location.search).get('contribute') === '1') {
+            setTimeout(() => {
+                trackEvent('guide_contribution_opened');
+                startContributionFromSplash();
+            }, 0);
+        }
     </script>
     <!-- Google Maps JS API. `loading=async` + `callback=initMap` per Google's
          recommended async-loading pattern; initMap() (defined above) is
