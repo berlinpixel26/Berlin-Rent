@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -657,7 +656,7 @@
             <div class="subtitle">Narrow down what's shown on the map.</div>
             <div class="hint" id="filterResultsHint" style="margin-top:4px;"></div>
 
-            <label>🛏️ Room/Schlafzimmer</label>
+            <label>🛏️ Rooms / Zimmer</label>
             <div class="chip-group" id="filterRoomGroup">
                 <span class="chip" data-filter-room="1" onclick="toggleChip(this)">1</span>
                 <span class="chip" data-filter-room="2" onclick="toggleChip(this)">2</span>
@@ -716,7 +715,7 @@
 
             <div class="form-row">
                 <div>
-                    <label>🔥 Warm Rent — Warmmiete (€) <span class="required-marker">*</span></label>
+                    <label>🔥 Current Monthly Warm Rent (€) <span class="required-marker">*</span></label>
                     <input type="number" id="rentWarm" placeholder="e.g., 1020">
                 </div>
                 <div>
@@ -727,7 +726,7 @@
 
             <div class="form-row">
                 <div>
-                    <label>🛏️ Room/Schlafzimmer <span class="required-marker">*</span></label>
+                    <label>🛏️ Rooms / Zimmer <span class="required-marker">*</span></label>
                     <select id="rentRoom">
                         <option value="">Select…</option>
                         <option value="1">1</option>
@@ -752,7 +751,7 @@
                     </div>
                 </div>
                 <div>
-                    <label>📅 Rent since <span class="required-marker">*</span></label>
+                    <label>📅 Since when is this rent applicable? <span class="required-marker">*</span></label>
                     <div class="rent-since-selects">
                         <select id="rentSinceMonth">
                             <option value="">Month…</option>
@@ -1043,8 +1042,8 @@
                     <p>Yes, from the same browser and device used to add it. GermanyRent keeps a private edit key in that browser; there is no account or login to recover it elsewhere.</p>
                 </section>
                 <section class="faq-item">
-                    <h3>💶 What do “warm rent” and “rent since” mean?</h3>
-                    <p>Warm rent is the monthly amount including applicable service charges. “Rent since” is when the reported amount began—for example, your move-in month or latest rent increase.</p>
+                    <h3>💶 What do “current warm rent” and “rent applicable since” mean?</h3>
+                    <p>Current warm rent is the monthly amount you pay now, including applicable service charges. Choose when this amount began. If your rent changed after moving in, use the month of the most recent change.</p>
                 </section>
                 <section class="faq-item">
                     <h3>🤝 Is GermanyRent connected to landlords, brokers, or listing platforms?</h3>
