@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -135,6 +134,8 @@
             --border: rgba(15, 18, 22, 0.12);
             --shadow: 0 10px 34px rgba(15,18,22,0.16);
             --accent: #1877f2;
+            --splash-stat-value: #075cc9;
+            --splash-stat-label: #43505f;
             --accent-hover: #145dbf;
             --accent-soft: rgba(24, 119, 242, 0.14);
             --teal-soft: rgba(43, 122, 120, 0.16);
@@ -156,6 +157,8 @@
             --border: rgba(255, 255, 255, 0.16);
             --shadow: 0 10px 34px rgba(0,0,0,0.55);
             --accent: #4e9eff;
+            --splash-stat-value: #7ab5ff;
+            --splash-stat-label: #d5dbe5;
             --accent-hover: #6fafff;
             --accent-soft: rgba(78, 158, 255, 0.22);
             --teal-soft: rgba(79, 209, 197, 0.2);
@@ -531,8 +534,8 @@
         .splash-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
         .splash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
         .splash-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 7px; }
-        .splash-stat-value { font-size: 17px; font-weight: 700; color: var(--accent); }
-        .splash-stat-label { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.25; }
+        .splash-stat-value { font-size: 17px; font-weight: 700; color: var(--splash-stat-value); }
+        .splash-stat-label { font-size: 10px; color: var(--splash-stat-label); margin-top: 3px; line-height: 1.25; }
 
         /* ============ DETAIL ACTIONS (report / edit / delete) ============ */
         .detail-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
@@ -621,7 +624,7 @@
     </div>
 
     <div class="theme-toggle-float liquid-glass">
-        <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">
+        <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Switch to dark mode" title="Switch to dark mode">
             <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
@@ -1286,6 +1289,10 @@
            exists; it's referenced here but only ever called after initMap() has
            run, since the theme button isn't interactive until the page has loaded. */
         function updateThemeButton(theme) {
+            const themeButton = document.getElementById('themeToggleBtn');
+            const label = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+            themeButton.setAttribute('aria-label', label);
+            themeButton.title = label;
             document.getElementById('iconMoon').style.display = theme === 'light' ? 'block' : 'none';
             document.getElementById('iconSun').style.display = theme === 'light' ? 'none' : 'block';
         }
@@ -1571,6 +1578,20 @@
             allPillOverlays.push(pill);
         }
 
+        // Creating hundreds of Google Maps overlays in one synchronous task can
+        // briefly block the page. Render small batches between frames so the map
+        // remains responsive while still showing every submitted rent pin.
+        async function renderRentPinsProgressively(rents) {
+            const batchSize = 24;
+            for (let start = 0; start < rents.length; start += batchSize) {
+                const batch = rents.slice(start, start + batchSize);
+                batch.forEach(renderRentPin);
+                if (start + batchSize < rents.length) {
+                    await new Promise(resolve => requestAnimationFrame(resolve));
+                }
+            }
+        }
+
         function clearAllPins() {
             allPillOverlays.forEach(p => p.setMap(null));
             allPillOverlays.length = 0;
@@ -1593,8 +1614,8 @@
         async function loadRents() {
             if (!sbClient) await initSupabase();
             if (!sbClient) {
-                sampleRents.forEach(renderRentPin);
-                updateSplashStats(allRentsCache);
+                updateSplashStats(sampleRents);
+                await renderRentPinsProgressively(sampleRents);
                 return;
             }
             const { data, error } = await sbClient
@@ -1602,12 +1623,13 @@
                 .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, kitchen_setup, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at')
                 .eq('is_location_valid', true);
             if (error || !data || !data.length) {
-                sampleRents.forEach(renderRentPin);
-                updateSplashStats(allRentsCache);
+                updateSplashStats(sampleRents);
+                await renderRentPinsProgressively(sampleRents);
                 return;
             }
-            data.forEach(row => renderRentPin(rowToRent(row)));
-            updateSplashStats(allRentsCache);
+            const rents = data.map(rowToRent);
+            updateSplashStats(rents);
+            await renderRentPinsProgressively(rents);
         }
 
         /* ===================================================================
