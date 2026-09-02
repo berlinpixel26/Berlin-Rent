@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -246,12 +247,12 @@
         .float-btn:not(.primary):hover { filter: brightness(1.05); }
 
         .locate-btn, .transit-btn {
-            position: fixed; left: 16px; z-index: 400; width: 46px; height: 46px; border-radius: 50%;
+            position: fixed; right: 16px; z-index: 400; width: 46px; height: 46px; border-radius: 50%;
             border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
             color: var(--text);
         }
-        .locate-btn { bottom: 24px; }
-        .transit-btn { bottom: 78px; font-size: 20px; }
+        .locate-btn { bottom: 82px; }
+        .transit-btn { bottom: 138px; font-size: 20px; }
         .locate-btn svg { width: 22px; height: 22px; }
         .locate-btn:hover, .transit-btn:hover { filter: brightness(1.05); }
         .locate-btn.locating svg { animation: pulse 1s infinite; }
@@ -287,24 +288,32 @@
         .modal-card select option { color: var(--text); background: var(--surface); }
         .modal-card textarea { resize: vertical; min-height: 60px; }
         .modal-card input:focus, .modal-card select:focus, .modal-card textarea:focus { outline: none; border-color: var(--accent); }
+        .optional-marker { color: var(--text-muted); font-size: .9em; font-weight: 400; }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .auto-district-value {
-            width: 100%; min-height: 40px; padding: 10px 12px; margin-top: 6px;
-            display: flex; align-items: center; background: var(--surface-2);
-            border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted);
-            font-size: 14px;
-        }
-        .auto-district-value.ready { color: var(--text); border-color: rgba(43,122,120,.45); }
         .compact-required-row { align-items: start; }
         .compact-required-row .chip-group { gap: 6px; }
         .compact-required-row .chip { padding: 7px 10px; font-size: 12px; }
         .rent-since-selects { display: grid; grid-template-columns: 1.35fr .85fr; gap: 8px; margin-top: 6px; }
 
+        #rentLocationConfirm { align-items: flex-start !important; }
+        #rentLocationConfirm .location-confirm-copy { display: grid; gap: 2px; min-width: 0; }
+        #rentLocationConfirmAddress { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #rentLocationConfirmDistrict { color: #1f6b69; }
+        #rentLocationConfirmDistrict:empty { display: none; }
+
+        @media (max-width: 699px) {
+            #addRentModal .rent-room-row,
+            #addRentModal .furnished-area-row { grid-template-columns: 1fr; gap: 12px; }
+            #addRentModal .furnished-area-row .chip-group { display: grid; grid-template-columns: 1fr 1fr; }
+            #addRentModal .furnished-area-row .chip { text-align: center; }
+            #addRentModal .rent-since-selects { grid-template-columns: 1fr 1fr; }
+        }
+
         /* Keep the contribution form comfortably within a laptop viewport without
            changing the roomier, touch-friendly mobile controls. */
         @media (min-width: 700px) {
-            #addRentModal .modal-card { padding: 22px 26px; }
+            #addRentModal .modal-card { max-width: 580px; padding: 22px 26px; }
             #addRentModal .modal-card h2 { font-size: 19px; }
             #addRentModal .modal-card .subtitle { margin-bottom: 9px; }
             #rentModalIntro .hint:not(#rentLatLngHint) { margin-top: 6px; line-height: 1.35; }
@@ -312,6 +321,11 @@
             #rentLocationConfirm { margin-top: 6px !important; padding: 7px 10px !important; min-height: 38px; }
             #addRentModal .section-label { margin: 14px 0 3px; }
             #addRentModal .form-row { gap: 10px; }
+            #addRentModal .rent-price-row { grid-template-columns: 1.07fr .93fr; }
+            #addRentModal .rent-room-row { grid-template-columns: .82fr 1.18fr; }
+            #addRentModal .furnished-area-row { grid-template-columns: 1fr 1fr; }
+            #addRentModal .furnished-area-row .chip-group { display: grid; grid-template-columns: 1fr 1fr; }
+            #addRentModal .furnished-area-row .chip { text-align: center; }
             #addRentModal .modal-card label { margin-top: 8px; }
             #addRentModal .modal-card input[type="text"],
             #addRentModal .modal-card input[type="number"],
@@ -321,13 +335,16 @@
                 padding: 6px 10px;
                 margin-top: 4px;
             }
-            #addRentModal .auto-district-value { min-height: 38px; padding: 6px 10px; margin-top: 4px; }
             #addRentModal .chip-group { gap: 6px; margin-top: 4px; }
             #addRentModal .form-row + .form-row { margin-top: 8px; }
-            #addRentModal #emailFieldWrapper { margin-top: 8px; }
+            #addRentModal #emailFieldWrapper { margin-top: 0; }
+            #addRentModal #emailConsentWrapper { margin-top: 8px !important; }
             #addRentModal .compact-required-row > div > label {
                 height: 18px;
                 line-height: 18px;
+            }
+            #addRentModal .rent-room-row > div > label {
+                white-space: nowrap;
             }
             #addRentModal .compact-required-row .chip {
                 height: 38px;
@@ -337,8 +354,8 @@
             }
             #addRentModal .rent-since-selects { margin-top: 0; }
             #addRentModal .rent-since-selects select { height: 38px; }
-            #addRentModal #emailFieldWrapper > div { margin-top: 6px !important; gap: 7px !important; }
-            #addRentModal #emailFieldWrapper label[for="rentEmailConsent"] { line-height: 1.3; }
+            #addRentModal #emailConsentWrapper { gap: 7px !important; }
+            #addRentModal #emailConsentWrapper label[for="rentEmailConsent"] { line-height: 1.3; }
             #submitBasicRentBtn { min-height: 48px; margin-top: 12px !important; padding: 9px 20px; }
         }
 
@@ -665,7 +682,7 @@
             </div>
 
             <label>🔥 Monthly Warm Rent — Warmmiete (€)</label>
-            <div class="form-row">
+            <div class="form-row rent-price-row">
                 <input type="number" id="rentMin" placeholder="Min">
                 <input type="number" id="rentMax" placeholder="Max">
             </div>
@@ -707,8 +724,12 @@
                     <div class="place-suggestions" id="modalPlaceSuggestions" role="listbox"></div>
                 </div>
             </div>
-            <div id="rentLocationConfirm" style="margin-top:8px; padding:9px 12px; border-radius:8px; background:rgba(43,122,120,0.12); border:1px solid rgba(43,122,120,0.35); color:#1f6b69; font-size:12.5px; display:none; align-items:center; gap:6px;">
-                <span id="rentLocationConfirmText"></span>
+            <div id="rentLocationConfirm" style="margin-top:8px; padding:9px 12px; border-radius:8px; background:rgba(43,122,120,0.12); border:1px solid rgba(43,122,120,0.35); color:#1f6b69; font-size:12.5px; display:none; gap:7px;">
+                <span aria-hidden="true">📍</span>
+                <div class="location-confirm-copy">
+                    <span id="rentLocationConfirmAddress"></span>
+                    <span id="rentLocationConfirmDistrict"></span>
+                </div>
             </div>
 
             <div class="section-label">Mandatory</div>
@@ -724,7 +745,7 @@
                 </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row rent-room-row">
                 <div>
                     <label>🛏️ Rooms / Zimmer <span class="required-marker">*</span></label>
                     <select id="rentRoom">
@@ -734,21 +755,7 @@
                         <option value="3">3</option>
                         <option value="4">4+</option>
                     </select>
-                </div>
-                <div>
-                    <label>📍 District <span style="font-weight:400; color:var(--text-muted)">set from pin</span></label>
                     <input type="hidden" id="rentDistrict">
-                    <div id="rentDistrictDisplay" class="auto-district-value">Select a pin location</div>
-                </div>
-            </div>
-
-            <div class="form-row compact-required-row">
-                <div>
-                    <label>🛋️ Furnished? <span class="required-marker">*</span></label>
-                    <div class="chip-group" id="furnishedGroup" data-single="">
-                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Furnished</span>
-                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Unfurnished</span>
-                    </div>
                 </div>
                 <div>
                     <label>📅 Since when is this rent applicable? <span class="required-marker">*</span></label>
@@ -773,13 +780,28 @@
                 </div>
             </div>
 
-            <div id="emailFieldWrapper">
-                <label>📧 Email (optional)</label>
-                <input type="email" id="rentEmail" placeholder="you@example.com">
-                <div style="margin-top:8px; display:flex; align-items:flex-start; gap:8px;">
-                    <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;">
-                    <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">I'd like to be notified about my own pin (e.g. if it's reported, or to get a copy of my submission). My email will never be shown publicly or shared.</label>
+            <div class="form-row compact-required-row furnished-area-row">
+                <div>
+                    <label>📐 Apartment size (m²)</label>
+                    <input type="number" id="rentArea" placeholder="e.g., 65" min="1">
                 </div>
+                <div>
+                    <label>🛋️ Furnished? <span class="required-marker">*</span></label>
+                    <div class="chip-group" id="furnishedGroup" data-single="">
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Furnished</span>
+                        <span class="chip" data-single-accent="" onclick="selectSingle(this)">Unfurnished</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="emailFieldWrapper">
+                <label>📧 Email <span class="optional-marker">(optional)</span></label>
+                <input type="email" id="rentEmail" placeholder="you@example.com">
+            </div>
+
+            <div id="emailConsentWrapper" style="margin-top:8px; display:flex; align-items:flex-start; gap:8px;">
+                <input type="checkbox" id="rentEmailConsent" style="width:auto; margin-top:3px;">
+                <label for="rentEmailConsent" style="margin:0; font-size:12px; color: var(--text-muted); font-weight:400;">Notify me about updates to this pin. Your email is never public or shared.</label>
             </div>
 
             <button id="submitBasicRentBtn" class="float-btn primary" style="width:100%; margin-top:18px; justify-content:center;" onclick="submitRentPin()">Submit Anonymously</button>
@@ -795,6 +817,8 @@
             <div id="optionalDetailsForm">
             <div class="section-label">Add Optional Details</div>
 
+            <div class="section-label" style="margin-top:16px;">Home & rental setup</div>
+
             <label>❄️ Cold Rent — Kaltmiete (€), if known</label>
             <input type="number" id="rentCold" placeholder="e.g., 850">
 
@@ -804,12 +828,21 @@
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">🤝 Shared / Room</span>
             </div>
 
+            <label>🍳 Fitted kitchen included?</label>
+            <div class="chip-group" id="kitchenSetupGroup" data-single="">
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
+                <span class="chip" data-single-accent="" onclick="selectSingle(this)">Partly equipped</span>
+            </div>
+
             <label>👨‍👩‍👧 Household Type</label>
             <div class="chip-group" id="householdGroup" data-single="">
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">👨‍👩‍👧 Family</span>
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">🧑 Bachelor's / Single</span>
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">🙌 Either</span>
             </div>
+
+            <div class="section-label">Practical details</div>
 
             <div class="form-row">
                 <div>
@@ -837,14 +870,7 @@
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
             </div>
 
-            <label>⭐ Rate Your Stay</label>
-            <div class="star-rating" id="stayRatingStars"></div>
-
-            <label>📐 Area (m²)</label>
-            <input type="number" id="rentArea" placeholder="e.g., 65">
-
-            <label>💬 One-liner on the neighbourhood / landlord</label>
-            <input type="text" id="rentOneLiner" placeholder="e.g., Quiet street, responsive landlord" maxlength="140">
+            <div class="section-label">House rules</div>
 
             <div class="form-row">
                 <div>
@@ -868,6 +894,14 @@
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">Yes</span>
                 <span class="chip" data-single-accent="" onclick="selectSingle(this)">No</span>
             </div>
+
+            <div class="section-label">Your experience</div>
+
+            <label>⭐ Rate Your Stay</label>
+            <div class="star-rating" id="stayRatingStars"></div>
+
+            <label>💬 One-liner on the neighbourhood / landlord</label>
+            <input type="text" id="rentOneLiner" placeholder="e.g., Quiet street, responsive landlord" maxlength="140">
 
             <label>🏘️ Rate the Neighbourhood</label>
             <div class="star-rating" id="neighbourhoodRatingStars"></div>
@@ -1226,7 +1260,7 @@
                 id: row.id,
                 lat: row.lat, lng: row.lng, cold: row.cold, warm: row.warm, deposit: row.deposit,
                 room: row.room, district: row.district, furnished: row.furnished, privacy: row.privacy,
-                household: row.household, peopleAllowed: row.people_allowed, parking: row.parking,
+                household: row.household, kitchenSetup: row.kitchen_setup, peopleAllowed: row.people_allowed, parking: row.parking,
                 utilitiesIncluded: row.utilities_included, stayRating: row.stay_rating, area: row.area,
                 oneLiner: row.one_liner, letterbox: row.letterbox, pets: row.pets, smoking: row.smoking,
                 neighbourhoodRating: row.neighbourhood_rating, anmeldungProvided: row.anmeldung_provided,
@@ -1520,11 +1554,11 @@
         }
 
         const sampleRents = [
-            { lat: 52.5200, lng: 13.4050, cold: 850, warm: 1010, deposit: 1700, room: 2, district: 'Mitte', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'No', utilitiesIncluded: 'Yes', stayRating: 4, area: 62, oneLiner: 'Quiet street, responsive landlord', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes', rentSince: '2023-06-01' },
-            { lat: 52.5100, lng: 13.3800, cold: 920, warm: 1080, deposit: 1840, room: 1, district: 'Friedrichshain-Kreuzberg', furnished: true, privacy: 'Shared / Room', household: 'Bachelor\'s / Single', peopleAllowed: 1, parking: 'No', utilitiesIncluded: 'No', stayRating: 5, area: 28, oneLiner: 'Great nightlife, a bit noisy on weekends', letterbox: 'No', pets: 'Yes', smoking: 'Yes', neighbourhoodRating: 5, anmeldungProvided: 'No', rentSince: '2022-01-01' },
-            { lat: 52.5300, lng: 13.4200, cold: 1100, warm: 1290, deposit: 2200, room: 3, district: 'Pankow', furnished: false, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 4, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 4, area: 88, oneLiner: 'Great for families, near parks', letterbox: 'Yes', pets: 'Yes', smoking: 'No', neighbourhoodRating: 5, anmeldungProvided: 'Yes', rentSince: '2021-09-01' },
-            { lat: 52.4950, lng: 13.3900, cold: 750, warm: 890, deposit: 1500, room: 1, district: 'Neukölln', furnished: false, privacy: 'Whole flat (Private)', household: 'Either', peopleAllowed: 2, parking: 'No', utilitiesIncluded: 'No', stayRating: 3, area: 42, oneLiner: 'Up-and-coming area, good value', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 3, anmeldungProvided: 'No', rentSince: '2024-03-01' },
-            { lat: 52.5250, lng: 13.3950, cold: 1250, warm: 1430, deposit: 2500, room: 2, district: 'Tempelhof-Schöneberg', furnished: true, privacy: 'Whole flat (Private)', household: 'Family', peopleAllowed: 3, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 5, area: 70, oneLiner: 'Beautiful old building, friendly neighbours', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes', rentSince: '2020-11-01' }
+            { lat: 52.5200, lng: 13.4050, cold: 850, warm: 1010, deposit: 1700, room: 2, district: 'Mitte', furnished: false, privacy: 'Whole flat (Private)', kitchenSetup: 'Yes', household: 'Family', peopleAllowed: 3, parking: 'No', utilitiesIncluded: 'Yes', stayRating: 4, area: 62, oneLiner: 'Quiet street, responsive landlord', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes', rentSince: '2023-06-01' },
+            { lat: 52.5100, lng: 13.3800, cold: 920, warm: 1080, deposit: 1840, room: 1, district: 'Friedrichshain-Kreuzberg', furnished: true, privacy: 'Shared / Room', kitchenSetup: 'Partly equipped', household: 'Bachelor\'s / Single', peopleAllowed: 1, parking: 'No', utilitiesIncluded: 'No', stayRating: 5, area: 28, oneLiner: 'Great nightlife, a bit noisy on weekends', letterbox: 'No', pets: 'Yes', smoking: 'Yes', neighbourhoodRating: 5, anmeldungProvided: 'No', rentSince: '2022-01-01' },
+            { lat: 52.5300, lng: 13.4200, cold: 1100, warm: 1290, deposit: 2200, room: 3, district: 'Pankow', furnished: false, privacy: 'Whole flat (Private)', kitchenSetup: 'Yes', household: 'Family', peopleAllowed: 4, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 4, area: 88, oneLiner: 'Great for families, near parks', letterbox: 'Yes', pets: 'Yes', smoking: 'No', neighbourhoodRating: 5, anmeldungProvided: 'Yes', rentSince: '2021-09-01' },
+            { lat: 52.4950, lng: 13.3900, cold: 750, warm: 890, deposit: 1500, room: 1, district: 'Neukölln', furnished: false, privacy: 'Whole flat (Private)', kitchenSetup: 'No', household: 'Either', peopleAllowed: 2, parking: 'No', utilitiesIncluded: 'No', stayRating: 3, area: 42, oneLiner: 'Up-and-coming area, good value', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 3, anmeldungProvided: 'No', rentSince: '2024-03-01' },
+            { lat: 52.5250, lng: 13.3950, cold: 1250, warm: 1430, deposit: 2500, room: 2, district: 'Tempelhof-Schöneberg', furnished: true, privacy: 'Whole flat (Private)', kitchenSetup: 'Yes', household: 'Family', peopleAllowed: 3, parking: 'Yes', utilitiesIncluded: 'Yes', stayRating: 5, area: 70, oneLiner: 'Beautiful old building, friendly neighbours', letterbox: 'Yes', pets: 'No', smoking: 'No', neighbourhoodRating: 4, anmeldungProvided: 'Yes', rentSince: '2020-11-01' }
         ];
 
         const allRentsCache = [];
@@ -1565,7 +1599,7 @@
             }
             const { data, error } = await sbClient
                 .from('rents')
-                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at')
+                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, kitchen_setup, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at')
                 .eq('is_location_valid', true);
             if (error || !data || !data.length) {
                 sampleRents.forEach(renderRentPin);
@@ -1940,29 +1974,31 @@
 
         async function resolveRentalDistrict(lat, lng) {
             const input = document.getElementById('rentDistrict');
-            const display = document.getElementById('rentDistrictDisplay');
+            const display = document.getElementById('rentLocationConfirmDistrict');
             input.value = '';
             display.textContent = 'Finding district…';
-            display.classList.remove('ready');
             try {
                 if (!sbClient) await initSupabase();
                 if (!sbClient) throw new Error('Backend unavailable');
                 const { data, error } = await sbClient.rpc('district_for_coordinates', { p_lat: lat, p_lng: lng });
                 if (error || !data) throw error || new Error('No Berlin district found');
                 input.value = data;
-                display.textContent = data;
-                display.classList.add('ready');
+                display.textContent = `${data} district, set automatically`;
             } catch (error) {
                 display.textContent = 'Choose a location within Berlin';
                 console.warn('Could not resolve district from pin location.', error);
             }
         }
 
-        function resetRentalDistrict(message = 'Select a pin location') {
+        function resetRentalDistrict() {
             document.getElementById('rentDistrict').value = '';
-            const display = document.getElementById('rentDistrictDisplay');
-            display.textContent = message;
-            display.classList.remove('ready');
+            document.getElementById('rentLocationConfirmDistrict').textContent = '';
+        }
+
+        function setRentLocationConfirmation(displayName, districtMessage = 'Finding district…') {
+            document.getElementById('rentLocationConfirmAddress').textContent = displayName;
+            document.getElementById('rentLocationConfirmDistrict').textContent = districtMessage;
+            document.getElementById('rentLocationConfirm').style.display = 'flex';
         }
 
         function setModalRentLocation(position, displayName) {
@@ -1971,8 +2007,7 @@
             const lng = typeof position.lng === 'function' ? position.lng() : position.lng;
             modal.dataset.lat = lat;
             modal.dataset.lng = lng;
-            document.getElementById('rentLocationConfirmText').textContent = `Pin: ${displayName}`;
-            document.getElementById('rentLocationConfirm').style.display = 'flex';
+            setRentLocationConfirmation(displayName);
             map.panTo(position);
             map.setZoom(18);
             showPlacementPin(position, displayName, false);
@@ -2062,6 +2097,7 @@
             ];
             if (d.id != null && getTokenFor(d.id)) badges.unshift({ label: '📍 My Pin', cls: 'badge-accent' });
             if (d.privacy) badges.push({ label: d.privacy, cls: 'badge-teal' });
+            if (d.kitchenSetup) badges.push({ label: `🍳 Kitchen ${d.kitchenSetup}`, cls: 'badge-neutral' });
             if (d.household) badges.push({ label: d.household, cls: 'badge-teal' });
             if (d.peopleAllowed) badges.push({ label: `👥 ${d.peopleAllowed} allowed`, cls: 'badge-neutral' });
             if (d.parking) badges.push({ label: d.parking === 'Yes' ? '🅿️ Parking' : '🅿️ No parking', cls: 'badge-neutral' });
@@ -2163,8 +2199,6 @@
             document.getElementById('rentDeposit').value = d.deposit ?? '';
             document.getElementById('rentRoom').value = d.room ?? '';
             document.getElementById('rentDistrict').value = d.district ?? '';
-            document.getElementById('rentDistrictDisplay').textContent = d.district ?? 'District unavailable';
-            document.getElementById('rentDistrictDisplay').classList.toggle('ready', Boolean(d.district));
             if (d.rentSince) {
                 const [y, m] = d.rentSince.split('-');
                 document.getElementById('rentSinceMonth').value = String(parseInt(m, 10));
@@ -2175,6 +2209,7 @@
             }
             selectChipByText('furnishedGroup', d.furnished ? 'Furnished' : 'Unfurnished');
             selectChipByText('privacyGroup', d.privacy);
+            selectChipByText('kitchenSetupGroup', d.kitchenSetup);
             selectChipByText('householdGroup', d.household);
             document.getElementById('rentPeopleAllowed').value = d.peopleAllowed ?? '';
             selectChipByText('parkingGroup', d.parking);
@@ -2197,6 +2232,7 @@
             [...neighContainer.children].forEach(c => c.classList.toggle('filled', parseInt(c.dataset.value) <= neighValue));
 
             document.getElementById('emailFieldWrapper').style.display = 'none';
+            document.getElementById('emailConsentWrapper').style.display = 'none';
 
             document.getElementById('submitBasicRentBtn').textContent = 'Save Changes';
             document.getElementById('addRentModal').classList.add('open');
@@ -2346,8 +2382,7 @@
                 document.getElementById('addRentModal').dataset.lat = lat;
                 document.getElementById('addRentModal').dataset.lng = lng;
                 locationInput.value = locationText;
-                document.getElementById('rentLocationConfirmText').textContent = `Pin: ${locationText}`;
-                locationConfirm.style.display = 'flex';
+                setRentLocationConfirmation(locationText);
                 resolveRentalDistrict(lat, lng);
             } else {
                 hint.textContent = '';
@@ -2375,6 +2410,7 @@
             postSubmissionOptionalSaved = false;
             resetAddRentFlow();
             document.getElementById('emailFieldWrapper').style.display = '';
+            document.getElementById('emailConsentWrapper').style.display = '';
             document.getElementById('rentAddressSearch').value = '';
             document.getElementById('rentLocationConfirm').style.display = 'none';
             resetRentalDistrict();
@@ -2476,6 +2512,7 @@
             const rentSinceYear = document.getElementById('rentSinceYear').value;
             const furnished = document.querySelector('#furnishedGroup .chip.active');
             const privacy = document.querySelector('#privacyGroup .chip.active');
+            const kitchenSetup = document.querySelector('#kitchenSetupGroup .chip.active');
             const household = document.querySelector('#householdGroup .chip.active');
             const peopleAllowed = document.getElementById('rentPeopleAllowed').value;
             const parking = document.querySelector('#parkingGroup .chip.active');
@@ -2508,6 +2545,7 @@
                 rentSince: `${rentSinceYear}-${rentSinceMonth.padStart(2, '0')}-01`,
                 furnished: !furnished.textContent.includes('Unfurnished'),
                 privacy: privacy ? privacy.textContent.trim() : null,
+                kitchenSetup: kitchenSetup ? kitchenSetup.textContent.trim() : null,
                 household: household ? household.textContent.trim() : null,
                 peopleAllowed: peopleAllowed ? parseInt(peopleAllowed) : null,
                 parking: parking ? parking.textContent.trim() : null,
@@ -2536,7 +2574,7 @@
                     p_id: editingRentId, p_token: editingRentToken,
                     p_warm: rent.warm, p_cold: rent.cold, p_deposit: rent.deposit,
                     p_room: rent.room, p_district: rent.district, p_furnished: rent.furnished,
-                    p_privacy: rent.privacy, p_household: rent.household,
+                    p_privacy: rent.privacy, p_kitchen_setup: rent.kitchenSetup, p_household: rent.household,
                     p_people_allowed: rent.peopleAllowed, p_parking: rent.parking,
                     p_utilities_included: rent.utilitiesIncluded, p_stay_rating: rent.stayRating,
                     p_area: rent.area, p_one_liner: rent.oneLiner, p_letterbox: rent.letterbox,
@@ -2578,7 +2616,7 @@
 
             const { data, error } = await sbClient.from('rents').insert({
                 lat: rent.lat, lng: rent.lng, cold: rent.cold, warm: rent.warm, deposit: rent.deposit,
-                room: rent.room, district: rent.district, furnished: rent.furnished, privacy: rent.privacy,
+                room: rent.room, district: rent.district, furnished: rent.furnished, privacy: rent.privacy, kitchen_setup: rent.kitchenSetup,
                 household: rent.household, people_allowed: rent.peopleAllowed, parking: rent.parking,
                 utilities_included: rent.utilitiesIncluded, stay_rating: rent.stayRating, area: rent.area,
                 one_liner: rent.oneLiner, letterbox: rent.letterbox, pets: rent.pets, smoking: rent.smoking,
