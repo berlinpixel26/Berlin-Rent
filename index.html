@@ -418,6 +418,24 @@
         }
         .rent-pill:hover { filter: brightness(1.08); }
 
+        /* Wider-zoom groups keep the map readable and avoid redrawing a label
+           for every rent while the user pans or pinches. */
+        .rent-cluster {
+            position: absolute; transform: translate(-50%, -100%);
+            min-width: 74px; padding: 7px 10px; border: 1px solid rgba(255,255,255,0.42);
+            border-radius: 14px; cursor: pointer; text-align: center; color: #fff;
+            background: linear-gradient(135deg, rgba(255,255,255,0.34), transparent 60%), #145dbf;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.27); line-height: 1.1; font: inherit;
+        }
+        .rent-cluster::after {
+            content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+            border-top: 6px solid #145dbf;
+        }
+        .rent-cluster-count { display: block; font-size: 11px; font-weight: 800; white-space: nowrap; }
+        .rent-cluster-price { display: block; margin-top: 3px; font-size: 9px; font-weight: 600; opacity: .9; white-space: nowrap; }
+        .rent-cluster:hover { filter: brightness(1.1); }
+
         /* ============ RENT LOCATION CONFIRMATION CARD ============
            A custom OverlayView gives the placement step the same glass
            language as the rest of the map, without Google's InfoWindow chrome. */
@@ -1402,6 +1420,7 @@
         /* Overlay classes are built lazily inside defineMapOverlayClasses()
            (called from initMap) — see the async-load bug note above. */
         let RentPill;
+        let ClusterPill;
         let PlacementCard;
         function defineMapOverlayClasses() {
             RentPill = class extends google.maps.OverlayView {
@@ -1425,6 +1444,42 @@
                     const pos = proj.fromLatLngToDivPixel(this.position);
                     this.div.style.left = pos.x + 'px';
                     this.div.style.top = pos.y + 'px';
+                }
+                onRemove() {
+                    if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
+                    this.div = null;
+                }
+            };
+
+            ClusterPill = class extends google.maps.OverlayView {
+                constructor(position, cluster) {
+                    super();
+                    this.position = position;
+                    this.cluster = cluster;
+                    this.div = null;
+                }
+                onAdd() {
+                    const div = document.createElement('button');
+                    const { count, medianWarm } = this.cluster;
+                    div.type = 'button';
+                    div.className = 'rent-cluster';
+                    div.setAttribute('aria-label', `${count} rent pins. Zoom in to explore them.`);
+                    div.innerHTML = `<span class="rent-cluster-count">${count} ${count === 1 ? 'rent' : 'rents'}</span><span class="rent-cluster-price">${formatPrice(medianWarm)} median</span>`;
+                    div.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        map.panTo(this.position);
+                        map.setZoom(Math.min(Math.floor(map.getZoom()) + 2, 16));
+                    });
+                    this.div = div;
+                    this.getPanes().overlayMouseTarget.appendChild(div);
+                }
+                draw() {
+                    const projection = this.getProjection();
+                    if (!projection || !this.div) return;
+                    const point = projection.fromLatLngToDivPixel(this.position);
+                    if (!point) return;
+                    this.div.style.left = point.x + 'px';
+                    this.div.style.top = point.y + 'px';
                 }
                 onRemove() {
                     if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
@@ -1529,6 +1584,8 @@
                 showPlacementPin(e.latLng, 'Selected map location', true);
             });
             map.addListener('bounds_changed', () => clickMenuEl.classList.remove('open'));
+            map.addListener('idle', scheduleMapPinRender);
+            map.addListener('zoom_changed', scheduleMapPinRender);
             document.addEventListener('click', (e) => {
                 if (!clickMenuEl.contains(e.target) && !e.target.closest('#map')) {
                     clickMenuEl.classList.remove('open');
@@ -1569,32 +1626,132 @@
         ];
 
         const allRentsCache = [];
-        const allPillOverlays = [];
+        const allPillOverlays = new Map();
+        let clusterOverlays = [];
+        let pinRenderTimer = null;
 
         function renderRentPin(d) {
             allRentsCache.push(d);
-            const pill = new RentPill(new google.maps.LatLng(d.lat, d.lng), d);
-            pill.setMap(map);
-            allPillOverlays.push(pill);
+            scheduleMapPinRender();
         }
 
-        // Creating hundreds of Google Maps overlays in one synchronous task can
-        // briefly block the page. Render small batches between frames so the map
-        // remains responsive while still showing every submitted rent pin.
+        // Keep data ingestion light. Visible markers are created separately,
+        // after the map has settled, so the map never needs one DOM overlay per pin.
         async function renderRentPinsProgressively(rents) {
             const batchSize = 24;
             for (let start = 0; start < rents.length; start += batchSize) {
                 const batch = rents.slice(start, start + batchSize);
-                batch.forEach(renderRentPin);
+                allRentsCache.push(...batch);
                 if (start + batchSize < rents.length) {
                     await new Promise(resolve => requestAnimationFrame(resolve));
                 }
             }
+            scheduleMapPinRender();
+        }
+
+        function rentRenderKey(rent, index) {
+            return rent.id != null ? `rent-${rent.id}` : `rent-${index}-${rent.lat}-${rent.lng}`;
+        }
+
+        function medianWarmRent(rents) {
+            const values = rents.map(rent => Number(rent.warm ?? rent.cold)).filter(Number.isFinite).sort((a, b) => a - b);
+            if (!values.length) return 0;
+            const middle = Math.floor(values.length / 2);
+            return values.length % 2 ? values[middle] : Math.round((values[middle - 1] + values[middle]) / 2);
+        }
+
+        function getViewportRentEntries(entries) {
+            const bounds = map?.getBounds();
+            if (!bounds) return entries;
+            const northEast = bounds.getNorthEast();
+            const southWest = bounds.getSouthWest();
+            const latPadding = (northEast.lat() - southWest.lat()) * 0.28;
+            const lngPadding = (northEast.lng() - southWest.lng()) * 0.28;
+            return entries.filter(({ rent }) =>
+                rent.lat >= southWest.lat() - latPadding && rent.lat <= northEast.lat() + latPadding &&
+                rent.lng >= southWest.lng() - lngPadding && rent.lng <= northEast.lng() + lngPadding
+            );
+        }
+
+        function buildRentClusters(entries) {
+            const zoom = Math.floor(map.getZoom());
+            const projection = map.getProjection();
+            if (!projection) return { clusters: [], singles: entries };
+
+            // Close up, the map returns to its existing individual rent labels.
+            if (zoom >= 16) return { clusters: [], singles: entries };
+
+            const cellSize = window.innerWidth < 700
+                ? (zoom <= 13 ? 132 : 88)
+                : (zoom <= 13 ? 164 : 112);
+            const groups = new Map();
+
+            entries.forEach(entry => {
+                const { rent } = entry;
+                let key;
+                const point = projection.fromLatLngToPoint(new google.maps.LatLng(rent.lat, rent.lng));
+                const scale = Math.pow(2, zoom);
+                key = `${Math.floor((point.x * scale) / cellSize)}_${Math.floor((point.y * scale) / cellSize)}`;
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(entry);
+            });
+
+            const clusters = [];
+            const singles = [];
+            groups.forEach(group => {
+                if (group.length === 1) {
+                    singles.push(group[0]);
+                    return;
+                }
+                const rents = group.map(entry => entry.rent);
+                clusters.push({
+                    count: group.length,
+                    medianWarm: medianWarmRent(rents),
+                    lat: rents.reduce((sum, rent) => sum + Number(rent.lat), 0) / rents.length,
+                    lng: rents.reduce((sum, rent) => sum + Number(rent.lng), 0) / rents.length
+                });
+            });
+            return { clusters, singles };
+        }
+
+        function renderMapPins() {
+            if (!map || !map.getProjection()) return;
+            const filters = getFilterState();
+            const filteredEntries = allRentsCache
+                .map((rent, index) => ({ rent, index }))
+                .filter(({ rent }) => rentMatchesFilters(rent, filters));
+            const viewportEntries = getViewportRentEntries(filteredEntries);
+            const { clusters, singles } = buildRentClusters(viewportEntries);
+
+            allPillOverlays.forEach(pill => pill.setMap(null));
+            singles.forEach(({ rent, index }) => {
+                const key = rentRenderKey(rent, index);
+                let pill = allPillOverlays.get(key);
+                if (!pill) {
+                    pill = new RentPill(new google.maps.LatLng(rent.lat, rent.lng), rent);
+                    allPillOverlays.set(key, pill);
+                }
+                pill.setMap(map);
+            });
+
+            clusterOverlays.forEach(cluster => cluster.setMap(null));
+            clusterOverlays = clusters.map(cluster => {
+                const overlay = new ClusterPill(new google.maps.LatLng(cluster.lat, cluster.lng), cluster);
+                overlay.setMap(map);
+                return overlay;
+            });
+        }
+
+        function scheduleMapPinRender() {
+            clearTimeout(pinRenderTimer);
+            pinRenderTimer = setTimeout(renderMapPins, 150);
         }
 
         function clearAllPins() {
             allPillOverlays.forEach(p => p.setMap(null));
-            allPillOverlays.length = 0;
+            allPillOverlays.clear();
+            clusterOverlays.forEach(cluster => cluster.setMap(null));
+            clusterOverlays = [];
             allRentsCache.length = 0;
         }
         async function refreshAllPins() {
@@ -2499,13 +2656,9 @@
 
         function updateVisibleRentPins() {
             const filters = getFilterState();
-            let visibleCount = 0;
-            allPillOverlays.forEach((pill, index) => {
-                const visible = rentMatchesFilters(allRentsCache[index], filters);
-                pill.setMap(visible ? map : null);
-                if (visible) visibleCount += 1;
-            });
+            const visibleCount = allRentsCache.filter(rent => rentMatchesFilters(rent, filters)).length;
             document.getElementById('filterResultsHint').textContent = `Showing ${visibleCount} of ${allRentsCache.length} rent pins`;
+            scheduleMapPinRender();
             return { filters, visibleCount };
         }
 
