@@ -200,9 +200,17 @@
             padding: 8px; border-radius: 999px;
             width: min(92vw, 620px);
         }
-        .top-bar .search-icon { padding-left: 12px; cursor: pointer; user-select: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: background .15s; }
-        .top-bar .search-icon img { width: 20px; height: 20px; display: block; }
+        .top-bar .search-icon { padding: 0; margin-left: 4px; cursor: pointer; user-select: none; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; border-radius: 50%; background: transparent; color: var(--accent); transition: background .15s; }
+        .top-bar .search-icon svg { width: 20px; height: 20px; display: block; }
         .top-bar .search-icon:hover { background: var(--accent-soft); }
+        .top-bar .search-icon.intro-pulse {
+            animation: searchLocationCuePulse .75s ease-in-out 4;
+            background: var(--accent); color: #fff;
+        }
+        @keyframes searchLocationCuePulse {
+            0%, 100% { transform: scale(1); box-shadow: none; }
+            50% { transform: scale(1.13); box-shadow: 0 0 0 7px var(--accent-soft); }
+        }
         .place-search-wrap { position: relative; flex: 1; min-width: 0; }
         .top-bar .place-search-wrap input {
             flex: 1; border: none; background: transparent; color: var(--text);
@@ -231,8 +239,11 @@
         .icon-btn:hover { background: var(--accent-soft); }
 
         .theme-toggle-float {
-            position: fixed; bottom: 24px; right: 16px; z-index: 400; border-radius: 999px; padding: 4px;
+            position: fixed; bottom: 24px; right: 16px; z-index: 400; width: 46px; height: 46px;
+            border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
         }
+        .theme-toggle-float .icon-btn { width: 46px; height: 46px; }
+        .theme-toggle-float .icon-btn svg { width: 21px; height: 21px; }
 
         /* ============ ACTION ROW — directly under the search bar ============ */
         .action-row {
@@ -285,6 +296,13 @@
         .section-label:first-of-type { margin-top: 4px; }
 
         .modal-card label { display: block; margin-top: 12px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .modal-locate-button {
+            position: absolute; z-index: 2; left: 6px; top: 50%; transform: translateY(-50%);
+            width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer;
+            background: var(--accent-soft); color: var(--accent); display: flex; align-items: center;
+            justify-content: center; padding: 0;
+        }
+        .modal-locate-button svg { width: 17px; height: 17px; }
         .modal-card input[type="text"],
         .modal-card input[type="number"],
         .modal-card input[type="email"],
@@ -322,7 +340,7 @@
         /* Keep the contribution form comfortably within a laptop viewport without
            changing the roomier, touch-friendly mobile controls. */
         @media (min-width: 700px) {
-            #addRentModal .modal-card { max-width: 580px; padding: 22px 26px; }
+            #addRentModal .modal-card { max-width: 560px; padding: 22px 26px; }
             #addRentModal .modal-card h2 { font-size: 19px; }
             #addRentModal .modal-card .subtitle { margin-bottom: 9px; }
             #rentModalIntro .hint:not(#rentLatLngHint) { margin-top: 6px; line-height: 1.35; }
@@ -331,7 +349,7 @@
             #addRentModal .section-label { margin: 14px 0 3px; }
             #addRentModal .form-row { gap: 10px; }
             #addRentModal .rent-price-row { grid-template-columns: 1.07fr .93fr; }
-            #addRentModal .rent-room-row { grid-template-columns: .82fr 1.18fr; }
+            #addRentModal .rent-room-row { grid-template-columns: 1fr 1fr; }
             #addRentModal .furnished-area-row { grid-template-columns: 1fr 1fr; }
             #addRentModal .furnished-area-row .chip-group { display: grid; grid-template-columns: 1fr 1fr; }
             #addRentModal .furnished-area-row .chip { text-align: center; }
@@ -361,7 +379,7 @@
                 display: inline-flex;
                 align-items: center;
             }
-            #addRentModal .rent-since-selects { margin-top: 0; }
+            #addRentModal .rent-since-selects { width: 100%; margin-top: 0; }
             #addRentModal .rent-since-selects select { height: 38px; }
             #addRentModal #emailConsentWrapper { gap: 7px !important; }
             #addRentModal #emailConsentWrapper label[for="rentEmailConsent"] { line-height: 1.3; }
@@ -656,7 +674,9 @@
     </div>
 
     <div class="top-bar liquid-glass">
-        <span class="search-icon" onclick="locateUser('main')" title="Use my location"><img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate"></span>
+        <button type="button" class="search-icon" id="mainLocateBtn" onclick="locateUser('main')" title="Use my current location" aria-label="Use my current location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="7"></circle><line x1="12" y1="1" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="23"></line><line x1="1" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="23" y2="12"></line></svg>
+        </button>
         <div class="place-search-wrap">
             <input type="text" id="searchInput" placeholder="Search a street, building or ZIP code">
             <div class="place-suggestions" id="mainPlaceSuggestions" role="listbox"></div>
@@ -744,11 +764,11 @@
 
             <div id="rentBasicsSection">
             <div style="display:flex; gap:8px; margin-top:14px; position:relative;">
-                <button type="button" id="modalLocateBtn" onclick="locateUser('modal')" style="position:absolute; z-index:2; left:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; padding:0;" title="Use my location" aria-label="Use my location">
-                    <img src="https://www.gstatic.com/images/branding/productlogos/maps_2025/v1/192px.svg" alt="locate" style="width:16px; height:16px;">
+                <button type="button" id="modalLocateBtn" class="modal-locate-button" onclick="locateUser('modal')" title="Use my current location" aria-label="Use my current location">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="7"></circle><line x1="12" y1="1" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="23"></line><line x1="1" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="23" y2="12"></line></svg>
                 </button>
                 <div class="place-search-wrap">
-                    <input type="text" id="rentAddressSearch" placeholder="Search the rental address" style="width:100%; padding-left:40px;">
+                    <input type="text" id="rentAddressSearch" placeholder="Search your address or use the target" style="width:100%; padding-left:40px;">
                     <div class="place-suggestions" id="modalPlaceSuggestions" role="listbox"></div>
                 </div>
             </div>
@@ -764,7 +784,7 @@
 
             <div class="form-row">
                 <div>
-                    <label>🔥 Current Monthly Warm Rent (€) <span class="required-marker">*</span></label>
+                    <label>🔥 Monthly Warm Rent (€) <span class="required-marker">*</span></label>
                     <input type="number" id="rentWarm" placeholder="e.g., 1020">
                 </div>
                 <div>
@@ -1830,6 +1850,7 @@
         function dismissSplash() {
             document.getElementById('splashScreen').classList.add('hide');
             showTipsDialog();
+            showFirstTimeLocationCue();
         }
 
         function startContributionFromSplash() {
@@ -1847,6 +1868,16 @@
             dialog.style.display = 'block';
             trackEvent('explore_hint_shown');
             dialog.dismissTimer = setTimeout(() => hideTipsDialog(), 5500);
+        }
+
+        function showFirstTimeLocationCue() {
+            const cueShown = localStorage.getItem('berlinRentLocationCueShown');
+            if (cueShown) return;
+            localStorage.setItem('berlinRentLocationCueShown', 'true');
+            const locateButton = document.getElementById('mainLocateBtn');
+            setTimeout(() => locateButton.classList.add('intro-pulse'), 450);
+            locateButton.addEventListener('animationend', () => locateButton.classList.remove('intro-pulse'), { once: true });
+            trackEvent('location_cue_shown');
         }
 
         function closeTips() {
