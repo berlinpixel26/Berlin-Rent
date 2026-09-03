@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -136,6 +137,9 @@
             --accent: #1877f2;
             --splash-stat-value: #075cc9;
             --splash-stat-label: #43505f;
+            --cluster-surface: rgba(24, 119, 242, 0.72);
+            --cluster-border: rgba(255, 255, 255, 0.54);
+            --cluster-shadow: 0 7px 20px rgba(11, 67, 145, 0.28);
             --accent-hover: #145dbf;
             --accent-soft: rgba(24, 119, 242, 0.14);
             --teal-soft: rgba(43, 122, 120, 0.16);
@@ -159,6 +163,9 @@
             --accent: #4e9eff;
             --splash-stat-value: #7ab5ff;
             --splash-stat-label: #d5dbe5;
+            --cluster-surface: rgba(48, 121, 224, 0.72);
+            --cluster-border: rgba(255, 255, 255, 0.36);
+            --cluster-shadow: 0 7px 20px rgba(0, 0, 0, 0.44);
             --accent-hover: #6fafff;
             --accent-soft: rgba(78, 158, 255, 0.22);
             --teal-soft: rgba(79, 209, 197, 0.2);
@@ -422,15 +429,16 @@
            for every rent while the user pans or pinches. */
         .rent-cluster {
             position: absolute; transform: translate(-50%, -100%);
-            min-width: 74px; padding: 7px 10px; border: 1px solid rgba(255,255,255,0.42);
+            min-width: 74px; padding: 7px 10px; border: 1px solid var(--cluster-border);
             border-radius: 14px; cursor: pointer; text-align: center; color: #fff;
-            background: linear-gradient(135deg, rgba(255,255,255,0.34), transparent 60%), #145dbf;
-            box-shadow: 0 5px 16px rgba(0,0,0,0.27); line-height: 1.1; font: inherit;
+            background: linear-gradient(135deg, var(--glass-highlight), transparent 62%), var(--cluster-surface);
+            box-shadow: var(--cluster-shadow); backdrop-filter: blur(16px) saturate(1.35);
+            -webkit-backdrop-filter: blur(16px) saturate(1.35); line-height: 1.1; font: inherit;
         }
         .rent-cluster::after {
             content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
             width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
-            border-top: 6px solid #145dbf;
+            border-top: 6px solid var(--cluster-surface);
         }
         .rent-cluster-count { display: block; font-size: 11px; font-weight: 800; white-space: nowrap; }
         .rent-cluster-price { display: block; margin-top: 3px; font-size: 9px; font-weight: 600; opacity: .9; white-space: nowrap; }
@@ -1560,6 +1568,7 @@
             map = new google.maps.Map(mapEl, {
                 center: { lat: 52.52, lng: 13.405 },
                 zoom: 13,
+                minZoom: 10,
                 zoomControl: true,
                 zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
                 mapTypeControl: false,
