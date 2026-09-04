@@ -11,7 +11,7 @@
     rent_by_district: ['../typische-kaution-berlin/', 'Nächster Ratgeber: Typische Kaution →'],
     typical_deposit: ['../warum-mietbeginn-zaehlt/', 'Nächster Ratgeber: Warum Mietbeginn zählt →'],
     rent_since: ['../mietangebot-berlin-vergleichen/', 'Nächster Ratgeber: Mietangebot vergleichen →'],
-    compare_rent_offer: ['../mietspiegel-vs-echte-mieten-berlin/', 'Nächster Ratgeber: Mietspiegel und echte Mieten →'],
+    compare_rent_offer: ['../mietspiegel-vs-echte-mieten-berlin/', 'Nächster Ratgeber: Mietspiegel und gemeldete Mieten →'],
     mietspiegel_vs_real_rents: ['../moebliert-vs-unmoebliert-berlin/', 'Nächster Ratgeber: Möbliert oder unmöbliert →'],
     furnished_vs_unfurnished: ['../ganze-wohnung-vs-wg-zimmer-berlin/', 'Nächster Ratgeber: Ganze Wohnung oder WG-Zimmer →'],
     whole_flat_vs_shared_room: ['../einzugskosten-berlin/', 'Nächster Ratgeber: Einzugskosten →'],
@@ -26,7 +26,7 @@
     rent_by_district: ['../typical-deposit-berlin/', 'Next: Typical deposit in Berlin →'],
     typical_deposit: ['../how-rent-since-affects-berlin-rent/', 'Next: Why Rent since matters →'],
     rent_since: ['../compare-berlin-rent-offer/', 'Next: Compare a Berlin rent offer →'],
-    compare_rent_offer: ['../mietspiegel-vs-real-rents-berlin/', 'Next: Mietspiegel vs real rents →'],
+    compare_rent_offer: ['../mietspiegel-vs-real-rents-berlin/', 'Next: Mietspiegel vs reported rents →'],
     mietspiegel_vs_real_rents: ['../furnished-vs-unfurnished-rent-berlin/', 'Next: Furnished vs unfurnished rent →'],
     furnished_vs_unfurnished: ['../whole-flat-vs-shared-room-berlin/', 'Next: Whole flat vs shared room →'],
     whole_flat_vs_shared_room: ['../berlin-move-in-costs/', 'Next: Berlin move-in costs →'],
@@ -73,9 +73,9 @@
     whole_flat_vs_shared_room: [['../moebliert-vs-unmoebliert-berlin/', 'Möbliert oder unmöbliert'], ['../typische-miete-nach-zimmern-berlin/', 'Typische Miete nach Zimmern'], ['../einzugskosten-berlin/', 'Einzugskosten in Berlin']],
     move_in_costs: [['../typische-kaution-berlin/', 'Typische Kaution in Berlin'], ['../mietangebot-berlin-vergleichen/', 'Ein Mietangebot vergleichen'], ['../wie-germanyrent-daten-funktionieren/', 'So funktionieren GermanyRent Daten']],
     reading_germanyrent_data: [['../wie-germanyrent-daten-funktionieren/', 'So funktionieren GermanyRent Daten'], ['../warum-mietbeginn-zaehlt/', 'Warum Mietbeginn zählt'], ['../miete-nach-bezirk-berlin/', 'Miete nach Bezirk']],
-    how_germanyrent_data_works: [['../germanyrent-daten-richtig-lesen/', 'GermanyRent Daten richtig lesen'], ['../mietspiegel-vs-echte-mieten-berlin/', 'Mietspiegel und echte Mieten'], ['../warum-mietbeginn-zaehlt/', 'Warum Mietbeginn zählt']],
+    how_germanyrent_data_works: [['../germanyrent-daten-richtig-lesen/', 'GermanyRent Daten richtig lesen'], ['../mietspiegel-vs-echte-mieten-berlin/', 'Mietspiegel und gemeldete Mieten'], ['../warum-mietbeginn-zaehlt/', 'Warum Mietbeginn zählt']],
     cheapest_rent_now: [['../miete-nach-bezirk-berlin/', 'Miete nach Bezirk'], ['../typische-miete-nach-zimmern-berlin/', 'Typische Miete nach Zimmern'], ['../mietangebot-berlin-vergleichen/', 'Ein Mietangebot vergleichen']],
-    mietspiegel_2026_update: [['../mietspiegel-vs-echte-mieten-berlin/', 'Mietspiegel und echte Mieten'], ['../wie-germanyrent-daten-funktionieren/', 'So funktionieren GermanyRent Daten'], ['../germanyrent-daten-richtig-lesen/', 'GermanyRent Daten richtig lesen']]
+    mietspiegel_2026_update: [['../mietspiegel-vs-echte-mieten-berlin/', 'Mietspiegel und gemeldete Mieten'], ['../wie-germanyrent-daten-funktionieren/', 'So funktionieren GermanyRent Daten'], ['../germanyrent-daten-richtig-lesen/', 'GermanyRent Daten richtig lesen']]
   } : {
     warm_rent_vs_cold_rent: [['../typical-rent-by-room-berlin/', 'Typical rent by room'], ['../compare-berlin-rent-offer/', 'Compare a Berlin rent offer'], ['../how-germanyrent-data-works/', 'How GermanyRent data works']],
     typical_rent_by_room: [['../compare-berlin-rent-offer/', 'Compare a Berlin rent offer'], ['../furnished-vs-unfurnished-rent-berlin/', 'Furnished vs unfurnished'], ['../berlin-rent-by-district/', 'Berlin rent by district']],
@@ -88,9 +88,9 @@
     whole_flat_vs_shared_room: [['../furnished-vs-unfurnished-rent-berlin/', 'Furnished vs unfurnished'], ['../typical-rent-by-room-berlin/', 'Typical rent by room'], ['../berlin-move-in-costs/', 'Berlin move-in costs']],
     move_in_costs: [['../typical-deposit-berlin/', 'Typical deposit in Berlin'], ['../compare-berlin-rent-offer/', 'Compare a Berlin rent offer'], ['../how-germanyrent-data-works/', 'How GermanyRent data works']],
     reading_germanyrent_data: [['../how-germanyrent-data-works/', 'How GermanyRent data works'], ['../how-rent-since-affects-berlin-rent/', 'Why Rent since matters'], ['../berlin-rent-by-district/', 'Berlin rent by district']],
-    how_germanyrent_data_works: [['../how-to-read-germanyrent-data/', 'How to read GermanyRent data'], ['../mietspiegel-vs-real-rents-berlin/', 'Mietspiegel vs real rents'], ['../how-rent-since-affects-berlin-rent/', 'Why Rent since matters']],
+    how_germanyrent_data_works: [['../how-to-read-germanyrent-data/', 'How to read GermanyRent data'], ['../mietspiegel-vs-real-rents-berlin/', 'Mietspiegel vs reported rents'], ['../how-rent-since-affects-berlin-rent/', 'Why Rent since matters']],
     cheapest_rent_now: [['../berlin-rent-by-district/', 'Berlin rent by district'], ['../typical-rent-by-room-berlin/', 'Typical rent by room'], ['../compare-berlin-rent-offer/', 'Compare a Berlin rent offer']],
-    mietspiegel_2026_update: [['../mietspiegel-vs-real-rents-berlin/', 'Mietspiegel vs real rents'], ['../how-germanyrent-data-works/', 'How GermanyRent data works'], ['../how-to-read-germanyrent-data/', 'How to read GermanyRent data']]
+    mietspiegel_2026_update: [['../mietspiegel-vs-real-rents-berlin/', 'Mietspiegel vs reported rents'], ['../how-germanyrent-data-works/', 'How GermanyRent data works'], ['../how-to-read-germanyrent-data/', 'How to read GermanyRent data']]
   };
 
   function visitorId() {
@@ -160,6 +160,21 @@
     article.insertAdjacentElement('afterend', section);
   }
 
+  function addGuideResourceLinks(article) {
+    if (!article || document.querySelector('.guide-resource-links')) return;
+    const mapHref = language === 'de' ? '../../../' : '../../';
+    const methodologyHref = language === 'de' ? '../wie-germanyrent-daten-funktionieren/' : '../how-germanyrent-data-works/';
+    const section = document.createElement('section');
+    section.className = 'guide-resource-links';
+    section.setAttribute('aria-label', language === 'de' ? 'GermanyRent Ressourcen' : 'GermanyRent resources');
+    section.innerHTML = language === 'de'
+      ? `<div><span class="guide-resource-kicker">Live-Daten erkunden</span><p>Sieh dir gemeldete Mieten auf der GermanyRent Karte an.</p><a href="${mapHref}" data-guide-action="guide_map_clicked">Berlin Mietkarte öffnen <span aria-hidden="true">→</span></a></div><div><span class="guide-resource-kicker">Daten verstehen</span><p>Erfahre, wie Meldungen entstehen und wie du sie einordnest.</p><a href="${methodologyHref}" data-guide-action="guide_methodology_opened">So funktionieren GermanyRent Daten <span aria-hidden="true">→</span></a></div>`
+      : `<div><span class="guide-resource-kicker">Explore the live data</span><p>See community-reported rents on the GermanyRent Berlin map.</p><a href="${mapHref}" data-guide-action="guide_map_clicked">Open the Berlin rent map <span aria-hidden="true">→</span></a></div><div><span class="guide-resource-kicker">Understand the data</span><p>Learn how reports work and how to read their limitations.</p><a href="${methodologyHref}" data-guide-action="guide_methodology_opened">How GermanyRent data works <span aria-hidden="true">→</span></a></div>`;
+    const callout = article.querySelector('.guide-callout');
+    if (callout) callout.insertAdjacentElement('afterend', section);
+    else article.appendChild(section);
+  }
+
   function addGuideContext() {
     const article = document.querySelector('.guide-article');
     const hero = document.querySelector('.guide-hero');
@@ -180,8 +195,10 @@
       pageNavigation.innerHTML = `<a href="../" data-guide-action="guide_back_to_hub_clicked">${backLabel}</a><a class="next-guide" href="${next ? next[0] : '../'}" data-guide-action="guide_next_clicked" data-guide-target="${next ? next[0] : 'guide_hub'}">${next ? next[1] : (language === 'de' ? 'Alle Ratgeber →' : 'All guides →')}</a>`;
       article.parentNode.insertBefore(pageNavigation, article);
       const lede = article.querySelector('.lede');
-      if (lede) lede.insertAdjacentElement('afterend', snapshot);
+      const snapshotAnchor = article.querySelector('.guide-answer') || lede;
+      if (snapshotAnchor) snapshotAnchor.insertAdjacentElement('afterend', snapshot);
       else article.insertBefore(snapshot, article.firstChild);
+      addGuideResourceLinks(article);
       addRelatedGuides(article);
     } else if (hero) {
       const categoryNav = document.querySelector('.guide-category-nav');

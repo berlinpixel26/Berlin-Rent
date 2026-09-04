@@ -63,6 +63,15 @@ h1 { max-width: 720px; margin: 12px 0; font-size: clamp(34px, 6vw, 58px); letter
 .guide-article p, .guide-article li { color: #344156; font-size: 17px; line-height: 1.7; }
 .guide-article ul, .guide-article ol { padding-left: 22px; }
 .guide-article strong { color: var(--guide-text); }
+.guide-answer { margin: 24px 0; padding: 18px 20px; border-left: 4px solid var(--guide-accent); border-radius: 0 14px 14px 0; background: rgba(235, 246, 255, .76); }
+.guide-answer p { margin: 0; }
+.guide-comparison-table { width: 100%; margin: 18px 0; border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid rgba(20, 101, 189, .18); border-radius: 14px; font-size: 14px; }
+.guide-comparison-table th, .guide-comparison-table td { padding: 11px 12px; border-bottom: 1px solid rgba(20, 101, 189, .12); text-align: left; vertical-align: top; line-height: 1.45; }
+.guide-comparison-table th { background: rgba(225, 242, 255, .72); color: var(--guide-text); font-weight: 800; }
+.guide-comparison-table tr:last-child td { border-bottom: 0; }
+.guide-topic-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+.guide-topic-links a { display: block; min-height: 48px; padding: 12px; border: 1px solid rgba(20, 101, 189, .15); border-radius: 12px; background: rgba(255,255,255,.58); color: var(--guide-text); font-size: 14px; font-weight: 700; line-height: 1.35; text-decoration: none; }
+.guide-topic-links a:hover { border-color: rgba(22,117,238,.4); color: var(--guide-accent); }
 .guide-callout { border-radius: 16px; padding: 20px; margin-top: 30px; background: rgba(225, 248, 239, .78); }
 .live-snapshot { margin: 28px 0; padding: 20px; border: 1px solid rgba(20, 101, 189, .18); border-radius: 18px; background: linear-gradient(135deg, rgba(236, 248, 255, .88), rgba(237, 255, 245, .78)); }
 .live-snapshot-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
@@ -85,6 +94,21 @@ h1 { max-width: 720px; margin: 12px 0; font-size: clamp(34px, 6vw, 58px); letter
 .live-coverage { margin: 16px 0 0; color: var(--guide-muted); font-size: 14px; }
 .guide-callout p { margin: 0 0 14px; }
 .guide-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.guide-resource-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.guide-resource-links > div { padding: 16px; border: 1px solid rgba(20, 101, 189, .16); border-radius: 14px; background: rgba(255,255,255,.55); }
+.guide-resource-kicker { display: block; color: var(--guide-green); font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.guide-resource-links p { margin: 6px 0 10px; color: var(--guide-muted); font-size: 14px; line-height: 1.45; }
+.guide-resource-links a { color: var(--guide-accent); font-size: 14px; font-weight: 750; text-decoration: none; }
+.guide-resource-links a:hover { text-decoration: underline; }
+.district-jump-links { display: flex; gap: 8px; overflow-x: auto; margin: 0 0 12px; padding: 2px 1px 8px; }
+.district-jump-links a { flex: 0 0 auto; padding: 6px 10px; border: 1px solid rgba(20, 101, 189, .18); border-radius: 999px; background: rgba(255,255,255,.62); color: var(--guide-text); font-size: 12px; font-weight: 700; text-decoration: none; }
+.district-jump-links a:hover { border-color: rgba(22,117,238,.45); color: var(--guide-accent); }
+.district-data-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.district-data-card { scroll-margin-top: 18px; padding: 14px; border: 1px solid rgba(20, 101, 189, .14); border-radius: 12px; background: rgba(255,255,255,.62); }
+.district-data-card h4 { margin: 0 0 8px; font-size: 16px; }
+.district-data-card p { margin: 3px 0; color: var(--guide-muted); font-size: 13px; line-height: 1.4; }
+.district-data-card p strong { color: var(--guide-accent); }
+.district-data-card small { display: block; margin-top: 9px; color: var(--guide-muted); font-size: 12px; }
 .related-guides { margin: 28px 0; padding: 20px; border: 1px solid rgba(20, 101, 189, .16); border-radius: 18px; background: rgba(255,255,255,.42); }
 .related-guides h2 { margin: 0; font-size: 19px; }
 .related-guides > p { margin: 6px 0 15px; color: var(--guide-muted); font-size: 14px; }
@@ -109,5 +133,7 @@ h1 { max-width: 720px; margin: 12px 0; font-size: clamp(34px, 6vw, 58px); letter
   .live-stats-grid-three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .live-list li { grid-template-columns: minmax(0, 1fr) auto; }
   .live-list li small { grid-column: 1 / -1; margin-top: -5px; }
+  .guide-resource-links, .district-data-grid, .guide-topic-links { grid-template-columns: 1fr; }
+  .guide-comparison-table { display: block; overflow-x: auto; }
   .related-guide-grid { grid-template-columns: 1fr; }
 }

@@ -76,9 +76,18 @@
       let entries = Object.entries(byDistrict);
       const isCheapest = guide === 'cheapest_rent_now';
       if (isCheapest) entries = entries.filter(([, values]) => values.length >= 5).sort((a, b) => median(validNumbers(a[1], 'warm')) - median(validNumbers(b[1], 'warm'))).slice(0, 5);
-      else entries = entries.sort((a, b) => b[1].length - a[1].length).slice(0, 8);
-      const items = moneyList(entries, 'warm');
-      return items ? section(`📍 ${isCheapest ? copy.cheapest : copy.districts}`, list([items]), isCheapest ? copy.noteCheapest : '') : '';
+      else entries = entries.sort((a, b) => b[1].length - a[1].length);
+      const coverageLabel = values => values.length >= 20
+        ? (german ? 'stärkere Datenbasis' : 'stronger coverage')
+        : values.length >= 5
+          ? (german ? 'wachsende Datenbasis' : 'growing coverage')
+          : (german ? 'begrenzte Datenbasis' : 'limited data');
+      const items = entries.map(([name, values]) => `<li><span>${name}</span><b>${money(median(validNumbers(values, 'warm')))} <em>${copy.median}</em></b><small>${count(values.length)} ${copy.rentPins} · ${coverageLabel(values)}</small></li>`).join('');
+      if (!items) return '';
+      if (isCheapest) return section(`📍 ${copy.cheapest}`, list([items]), copy.noteCheapest);
+      const jumps = entries.map(([name], index) => `<a href="#district-${index}">${name}</a>`).join('');
+      const cards = entries.map(([name, values], index) => `<article class="district-data-card" id="district-${index}"><h4>${name}</h4><p><strong>${count(values.length)}</strong> ${copy.rentPins}</p><p><strong>${money(median(validNumbers(values, 'warm')))}</strong> ${copy.medianWarm.toLowerCase()}</p><small>${coverageLabel(values)}</small></article>`).join('');
+      return `<section class="live-detail district-data"><h3>📍 ${copy.districts}</h3><nav class="district-jump-links" aria-label="${german ? 'Bezirke' : 'Districts'}">${jumps}</nav><div class="district-data-grid">${cards}</div></section>`;
     }
 
     if (guide === 'furnished_vs_unfurnished') {
@@ -104,6 +113,14 @@
       if (!matches.length) return '';
       const gaps = matches.map(row => Number(row.warm) - Number(row.cold)).filter(value => value >= 0);
       return section(`🔥 ${copy.warmCold}`, `<div class="live-stats-grid live-stats-grid-three">${stat(copy.medianWarm, money(median(validNumbers(matches, 'warm'))))}${stat(copy.medianCold, money(median(validNumbers(matches, 'cold'))))}${stat(copy.difference, money(median(gaps)), `${count(matches.length)} ${copy.rentPins}`)}</div>`);
+    }
+
+    if (guide === 'mietspiegel_2026_update' || guide === 'mietspiegel_vs_real_rents') {
+      const districtCount = new Set(rows.map(row => row.district).filter(Boolean)).size;
+      const title = guide === 'mietspiegel_2026_update'
+        ? (german ? 'GermanyRent im aktuellen Kontext' : 'Current GermanyRent context')
+        : (german ? 'GermanyRent im Vergleich' : 'GermanyRent at a glance');
+      return section(`📊 ${title}`, `<div class="live-stats-grid live-stats-grid-three">${stat(copy.pins, count(rows.length))}${stat(copy.medianWarm, money(median(validNumbers(rows, 'warm'))))}${stat(german ? 'Bezirke mit Meldungen' : 'Districts with reports', count(districtCount))}</div>`);
     }
 
     if (guide === 'typical_deposit' || guide === 'move_in_costs') {
