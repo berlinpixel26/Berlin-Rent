@@ -1,13 +1,14 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary SEO -->
-    <title>GermanyRent | Compare Real Apartment Rents in Berlin</title>
+    <title>Berlin Rent Map | Community-Reported Apartment Rents</title>
 
     <meta name="description"
-        content="Compare anonymous apartment rent data across Berlin. See what tenants are really paying before signing your next lease. Free, community-driven and completely anonymous.">
+        content="Explore a Berlin rent map built from community-reported apartment rents. Compare warm rent, rooms, furnishing and tenancy start date across the city.">
 
     <meta name="robots" content="index, follow">
     <meta name="author" content="GermanyRent">
@@ -21,24 +22,24 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="GermanyRent | Compare Real Apartment Rents in Berlin">
+    <meta property="og:title" content="Berlin Rent Map | Community-Reported Apartment Rents">
     <meta property="og:description"
-        content="Compare anonymous apartment rent data across Berlin. Community-driven, free and completely anonymous.">
+        content="Explore a Berlin rent map built from community-reported apartment rents. Community-driven, free and anonymous.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://germanyrent.de/">
     <meta property="og:image" content="https://germanyrent.de/og-image.png">
     <meta property="og:image:alt"
-        content="GermanyRent - Compare Real Apartment Rents in Berlin">
+        content="GermanyRent - Berlin Rent Map & Reported Apartment Rents">
     <meta property="og:locale" content="en_DE">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GermanyRent | Compare Real Apartment Rents in Berlin">
+    <meta name="twitter:title" content="Berlin Rent Map | Community-Reported Apartment Rents">
     <meta name="twitter:description"
-        content="Compare anonymous apartment rent data across Berlin. Free and community-driven.">
+        content="Explore community-reported apartment rents across Berlin. Free and community-driven.">
     <meta name="twitter:image" content="https://germanyrent.de/og-image.png">
     <meta name="twitter:image:alt"
-        content="GermanyRent - Compare Real Apartment Rents in Berlin">
+        content="GermanyRent - Berlin Rent Map & Reported Apartment Rents">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LKPFVYYCKR"></script>
@@ -59,7 +60,7 @@
       "url": "https://germanyrent.de/",
       "name": "GermanyRent",
       "alternateName": "Germany Rent",
-      "description": "Compare anonymous apartment rent data across Berlin. GermanyRent helps tenants understand real rental prices through community-contributed rent information.",
+      "description": "Explore community-reported apartment rents across Berlin. GermanyRent helps renters compare reported warm rent, rooms, furnishing and tenancy start date.",
       "inLanguage": "en",
       "publisher": {
         "@id": "https://germanyrent.de/#organization"
@@ -79,7 +80,7 @@
         "@type": "ImageObject",
         "url": "https://germanyrent.de/favicon-192.png"
       },
-      "description": "GermanyRent is a community-driven platform that brings transparency to Berlin's rental market by allowing tenants to anonymously share apartment rent information.",
+      "description": "GermanyRent is a community-driven Berlin rent map where renters can anonymously share reported apartment rent information.",
       "foundingDate": "2026",
       "areaServed": {
         "@type": "City",
@@ -106,7 +107,7 @@
         "price": "0",
         "priceCurrency": "EUR"
       },
-      "description": "Search anonymous apartment rent data across Berlin and anonymously contribute your own rent to help improve rental market transparency.",
+      "description": "Explore a Berlin rent map built from community-reported apartment rents and anonymously contribute your own report.",
       "areaServed": {
         "@type": "City",
         "name": "Berlin"
@@ -116,12 +117,11 @@
 
     <!-- Google Maps JS API variant — no external map CSS needed (Leaflet CSS removed).
          The Google Maps JS API <script> tag is loaded at the end of <body> with &loading=async. -->
-    
-    
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7933881335945877"
-     crossorigin="anonymous"></script>
 
-    
+    <!-- Google AdSense site-verification and future ad loader. No ad unit is enabled on this page. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7933881335945877"
+        crossorigin="anonymous"></script>
+
     <style>
     
         :root[data-theme="light"] {
@@ -576,13 +576,18 @@
             transition: opacity .3s ease, visibility .3s ease;
         }
         .splash-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-        .splash-card { max-width: 440px; padding: 32px 28px; text-align: center; }
-        .splash-icon { font-size: 44px; margin-bottom: 10px; }
-        .splash-card h2 { font-size: 22px; margin-bottom: 10px; }
-        .splash-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-        .splash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
-        .splash-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 7px; }
-        .splash-stat-value { font-size: 17px; font-weight: 700; color: var(--splash-stat-value); }
+        .splash-card { width: min(100%, 430px); max-width: 430px; padding: 28px 24px; border-radius: 28px; text-align: center; overflow: hidden; }
+        .splash-icon { font-size: 40px; margin-bottom: 8px; }
+        .splash-card h2 { font-size: 21px; margin-bottom: 8px; }
+        .splash-card p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+        .splash-description { margin: 0; }
+        .splash-trust-line { margin: 12px 0; color: #00B37A !important; font-weight: 700; }
+        .home-guide-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; margin: 10px 0 0; }
+        .home-guide-links a { color: var(--accent); font-size: 12px; font-weight: 700; text-decoration: none; }
+        .home-guide-links a:hover { text-decoration: underline; }
+        .splash-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 0 0 15px; }
+        .splash-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 7px; }
+        .splash-stat-value { font-size: 16px; font-weight: 700; color: var(--splash-stat-value); }
         .splash-stat-label { font-size: 10px; color: var(--splash-stat-label); margin-top: 3px; line-height: 1.25; }
 
         /* ============ DETAIL ACTIONS (report / edit / delete) ============ */
@@ -622,18 +627,13 @@
     <div id="splashScreen" class="splash-screen">
         <div class="splash-card liquid-glass">
             <div class="splash-icon">🏠</div>
-            <h2>Real Rents from Real Berlin Tenants</h2>
-            <p>
-            See what renters actually pay across Berlin—so you can choose where to live with more confidence.
-            <br>
-            <strong style="color:#00B37A;">
-            Anonymous. Free to use. Built by renters.
-            </strong>
-            </p>
+            <h2>See What Berlin Renters Actually Pay</h2>
+            <p class="splash-description">Explore a community-reported Berlin Rent Map to compare and choose your next home location with more confidence.</p>
+            <p class="splash-trust-line">Anonymous. Free to use. Built by renters.</p>
             <div class="splash-stats">
                 <div class="splash-stat">
                     <div class="splash-stat-value" id="splashPinCount">–</div>
-                    <div class="splash-stat-label">Rent Pins</div>
+                    <div class="splash-stat-label">Rent Reported</div>
                 </div>
                 <div class="splash-stat">
                     <div class="splash-stat-value" id="splashMedianWarm">–</div>
@@ -648,12 +648,13 @@
                     <div class="splash-stat-label">Total warm rent on map</div>
                 </div>
             </div>
-            <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer—share what you truly pay.</p>
+            <p style="margin-top: 2px; color: var(--text); font-weight: 700;">Make rent prices fairer. Share what you pay.</p>
             <div style="display:flex; flex-direction:column; gap:10px; margin-top: 14px;">
                 <button class="float-btn primary" style="width:100%; justify-content:center;" onclick="trackEvent('splash_share_my_rent_clicked'); startContributionFromSplash()">Share my Rent</button>
                 <button class="float-btn" style="width:100%; justify-content:center; background: var(--surface-2); border: 1px solid var(--border);" onclick="trackEvent('splash_explore_rents_clicked'); dismissSplash()">Explore Berlin Rents</button>
             </div>
             <a href="guides/" onclick="trackEvent('guides_opened', { source: 'splash' })" style="display:inline-block; margin-top:14px; color:var(--accent); font-size:13px; font-weight:700; text-decoration:none;">📚 Read Berlin rent guides</a>
+            <p class="home-guide-links"><a href="guides/berlin-rent-index-2026-key-takeaways/">Rent Index 2026</a><a href="guides/berlin-rent-by-district/">Rent by district</a><a href="guides/warm-rent-vs-cold-rent-berlin/">Warm vs cold rent</a></p>
         </div>
     </div>
 
@@ -707,7 +708,7 @@
     </button>
 
     <div class="info-banner liquid-glass">
-        Real rents shared anonymously by Berlin renters. No login. No broker fees.
+        Community-reported rents shared anonymously by Berlin renters. No login. No broker fees.
         <br><br><b>Tip:</b> click anywhere on the map to add a rent pin there.
     </div>
 
@@ -793,7 +794,7 @@
                     <input type="number" id="rentWarm" placeholder="e.g., 1020">
                 </div>
                 <div>
-                    <label>🏦 Deposit Paid (€) <span class="required-marker">*</span></label>
+                    <label>🏦 Deposit Paid — Kaution (€) <span class="required-marker">*</span></label>
                     <input type="number" id="rentDeposit" placeholder="e.g., 1734">
                 </div>
             </div>
@@ -1071,7 +1072,7 @@
         <div class="modal-card">
             <button class="close-btn" onclick="closeInfoModal('howToUseModal')">×</button>
             <h2>📘 How GermanyRent works</h2>
-            <div class="subtitle">Explore real rents, then make the map more useful with yours.</div>
+            <div class="subtitle">Explore community-reported rents, then make the map more useful with yours.</div>
             <div class="info-content">
                 <section class="info-section">
                     <h3>1. Explore rents around Berlin</h3>
@@ -1592,7 +1593,7 @@
             map = new google.maps.Map(mapEl, {
                 center: { lat: 52.52, lng: 13.405 },
                 zoom: 12,
-                minZoom: 11,
+                minZoom: 12,
                 zoomControl: true,
                 zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
                 mapTypeControl: false,
