@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -415,18 +416,6 @@
         .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
         .required-marker { color: #e5484d; font-weight: 700; }
 
-        /* ============ MAP CLICK MENU ============ */
-        .click-menu {
-            position: absolute; z-index: 500; border-radius: 12px; padding: 8px; display: none; min-width: 230px;
-        }
-        .click-menu.open { display: block; }
-        .click-menu-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
-            cursor: pointer; font-size: 14px; color: var(--text);
-        }
-        .click-menu-item:hover { background: var(--accent-soft); }
-        .click-menu-note { font-size: 11px; color: var(--text-muted); padding: 6px 12px 2px; }
-
         /* ============ RENT PILL MARKERS (always-visible on-map labels) ============
            Rendered by the RentPill custom google.maps.OverlayView (see script),
            which positions this div with absolute left/top pixel coordinates
@@ -708,14 +697,6 @@
 
     <div class="info-banner liquid-glass">
         Community-reported rents shared anonymously by Berlin renters. No login. No broker fees.
-        <br><br><b>Tip:</b> click anywhere on the map to add a rent pin there.
-    </div>
-
-    <!-- Floating action menu shown when the user clicks empty map space -->
-    <div class="click-menu liquid-glass" id="clickMenu">
-        <div class="click-menu-note">Add something at this spot</div>
-        <div class="click-menu-item" onclick="openAddRentModal(clickMenuLatLng)">💰 What rent are you paying?</div>
-        <div class="click-menu-note">List My Flat / Find a Flat — coming in a later phase</div>
     </div>
 
     <!-- ============ FILTER MODAL ============ -->
@@ -1084,7 +1065,7 @@
                 <section class="info-section">
                     <h3>2. Share your rent</h3>
                     <ul>
-                        <li>Choose <b>📍 Add my Rent</b>, search for your address or place the red pin directly on the map.</li>
+                        <li>Choose <b>📍 Add my Rent</b>, then search for your address or use your current location.</li>
                         <li>Drag the red pin to fine-tune the public location, then enter the essential rent details.</li>
                         <li>Your pin is published immediately. You can add further optional details afterwards.</li>
                     </ul>
@@ -1393,8 +1374,6 @@
         let map;
         let transitLayer;
         let transitActive = false;
-        let pixelProjectionHelper;
-        let clickMenuLatLng = null;
         let myLocationMarker = null;
         let placementMarker = null;
         let placementCard = null;
@@ -1408,7 +1387,6 @@
         let postSubmissionOptionalSaved = false;
         let postSubmissionPath = null;
         let reportingRentId = null;
-        const clickMenuEl = document.getElementById('clickMenu');
 
         /* Light = Google's default styling (styles: []). Dark = a standard,
            widely-used dark JSON style (Google doesn't need a raster-tile swap
@@ -1467,6 +1445,7 @@
                     div.className = 'rent-pill';
                     div.innerHTML = pillLabel(this.data);
                     div.addEventListener('click', (ev) => { ev.stopPropagation(); showRentDetail(this.data); });
+                    google.maps.OverlayView.preventMapHitsAndGesturesFrom(div);
                     this.div = div;
                     this.getPanes().overlayMouseTarget.appendChild(div);
                 }
@@ -1502,6 +1481,7 @@
                         map.panTo(this.position);
                         map.setZoom(Math.min(Math.floor(map.getZoom()) + 2, 16));
                     });
+                    google.maps.OverlayView.preventMapHitsAndGesturesFrom(div);
                     this.div = div;
                     this.getPanes().overlayMouseTarget.appendChild(div);
                 }
@@ -1535,6 +1515,7 @@
                     div.setAttribute('role', 'dialog');
                     div.setAttribute('aria-label', 'Confirm rent location');
                     div.addEventListener('click', event => event.stopPropagation());
+                    google.maps.OverlayView.preventMapHitsAndGesturesFrom(div);
 
                     const title = document.createElement('div');
                     title.className = 'placement-card-title';
@@ -1605,26 +1586,8 @@
 
             transitLayer = new google.maps.TransitLayer();
 
-            // Hidden overlay purely to access getProjection() for latLng <-> pixel
-            // conversion, used to position the click-menu at the click point.
-            pixelProjectionHelper = new google.maps.OverlayView();
-            pixelProjectionHelper.onAdd = function () {};
-            pixelProjectionHelper.draw = function () {};
-            pixelProjectionHelper.onRemove = function () {};
-            pixelProjectionHelper.setMap(map);
-
-            map.addListener('click', (e) => {
-                if (e.placeId) return; // let native POI clicks behave normally
-                showPlacementPin(e.latLng, 'Selected map location', true);
-            });
-            map.addListener('bounds_changed', () => clickMenuEl.classList.remove('open'));
             map.addListener('idle', scheduleMapPinRender);
             map.addListener('zoom_changed', scheduleMapPinRender);
-            document.addEventListener('click', (e) => {
-                if (!clickMenuEl.contains(e.target) && !e.target.closest('#map')) {
-                    clickMenuEl.classList.remove('open');
-                }
-            });
 
             loadRents();
             initPlaceAutocomplete();
@@ -2243,7 +2206,6 @@
             const lng = typeof position.lng === 'function' ? position.lng() : position.lng;
             placementLatLng = { lat, lng };
             placementLabel = label || '';
-            clickMenuEl.classList.remove('open');
 
             if (!placementMarker) {
                 placementMarker = new google.maps.Marker({ map, position: placementLatLng, draggable: true, title: 'Rent pin location' });
@@ -2589,7 +2551,6 @@
 
         function openAddRentModal(latlng) {
             trackEvent('add_rent_clicked', { source: latlng ? 'map_location' : 'button' });
-            clickMenuEl.classList.remove('open');
             editingRentId = null;
             editingRentToken = null;
             postSubmissionEnrichment = false;
@@ -2755,7 +2716,7 @@
             const lat = modal.dataset.lat ? parseFloat(modal.dataset.lat) : NaN;
             const lng = modal.dataset.lng ? parseFloat(modal.dataset.lng) : NaN;
             if (!Number.isFinite(lat) || !Number.isFinite(lng) || !district) {
-                alert('Choose the rental location using search, Locate Me, or the map before submitting.');
+                alert('Choose the rental location using search or Locate Me before submitting.');
                 return;
             }
 
