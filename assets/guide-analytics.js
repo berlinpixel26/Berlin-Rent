@@ -3,6 +3,7 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lYWlhanZjamFkenZjeHdodGZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTgzNzEsImV4cCI6MjEwMTA3NDM3MX0.82g7IvvMZWQJ3EOMn_fKPFOCGqQuYjbgKfOgNc6HePw';
   const page = document.documentElement.dataset.guide || 'guide_hub';
   const language = document.documentElement.lang || 'en';
+  const isGermanyRentProduction = ['germanyrent.de', 'www.germanyrent.de'].includes(window.location.hostname);
   let sbClient;
 
   const guideOrder = language === 'de' ? {
@@ -126,6 +127,7 @@
   }
 
   async function track(eventName, metadata = {}) {
+    if (!isGermanyRentProduction) return;
     const payload = { page, language, ...metadata };
     try { if (typeof window.gtag === 'function') window.gtag('event', eventName, payload); } catch (_) {}
     try {
@@ -138,11 +140,12 @@
   }
 
   async function recordPageVisit() {
+    if (!isGermanyRentProduction) return;
     try {
       const client = await initSupabase();
       if (!client) return;
       await client.from('page_visits').insert({
-        visitor_id: visitorId(), path: window.location.pathname || '/',
+        visitor_id: visitorId(), path: window.location.pathname.replace(/\/index\.html$/i, '/') || '/',
         referrer: document.referrer || null, user_agent: navigator.userAgent
       });
     } catch (_) {}
