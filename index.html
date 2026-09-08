@@ -40,14 +40,27 @@
     <meta name="twitter:image:alt"
         content="GermanyRent - Berlin Rent Map & Reported Apartment Rents">
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LKPFVYYCKR"></script>
+    <!-- Keep the root URL canonical on static hosting. A real 301 still needs a hosting rule. -->
     <script>
+        const isGermanyRentProduction = ['germanyrent.de', 'www.germanyrent.de'].includes(window.location.hostname);
+        const isIndexHtmlPath = /\/index\.html$/i.test(window.location.pathname);
+        if (isIndexHtmlPath) {
+            const canonicalPath = window.location.pathname.replace(/index\.html$/i, '') || '/';
+            window.location.replace(`${canonicalPath}${window.location.search}${window.location.hash}`);
+        }
+
+        // Analytics is intentionally enabled only on the live GermanyRent domain.
+        // This keeps local copies and GitHub previews out of GA4 and Supabase reporting.
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-LKPFVYYCKR');
+        if (isGermanyRentProduction && !isIndexHtmlPath) {
+            const gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-LKPFVYYCKR';
+            document.head.appendChild(gaScript);
+            gtag('js', new Date());
+            gtag('config', 'G-LKPFVYYCKR');
+        }
     </script>
 
     <!-- Structured Data - Website -->
@@ -310,6 +323,7 @@
         .modal-card input[type="text"],
         .modal-card input[type="number"],
         .modal-card input[type="email"],
+        .modal-card input[type="month"],
         .modal-card select,
         .modal-card textarea {
             width: 100%; padding: 10px 12px; margin-top: 6px;
@@ -706,6 +720,7 @@
             <h2>Filter Rent Pins</h2>
             <div class="subtitle">Narrow down what's shown on the map.</div>
             <div class="hint" id="filterResultsHint" style="margin-top:4px;"></div>
+            <p class="hint">Size and rent-date filters show reports where that detail was shared.</p>
 
             <label>🛏️ Rooms / Zimmer</label>
             <div class="chip-group" id="filterRoomGroup">
@@ -719,6 +734,18 @@
             <div class="form-row rent-price-row">
                 <input type="number" id="rentMin" placeholder="Min">
                 <input type="number" id="rentMax" placeholder="Max">
+            </div>
+
+            <label>📐 Apartment size (m²)</label>
+            <div class="form-row rent-price-row">
+                <input type="number" id="areaMin" placeholder="Min m²">
+                <input type="number" id="areaMax" placeholder="Max m²">
+            </div>
+
+            <label>📅 Rent applicable since</label>
+            <div class="form-row rent-price-row">
+                <input type="month" id="rentSinceFrom" aria-label="Rent applicable from">
+                <input type="month" id="rentSinceTo" aria-label="Rent applicable to">
             </div>
 
             <label>📍 District</label>
@@ -1219,13 +1246,14 @@
         }
 
         async function recordPageVisit() {
+            if (!isGermanyRentProduction || isIndexHtmlPath) return;
             try {
                 if (!sbClient) await initSupabase();
                 if (!sbClient) return;
                 const visitorId = getOrCreateVisitorId();
                 const { error } = await sbClient.from('page_visits').insert({
                     visitor_id: visitorId,
-                    path: window.location.pathname || '/',
+                    path: window.location.pathname.replace(/\/index\.html$/i, '/') || '/',
                     referrer: document.referrer || null,
                     user_agent: navigator.userAgent
                 });
@@ -1262,10 +1290,33 @@
             return source;
         }
 
+        /* A flow ID lets the dashboard distinguish one actual contribution
+           attempt from a visitor who opens the form more than once. */
+        const CONTRIBUTION_FLOW_STORAGE_KEY = 'germanyRentContributionFlow';
+        function startContributionFlow(entrySource) {
+            const flow = {
+                id: window.crypto?.randomUUID ? window.crypto.randomUUID() : `flow_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+                entrySource,
+                startedAt: new Date().toISOString()
+            };
+            sessionStorage.setItem(CONTRIBUTION_FLOW_STORAGE_KEY, JSON.stringify(flow));
+            trackEvent('rent_flow_started', { flow_id: flow.id, entry_source: flow.entrySource });
+            return flow;
+        }
+
+        function contributionFlowMetadata(metadata = {}) {
+            try {
+                const flow = JSON.parse(sessionStorage.getItem(CONTRIBUTION_FLOW_STORAGE_KEY) || 'null');
+                if (flow?.id) return { ...metadata, flow_id: flow.id, entry_source: flow.entrySource };
+            } catch (_) {}
+            return metadata;
+        }
+
         /* Fire a lightweight behavior event to GA4 (gtag) and to our own
            Supabase user_events table, so funnels can be built either way.
            Never blocks the UI — failures are swallowed and logged. */
         async function trackEvent(eventName, metadata) {
+            if (!isGermanyRentProduction || isIndexHtmlPath) return;
             metadata = metadata || {};
             try {
                 if (typeof gtag === 'function') {
@@ -1533,7 +1584,7 @@
                         event.stopPropagation();
                         trackEvent('add_rent_at_selected_location_clicked');
                         removePlacementCard();
-                        openAddRentModal(placementLatLng);
+                        openAddRentModal(placementLatLng, 'address_search');
                     });
 
                     div.append(title, copy, button);
@@ -1675,8 +1726,13 @@
             const projection = map.getProjection();
             if (!projection) return { clusters: [], singles: entries };
 
-            // Close up, the map returns to its existing individual rent labels.
+            // At street level, return to individual rent labels.
             if (zoom >= 16) return { clusters: [], singles: entries };
+
+            // At overview zoom every result is a violet count pill, including
+            // one-report cells. This makes the map hierarchy unambiguous:
+            // overview = aggregated areas; one zoom closer = individual rents.
+            const showIndividualPills = zoom >= 13;
 
             const cellSize = window.innerWidth < 700
                 ? (zoom <= 13 ? 132 : 88)
@@ -1696,7 +1752,7 @@
             const clusters = [];
             const singles = [];
             groups.forEach(group => {
-                if (group.length === 1) {
+                if (group.length === 1 && showIndividualPills) {
                     singles.push(group[0]);
                     return;
                 }
@@ -1823,10 +1879,10 @@
             showFirstTimeLocationCue();
         }
 
-        function startContributionFromSplash() {
+        function startContributionFromSplash(entrySource = 'splash') {
             document.getElementById('splashScreen').classList.add('hide');
             document.getElementById('tipsDialog').style.display = 'none';
-            openAddRentModal(null);
+            openAddRentModal(null, entrySource);
         }
 
         function showTipsDialog() {
@@ -2558,8 +2614,10 @@
             closeInfoModal('requestFeatureModal');
         }
 
-        function openAddRentModal(latlng) {
-            trackEvent('add_rent_clicked', { source: latlng ? 'map_location' : 'button' });
+        function openAddRentModal(latlng, entrySource) {
+            const source = entrySource || (latlng ? 'selected_location' : 'map_navigation');
+            const flow = startContributionFlow(source);
+            trackEvent('add_rent_clicked', { source, flow_id: flow.id });
             editingRentId = null;
             editingRentToken = null;
             postSubmissionEnrichment = false;
@@ -2646,6 +2704,10 @@
                 rooms: getActiveFilterValues('filterRoomGroup', 'filterRoom').map(Number),
                 minRent: Number(document.getElementById('rentMin').value) || null,
                 maxRent: Number(document.getElementById('rentMax').value) || null,
+                minArea: Number(document.getElementById('areaMin').value) || null,
+                maxArea: Number(document.getElementById('areaMax').value) || null,
+                rentSinceFrom: document.getElementById('rentSinceFrom').value || null,
+                rentSinceTo: document.getElementById('rentSinceTo').value || null,
                 district: document.getElementById('districtSelect').value,
                 types: getActiveFilterValues('filterTypeGroup', 'filterType')
             };
@@ -2655,6 +2717,13 @@
             if (filters.rooms.length && !filters.rooms.some(room => room === 4 ? Number(rent.room) >= 4 : Number(rent.room) === room)) return false;
             if (filters.minRent !== null && Number(rent.warm) < filters.minRent) return false;
             if (filters.maxRent !== null && Number(rent.warm) > filters.maxRent) return false;
+            const hasApartmentSize = rent.area !== null && rent.area !== undefined && rent.area !== '';
+            const apartmentSize = Number(rent.area);
+            if (filters.minArea !== null && (!hasApartmentSize || !Number.isFinite(apartmentSize) || apartmentSize < filters.minArea)) return false;
+            if (filters.maxArea !== null && (!hasApartmentSize || !Number.isFinite(apartmentSize) || apartmentSize > filters.maxArea)) return false;
+            const rentSince = rent.rentSince ? String(rent.rentSince).slice(0, 7) : '';
+            if (filters.rentSinceFrom && (!rentSince || rentSince < filters.rentSinceFrom)) return false;
+            if (filters.rentSinceTo && (!rentSince || rentSince > filters.rentSinceTo)) return false;
             if (filters.district && rent.district !== filters.district) return false;
 
             if (filters.types.includes('furnished') && !rent.furnished) return false;
@@ -2755,6 +2824,8 @@
             submitBtn.disabled = true;
             if (postSubmissionEnrichment) {
                 trackEvent('rent_optional_details_save_clicked', { rent_id: editingRentId });
+            } else if (!editingRentId) {
+                trackEvent('rent_submission_attempted', contributionFlowMetadata({ district: rent.district }));
             }
 
             if (editingRentId) {
@@ -2828,7 +2899,7 @@
             saveMyToken(data.id, editToken);
             renderRentPin(rent);
             clearPlacementPin();
-            trackEvent('rent_submitted', { rent_id: data.id, district: rent.district });
+            trackEvent('rent_submitted', contributionFlowMetadata({ rent_id: data.id, district: rent.district }));
 
             document.getElementById('rentEmail').value = '';
             document.getElementById('rentEmailConsent').checked = false;
@@ -2858,7 +2929,7 @@
         if (new URLSearchParams(window.location.search).get('contribute') === '1') {
             setTimeout(() => {
                 trackEvent('guide_contribution_opened');
-                startContributionFromSplash();
+                startContributionFromSplash('guide');
             }, 0);
         }
     </script>
