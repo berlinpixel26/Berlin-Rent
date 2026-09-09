@@ -167,7 +167,8 @@
   async function load() {
     if (!window.supabase) return showUnavailable();
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const { data, error } = await client.from('rents').select('warm,cold,deposit,room,district,rent_since,furnished,privacy,area').eq('is_location_valid', true);
+    // map_rents is a deliberately limited public view. Raw rent records stay private.
+    const { data, error } = await client.from('map_rents').select('warm,cold,deposit,room,district,rent_since,furnished,privacy,area');
     if (error || !data || !data.length) return showUnavailable();
     render(data);
   }
