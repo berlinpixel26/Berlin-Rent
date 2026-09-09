@@ -1818,9 +1818,9 @@
            Called from initMap() once the Google Maps object exists — unlike
            the Leaflet version this can't run at top level, since RentPill
            (a google.maps.OverlayView subclass) doesn't exist until then.
-           NOTE: the column list is explicit and deliberately excludes
-           edit_token and email — those must never reach a visitor's browser
-           via the general pin-listing query (see supabase-migration-batch2.sql). */
+           Public pin data is served by the map_rents view. That view exposes
+           only the fields needed on the map; email, edit tokens, visitor IDs,
+           and referral details remain in the private rents table. */
         async function loadRents() {
             if (!sbClient) await initSupabase();
             if (!sbClient) {
@@ -1829,10 +1829,8 @@
                 return;
             }
             const { data, error } = await sbClient
-                .from('rents')
-                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, kitchen_setup, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at')
-                .eq('is_location_valid', true)
-                .eq('is_visible', true);
+                .from('map_rents')
+                .select('id, lat, lng, cold, warm, deposit, room, district, furnished, privacy, household, kitchen_setup, people_allowed, parking, utilities_included, stay_rating, area, one_liner, letterbox, pets, smoking, neighbourhood_rating, anmeldung_provided, rent_since, created_at');
             if (error || !data || !data.length) {
                 updateSplashStats(sampleRents);
                 await renderRentPinsProgressively(sampleRents);
@@ -2873,9 +2871,13 @@
             const emailInput = document.getElementById('rentEmail').value.trim();
             const emailConsent = document.getElementById('rentEmailConsent').checked;
             const email = (emailConsent && emailInput) ? emailInput : null;
+            // Generate the ID client-side so this insert never needs to read
+            // the raw rents table back from Supabase.
+            const rentId = crypto.randomUUID();
             const editToken = crypto.randomUUID();
 
-            const { data, error } = await sbClient.from('rents').insert({
+            const { error } = await sbClient.from('rents').insert({
+                id: rentId,
                 lat: rent.lat, lng: rent.lng, cold: rent.cold, warm: rent.warm, deposit: rent.deposit,
                 room: rent.room, district: rent.district, furnished: rent.furnished, privacy: rent.privacy, kitchen_setup: rent.kitchenSetup,
                 household: rent.household, people_allowed: rent.peopleAllowed, parking: rent.parking,
@@ -2885,7 +2887,7 @@
                 rent_since: rent.rentSince,
                 edit_token: editToken, email,
                 visitor_id: getOrCreateVisitorId(), referrer_source: getOrCreateVisitorSource()
-            }).select('id').single();
+            });
 
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit Anonymously';
@@ -2895,16 +2897,16 @@
                 return;
             }
 
-            rent.id = data.id;
-            saveMyToken(data.id, editToken);
+            rent.id = rentId;
+            saveMyToken(rentId, editToken);
             renderRentPin(rent);
             clearPlacementPin();
-            trackEvent('rent_submitted', contributionFlowMetadata({ rent_id: data.id, district: rent.district }));
+            trackEvent('rent_submitted', contributionFlowMetadata({ rent_id: rentId, district: rent.district }));
 
             document.getElementById('rentEmail').value = '';
             document.getElementById('rentEmailConsent').checked = false;
 
-            showPostSubmissionDetails(data.id, editToken);
+            showPostSubmissionDetails(rentId, editToken);
         }
 
         /* Close modals on backdrop click */
